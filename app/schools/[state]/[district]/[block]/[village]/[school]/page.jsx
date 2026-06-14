@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getSchoolBySlug, getNearbySchools, getDistrictStatsForSchool } from '@/lib/queries';
+import { getSchoolBySlug, getNearbySchools, getDistrictStatsForSchool, getSchoolReviewStats } from '@/lib/queries';
 import { getSchoolMeta, schoolSchema, breadcrumbSchema, faqSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
 import BreadcrumbNav from '@/components/BreadcrumbNav';
@@ -205,16 +205,17 @@ export default async function SchoolPage({ params }) {
   const school = await getSchoolBySlug(schoolSlug);
   if (!school) notFound();
 
-  const [nearby, districtStats] = await Promise.all([
+  const [nearby, districtStats, reviewStats] = await Promise.all([
     getNearbySchools(stateSlug, districtSlug, blockSlug, villageSlug, school.udise_code, 6),
     getDistrictStatsForSchool(stateSlug, districtSlug),
+    getSchoolReviewStats(school.udise_code),
   ]);
 
   const faqs = getSchoolFAQs(school, districtStats);
   const rte  = getRTEContent(school);
   const udiseBreakdown = getUDISEBreakdown(school.udise_code);
 
-  const schoolJsonLd = schoolSchema(school, districtStats);
+  const schoolJsonLd = schoolSchema(school, districtStats, reviewStats);
   const crumbJsonLd  = breadcrumbSchema([
     { name: 'Home', url: '/' },
     { name: school.state, url: `/schools/${stateSlug}` },
@@ -266,6 +267,14 @@ export default async function SchoolPage({ params }) {
             <span>📍 {school.village}, {school.block}, {school.district}, {school.state}</span>
             <span style={{ color: '#475569' }}>·</span>
             <span>🏫 {school.school_category} · {school.school_type} · {school.national_mgmt?.replace('Department of Education', 'Government')}</span>
+            {reviewStats && reviewStats.count > 0 && (
+              <>
+                <span style={{ color: '#475569' }}>·</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F59E0B', color: '#1E293B', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: 99 }}>
+                  ⭐ {reviewStats.avgRating} ({reviewStats.count} {reviewStats.count === 1 ? 'review' : 'reviews'})
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
