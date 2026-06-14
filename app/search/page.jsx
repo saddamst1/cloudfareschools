@@ -19,10 +19,11 @@ export default async function SearchPage({ searchParams }) {
   const sp = await searchParams;
   const q = sp?.q || '';
   const stateSlug = sp?.state || null;
+  const districtSlug = sp?.district || null;
   const category = sp?.category || '';
   const mgmt = sp?.mgmt || '';
 
-  const results = q.length >= 2 ? await searchSchools(q, 40, stateSlug, { category, mgmt }) : [];
+  const results = q.length >= 2 ? await searchSchools(q, 40, stateSlug, { category, mgmt, districtSlug }) : [];
 
   const trendingKeywords = ['Kendriya Vidyalaya', 'Jawahar Navodaya', 'Primary School', 'Model School', 'Saraswati Shishu Mandir'];
 
@@ -61,6 +62,7 @@ export default async function SearchPage({ searchParams }) {
                 style={{ flex: 1, padding: '14px 18px', border: 'none', outline: 'none', fontSize: '0.925rem', background: 'white', color: '#1E293B' }} 
               />
               {stateSlug && <input type="hidden" name="state" value={stateSlug} />}
+              {districtSlug && <input type="hidden" name="district" value={districtSlug} />}
               <button type="submit" style={{ background: '#F97316', color: 'white', border: 'none', padding: '14px 26px', fontSize: '0.925rem', fontWeight: 700, cursor: 'pointer', transition: 'background-color 0.15s' }}>
                 🔍 Search
               </button>
@@ -98,7 +100,7 @@ export default async function SearchPage({ searchParams }) {
             {trendingKeywords.map(kw => (
               <Link 
                 key={kw} 
-                href={`/search?q=${encodeURIComponent(kw)}${stateSlug ? `&state=${stateSlug}` : ''}`} 
+                href={`/search?q=${encodeURIComponent(kw)}${stateSlug ? `&state=${stateSlug}` : ''}${districtSlug ? `&district=${districtSlug}` : ''}`} 
                 className="trending-tag"
                 style={{ color: 'white', background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: 12, textDecoration: 'none', transition: 'background 0.15s' }}
               >

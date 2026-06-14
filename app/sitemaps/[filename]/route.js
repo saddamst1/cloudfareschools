@@ -131,6 +131,19 @@ export async function GET(request, { params }) {
       let xml = '<?xml version="1.0" encoding="UTF-8"?>';
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
       
+      // Virtual City Landing Pages
+      const virtualCities = [
+        { state_slug: 'maharashtra', district_slug: 'mumbai' },
+        { state_slug: 'karnataka', district_slug: 'bengaluru' },
+        { state_slug: 'karnataka', district_slug: 'bangalore' },
+        { state_slug: 'delhi', district_slug: 'delhi' },
+        { state_slug: 'delhi', district_slug: 'new-delhi' }
+      ];
+
+      virtualCities.forEach(vc => {
+        xml += `<url><loc>${SITE_URL}/schools/${vc.state_slug}/${vc.district_slug}</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>`;
+      });
+      
       districts.forEach(d => {
         xml += `<url><loc>${SITE_URL}/schools/${d.state_slug}/${d.district_slug}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
       });

@@ -8,6 +8,7 @@ export async function GET(request) {
   const q          = (searchParams.get('q') || '').trim();
   const limit      = Math.min(Number(searchParams.get('limit') || 10), 20);
   const stateSlug  = searchParams.get('state') || null;
+  const districtSlug = searchParams.get('district') || null;
   const category   = searchParams.get('category') || null;
   const mgmt       = searchParams.get('mgmt') || null;
 
@@ -17,7 +18,7 @@ export async function GET(request) {
   }
 
   try {
-    const results = await searchSchools(q, limit, stateSlug, { category, mgmt });
+    const results = await searchSchools(q, limit, stateSlug, { category, mgmt, districtSlug });
 
     const response = NextResponse.json({
       results,

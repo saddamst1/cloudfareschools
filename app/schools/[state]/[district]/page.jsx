@@ -3,12 +3,23 @@ import Link from 'next/link';
 import { getAllDistrictSlugs, getDistrict, getDistrictBlocks, getDistrictCategoryCounts, getAdjacentDistricts, getDistrictSchools } from '@/lib/queries';
 import { getDistrictMeta, breadcrumbSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
+import SearchBox from '@/components/SearchBox';
 
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
   const all = await getAllDistrictSlugs();
-  return all.map(d => ({ state: d.state_slug, district: d.district_slug }));
+  const list = all.map(d => ({ state: d.state_slug, district: d.district_slug }));
+  
+  // Pre-generate virtual city pages
+  list.push(
+    { state: 'maharashtra', district: 'mumbai' },
+    { state: 'karnataka', district: 'bengaluru' },
+    { state: 'karnataka', district: 'bangalore' },
+    { state: 'delhi', district: 'delhi' },
+    { state: 'delhi', district: 'new-delhi' }
+  );
+  return list;
 }
 
 export async function generateMetadata({ params }) {
@@ -62,11 +73,18 @@ export default async function DistrictPage({ params }) {
           <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3vw, 1.85rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
             Schools in {district.district_name} District, {district.state_name}
           </h1>
-          <p style={{ fontSize: '0.875rem', color: '#93C5FD', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '0.875rem', color: '#93C5FD', lineHeight: 1.6, marginBottom: 0 }}>
             {fmt(district.total_schools)} schools across {district.block_count} blocks
             {district.dist_literacy_pct ? ` · Literacy: ${district.dist_literacy_pct.toFixed(1)}%` : ''}
             {district.dist_population ? ` · Population: ${fmtPop(district.dist_population)}` : ''}
           </p>
+          <div style={{ marginTop: 20, maxWidth: 600 }}>
+            <SearchBox 
+              placeholder={`Search schools in ${district.district_name}...`} 
+              stateSlug={stateSlug} 
+              districtSlug={districtSlug} 
+            />
+          </div>
         </div>
       </div>
 
@@ -76,6 +94,37 @@ export default async function DistrictPage({ params }) {
           <div>
             <AdSlot size="leaderboard" />
 
+            {/* Category Filter Chips */}
+            {categories && categories.length > 0 && (
+              <div style={{ marginTop: 24, marginBottom: 8 }}>
+                <span style={{ fontSize: '0.825rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  Filter schools by category:
+                </span>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {categories.map(cat => (
+                    <Link
+                      key={cat.school_category}
+                      href={`/search?q=${encodeURIComponent(cat.school_category)}&state=${stateSlug}&district=${districtSlug}`}
+                      style={{
+                        background: '#FFFFFF',
+                        border: '1px solid #CBD5E1',
+                        borderRadius: 99,
+                        padding: '6px 14px',
+                        fontSize: '0.775rem',
+                        fontWeight: 600,
+                        color: '#1E40AF',
+                        textDecoration: 'none',
+                        transition: 'all 0.15s ease',
+                      }}
+                      className="category-chip"
+                    >
+                      🏫 {cat.school_category} ({fmt(cat.count)})
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Blocks Grid */}
             <div style={{ marginTop: 24 }}>
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, marginBottom: 14 }}>
@@ -83,7 +132,7 @@ export default async function DistrictPage({ params }) {
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
                 {blocks.map(b => (
-                  <Link key={b.block_slug} href={`/schools/${stateSlug}/${districtSlug}/${b.block_slug}`} style={{ textDecoration: 'none' }}>
+                  <Link key={b.block_slug} href={`/schools/${stateSlug}/${b.district_slug || districtSlug}/${b.block_slug}`} style={{ textDecoration: 'none' }}>
                     <div className="card" style={{ padding: '14px 16px', cursor: 'pointer' }}>
                       <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1E293B', marginBottom: 6 }}>{b.block_name}</div>
                       <div style={{ display: 'flex', gap: 12, fontSize: '0.775rem', color: '#64748B' }}>

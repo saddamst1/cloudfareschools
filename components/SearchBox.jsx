@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function SearchBox({ placeholder = 'School name, UDISE code, village, district...' }) {
+export default function SearchBox({ placeholder = 'School name, UDISE code, village, district...', stateSlug = null, districtSlug = null }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,10 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`);
+        let url = `/api/search?q=${encodeURIComponent(query)}&limit=8`;
+        if (stateSlug) url += `&state=${stateSlug}`;
+        if (districtSlug) url += `&district=${districtSlug}`;
+        const res = await fetch(url);
         const data = await res.json();
         setResults(data.results || []);
         setOpen(true);
@@ -27,7 +30,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
         setLoading(false);
       }
     }, 280);
-  }, [query]);
+  }, [query, stateSlug, districtSlug]);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -38,7 +41,12 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
   }, []);
 
   const handleSearch = () => {
-    if (query.trim()) router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+    if (query.trim()) {
+      let url = `/search?q=${encodeURIComponent(query.trim())}`;
+      if (stateSlug) url += `&state=${stateSlug}`;
+      if (districtSlug) url += `&district=${districtSlug}`;
+      router.push(url);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -115,7 +123,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
           </div>
           {/* Sticky view all results bar */}
           <a
-            href={`/search?q=${encodeURIComponent(query)}`}
+            href={`/search?q=${encodeURIComponent(query)}${stateSlug ? `&state=${stateSlug}` : ''}${districtSlug ? `&district=${districtSlug}` : ''}`}
             style={{
               display: 'block',
               padding: '12px 16px',
