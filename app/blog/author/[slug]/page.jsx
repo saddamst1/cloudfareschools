@@ -7,7 +7,6 @@ import AdSlot from '../../../../components/AdSlot';
 export async function generateStaticParams() {
   return [
     { slug: 'sahajul' },
-    { slug: 'harsh-agrawal' },
     { slug: 'schoolspedia-editorial' },
   ];
 }

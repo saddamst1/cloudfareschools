@@ -173,7 +173,7 @@ export default async function StatePage({ params }) {
                 <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 12 }}>
                   {state.state_name} has <strong>{fmt(state.total_schools)} registered schools</strong> across <strong>{state.district_count} districts</strong> and <strong>{state.block_count} blocks</strong>. Most are government-run schools in rural areas, following the curriculum set by the {board ? <><strong><a href={board.url} target="_blank" rel="noopener noreferrer" style={{ color: '#1E40AF' }}>{board.name}</a></strong></> : <strong>{state.state_name} State Board</strong>}. Private schools, mostly in cities, run CBSE or ICSE.
                 </p>
-                <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75' }}>
+                <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75 }}>
                   Private schools must reserve 25% of their Class 1 seats for children from low-income families under the RTE Act. The state runs this through an online lottery — applications open around March-April each year. Use the district links below to find schools near your area.
                 </p>
               </div>
