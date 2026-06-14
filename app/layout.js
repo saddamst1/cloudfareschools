@@ -1,6 +1,7 @@
 import './globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import AuthorBox from '../components/AuthorBox';
 import { organizationSchema, websiteSchema } from '../lib/seo';
 import Script from 'next/script';
 
@@ -96,6 +97,7 @@ export default function RootLayout({ children }) {
 
         <Navbar />
         <main>{children}</main>
+        <AuthorBox />
         <Footer />
       </body>
     </html>

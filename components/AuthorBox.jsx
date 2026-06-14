@@ -3,15 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
 export default function AuthorBox() {
-  const pathname = usePathname();
-
-  // Hide AuthorBox on About page, Blog detail pages, and Author profile pages to prevent duplicate bios
-  if (pathname === '/about' || pathname?.startsWith('/blog/author/') || (pathname?.startsWith('/blog/') && pathname !== '/blog')) {
-    return null;
-  }
 
   return (
     <div style={{ maxWidth: 1200, margin: '40px auto 20px auto', padding: '0 24px' }}>

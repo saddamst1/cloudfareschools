@@ -134,14 +134,7 @@ export default async function DistrictPage({ params, lang = 'en' }) {
             {district.dist_literacy_pct ? ` · ${lang === 'hi' ? 'साक्षरता' : 'Literacy'}: ${district.dist_literacy_pct.toFixed(1)}%` : ''}
             {district.dist_population ? ` · ${lang === 'hi' ? 'जनसंख्या' : 'Population'}: ${fmtPop(district.dist_population)}` : ''}
           </p>
-          <div style={{ marginTop: 20, maxWidth: 600 }}>
-            <SearchBox 
-              placeholder={lang === 'hi' ? `${districtName} में स्कूल खोजें...` : `Search schools in ${district.district_name}...`} 
-              stateSlug={stateSlug} 
-              districtSlug={districtSlug} 
-              lang={lang}
-            />
-          </div>
+
         </div>
       </div>
 
@@ -150,6 +143,15 @@ export default async function DistrictPage({ params, lang = 'en' }) {
 
           <div>
             <AdSlot size="leaderboard" />
+
+            <div style={{ marginTop: 24, marginBottom: 16 }}>
+              <SearchBox 
+                placeholder={lang === 'hi' ? `${districtName} में स्कूल खोजें...` : `Search schools in ${district.district_name}...`} 
+                stateSlug={stateSlug} 
+                districtSlug={districtSlug} 
+                lang={lang}
+              />
+            </div>
 
             {/* Category Filter Chips */}
             {categories && categories.length > 0 && (
@@ -296,28 +298,7 @@ export default async function DistrictPage({ params, lang = 'en' }) {
 
             </div>
 
-            {/* Adjacent Districts Widget */}
-            {adjacent && adjacent.length > 0 && (
-              <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '22px', marginTop: 24 }}>
-                <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                  🗺️ {lang === 'hi' ? `${stateName} में आस-पास के जिले देखें` : `Browse Nearby Districts in ${district.state_name}`}
-                </h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {adjacent.map(adj => {
-                    const adjName = t(adj.district_slug, lang);
-                    return (
-                      <Link key={adj.district_slug} href={`${pathPrefix}/schools/${stateSlug}/${adj.district_slug}`}
-                            className="adj-district-tag"
-                            style={{ display: 'inline-block', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 12px', fontSize: '0.85rem', color: '#1E293B', fontWeight: 600, textDecoration: 'none', transition: 'border-color 0.15s ease' }}
-                      >
-                        {adjName}
-                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, marginLeft: 6 }}>({fmt(adj.total_schools)} {t('schools', lang)})</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+
 
             <AdSlot size="responsive" style={{ marginTop: 20 }} />
           </div>
@@ -327,6 +308,45 @@ export default async function DistrictPage({ params, lang = 'en' }) {
             {(district.dist_population || district.dist_literacy_pct) && (
               <DistrictStats stats={district} districtName={districtName} lang={lang} />
             )}
+
+            {adjacent && adjacent.length > 0 && (
+              <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 16 }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>
+                  🗺️ {lang === 'hi' ? `${stateName} में आस-पास के जिले` : `Browse Nearby Districts`}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {adjacent.map(adj => {
+                    const adjName = t(adj.district_slug, lang);
+                    return (
+                      <Link key={adj.district_slug} href={`${pathPrefix}/schools/${stateSlug}/${adj.district_slug}`}
+                            className="adj-district-tag"
+                            style={{ display: 'block', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 12px', fontSize: '0.825rem', color: '#1E293B', fontWeight: 600, textDecoration: 'none', transition: 'border-color 0.15s ease' }}
+                      >
+                        {adjName}
+                        <span style={{ fontSize: '0.725rem', color: '#64748B', fontWeight: 500, float: 'right' }}>{fmt(adj.total_schools)}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', borderRadius: 10, padding: 16, color: 'white' }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8 }}>
+                {lang === 'hi' ? 'अपना स्कूल नहीं मिल रहा?' : "Can't find your school?"}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#BAE6FD', lineHeight: 1.5, marginBottom: 14 }}>
+                {lang === 'hi' ? (
+                  'भारत के सभी 36 राज्यों और केंद्र शासित प्रदेशों के 16.5 लाख+ स्कूलों में खोजें'
+                ) : (
+                  "Search from 16.5 lakh+ schools across all 36 states and UTs of India"
+                )}
+              </div>
+              <Link href={`/search?state=${stateSlug}&district=${districtSlug}`} style={{ display: 'block', background: '#F97316', color: 'white', textAlign: 'center', padding: '10px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
+                🔍 {lang === 'hi' ? `${districtName} स्कूल खोजें` : `Search ${district.district_name} Schools`}
+              </Link>
+            </div>
+
             <AdSlot size="sidebar" />
           </div>
         </div>
