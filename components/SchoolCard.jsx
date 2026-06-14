@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { t } from '../lib/translate.js';
 
 const categoryColors = {
   'Primary':          { bg: '#EFF6FF', color: '#1E40AF' },
@@ -16,14 +17,23 @@ const mgmtColors = {
   'default':                 { bg: '#F1F5F9', color: '#475569' },
 };
 
-export default function SchoolCard({ school }) {
+export default function SchoolCard({ school, lang = 'en' }) {
   const cat  = categoryColors[school.school_category] || categoryColors.default;
   const mgmt = mgmtColors[school.national_mgmt] || mgmtColors.default;
   const isOperational = school.school_status === 'Operational';
 
+  const pathPrefix = lang === 'hi' ? '/hi' : '';
+  const resolvedUrl = school.url ? `${pathPrefix}${school.url}` : '#';
+
+  const catName = t(school.school_category, lang);
+  const mgmtName = t(school.national_mgmt, lang);
+  const typeName = t(school.school_type, lang);
+  const statusName = t(isOperational ? 'Operational' : 'Closed', lang);
+  const distName = school.district_slug ? (t(school.district_slug, lang) || school.district) : school.district;
+
   return (
     <Link
-      href={school.url || '#'}
+      href={resolvedUrl}
       style={{ display: 'block', textDecoration: 'none' }}
     >
       <div className="card" style={{ padding: '14px 16px', cursor: 'pointer' }}>
@@ -34,19 +44,19 @@ export default function SchoolCard({ school }) {
 
         {/* Village */}
         <div style={{ fontSize: '0.775rem', color: '#64748B', marginBottom: 10 }}>
-          📍 {school.village}{school.district ? `, ${school.district}` : ''}
+          📍 {school.village}{distName ? `, ${distName}` : ''}
         </div>
 
         {/* Badges row */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 8 }}>
           <span style={{ background: cat.bg, color: cat.color, fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 99 }}>
-            {school.school_category}
+            {catName}
           </span>
           <span style={{ background: mgmt.bg, color: mgmt.color, fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 99 }}>
-            {school.national_mgmt?.replace('Department of Education', 'Govt.')}
+            {mgmtName?.replace('Department of Education', lang === 'hi' ? 'सरकारी' : 'Govt.').replace('Private Unaided', lang === 'hi' ? 'निजी' : 'Private')}
           </span>
           <span style={{ background: school.school_type === 'Co-educational' ? '#F0FDFA' : '#FFF7ED', color: school.school_type === 'Co-educational' ? '#0D9488' : '#C2410C', fontSize: '0.7rem', fontWeight: 500, padding: '2px 8px', borderRadius: 99 }}>
-            {school.school_type}
+            {typeName}
           </span>
         </div>
 
@@ -56,7 +66,7 @@ export default function SchoolCard({ school }) {
             UDISE: {String(school.udise_code).padStart(11, '0')}
           </span>
           <span style={{ fontSize: '0.7rem', fontWeight: 600, color: isOperational ? '#10B981' : '#EF4444' }}>
-            {isOperational ? '● Operational' : '● Closed'}
+            ● {statusName}
           </span>
         </div>
       </div>

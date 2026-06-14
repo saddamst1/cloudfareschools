@@ -18,56 +18,97 @@ export async function generateStaticParams() {
   ];
 }
 
-export async function generateMetadata({ params }) {
+
+
+import { t } from '@/lib/translate';
+
+export async function getSchoolPageMetadata({ params, lang = 'en' }) {
   const { school: schoolSlug } = await params;
   const school = await getSchoolBySlug(schoolSlug);
   if (!school) return { title: 'School Not Found | SchoolsPedia' };
-  return getSchoolMeta(school);
+  return getSchoolMeta(school, lang);
 }
 
-function getSchoolDescription(school, districtStats, stateSlug, districtSlug, blockSlug, villageSlug) {
+export async function generateMetadata(props) {
+  return getSchoolPageMetadata({ ...props, lang: 'en' });
+}
+
+function getSchoolDescription(school, districtStats, stateSlug, districtSlug, blockSlug, villageSlug, lang = 'en') {
   const isGovt = school.national_mgmt?.includes('Department') || school.national_mgmt?.includes('Local Body') || school.national_mgmt === 'KVS' || school.national_mgmt === 'NVS';
   const isKV   = school.national_mgmt === 'KVS';
   const isNVS  = school.national_mgmt === 'NVS';
 
-  const villageLink   = `<a href="/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${school.village}</a>`;
-  const blockLink     = `<a href="/schools/${stateSlug}/${districtSlug}/${blockSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${school.block}</a>`;
-  const districtLink  = `<a href="/schools/${stateSlug}/${districtSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${school.district}</a>`;
-  const stateLink     = `<a href="/schools/${stateSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${school.state}</a>`;
+  const pathPrefix = lang === 'hi' ? '/hi' : '';
+  const villageLink   = `<a href="${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${school.village}</a>`;
+  const blockLink     = `<a href="${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${school.block}</a>`;
+  const districtLink  = `<a href="${pathPrefix}/schools/${stateSlug}/${districtSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${t(school.district_slug, lang) || school.district}</a>`;
+  const stateLink     = `<a href="${pathPrefix}/schools/${stateSlug}" style="color:#1E40AF;text-decoration:underline;font-weight:600">${t(school.state_slug, lang) || school.state}</a>`;
 
-  const classRange = { 'Primary': '1 to 5', 'Upper Primary': '6 to 8', 'Secondary': '9 to 10', 'Higher Secondary': '9 to 12' }[school.school_category] || '1 to 8';
-  const admitsText = school.school_type === 'Boys' ? 'boys only' : school.school_type === 'Girls' ? 'girls only' : 'both boys and girls';
+  const classRange = { 'Primary': lang === 'hi' ? '1 से 5' : '1 to 5', 'Upper Primary': lang === 'hi' ? '6 से 8' : '6 to 8', 'Secondary': lang === 'hi' ? '9 से 10' : '9 to 10', 'Higher Secondary': lang === 'hi' ? '9 से 12' : '9 to 12' }[school.school_category] || (lang === 'hi' ? '1 से 8' : '1 to 8');
+  
+  let admitsText = school.school_type === 'Boys' ? 'boys only' : school.school_type === 'Girls' ? 'girls only' : 'both boys and girls';
+  if (lang === 'hi') {
+    admitsText = school.school_type === 'Boys' ? 'केवल बालकों (Boys)' : school.school_type === 'Girls' ? 'केवल बालिकाओं (Girls)' : 'बालक और बालिका दोनों (Co-ed)';
+  }
 
   // Line 1: What is this school, plainly
-  let para1 = `**${school.school_name}** is in ${villageLink} village, ${blockLink} block, ${districtLink} district, ${stateLink}.`;
-  para1 += ` It teaches **Class ${classRange}** and admits ${admitsText}.`;
-  if (isKV)  para1 += ` This is a Kendriya Vidyalaya — run by the central government, mainly for children of government employees.`;
-  if (isNVS) para1 += ` This is a Jawahar Navodaya Vidyalaya — a fully residential school for rural students selected through the JNVST entrance exam.`;
+  let para1 = '';
+  if (lang === 'hi') {
+    para1 = `**${school.school_name}** ${villageLink} गाँव, ${blockLink} ब्लॉक, ${districtLink} जिला, ${stateLink} में स्थित है।`;
+    para1 += ` यहाँ **कक्षा ${classRange}** तक की शिक्षा प्रदान की जाती है और यह ${admitsText} स्कूल है।`;
+    if (isKV)  para1 += ` यह एक केंद्रीय विद्यालय (Kendriya Vidyalaya) है — जो केंद्र सरकार द्वारा मुख्य रूप से सरकारी कर्मचारियों के बच्चों के लिए चलाया जाता है।`;
+    if (isNVS) para1 += ` यह एक जवाहर नवोदय विद्यालय (Jawahar Navodaya Vidyalaya) है — जो ग्रामीण क्षेत्रों के प्रतिभाशाली बच्चों के लिए पूरी तरह से आवासीय स्कूल है।`;
+  } else {
+    para1 = `**${school.school_name}** is in ${villageLink} village, ${blockLink} block, ${districtLink} district, ${stateLink}.`;
+    para1 += ` It teaches **Class ${classRange}** and admits ${admitsText}.`;
+    if (isKV)  para1 += ` This is a Kendriya Vidyalaya — run by the central government, mainly for children of government employees.`;
+    if (isNVS) para1 += ` This is a Jawahar Navodaya Vidyalaya — a fully residential school for rural students selected through the JNVST entrance exam.`;
+  }
 
   // Line 2: Cost / fees reality
   let para2 = '';
-  if (isGovt) {
-    para2 = `This is a government school. **Education here is free.** The state provides textbooks and a cooked meal every school day under the PM POSHAN scheme. No tuition fee is charged.`;
-  } else if (school.national_mgmt === 'Private Aided') {
-    para2 = `This is a private-aided school — it receives some funding from the government but is managed privately. Fees are usually lower than fully private schools, but you should confirm the current fee structure directly with the school.`;
+  if (lang === 'hi') {
+    if (isGovt) {
+      para2 = `यह एक सरकारी स्कूल है। **यहाँ शिक्षा पूरी तरह से निःशुल्क है।** राज्य सरकार पाठ्यपुस्तकें और मध्याह्न भोजन (PM POSHAN) योजना के तहत पका हुआ गर्म भोजन प्रदान करती है। कोई ट्यूशन फीस नहीं ली जाती है।`;
+    } else if (school.national_mgmt === 'Private Aided') {
+      para2 = `यह एक निजी सहायता प्राप्त (private-aided) स्कूल है — इसे सरकार से कुछ सहायता मिलती है लेकिन इसका प्रबंधन निजी तौर पर किया जाता है। इसकी फीस आमतौर पर पूरी तरह से निजी स्कूलों की तुलना में कम होती है, लेकिन आपको स्कूल से फीस की पुष्टि करनी चाहिए।`;
+    } else {
+      para2 = `यह एक निजी गैर-सहायता प्राप्त (private unaided) स्कूल है। यह अपनी प्रबंधन समिति द्वारा निर्धारित ट्यूशन फीस लेता है। शिक्षा के अधिकार (RTE) अधिनियम के तहत, **कक्षा 1 में 25% सीटें** पड़ोस के गरीब परिवारों के बच्चों के लिए मुफ्त आरक्षित होती हैं।`;
+    }
   } else {
-    para2 = `This is a private unaided school. It charges tuition fees set by its own management. Under the RTE Act, **25% of seats in Class 1** must be given free to children from low-income families in the neighbourhood. Ask the school about the current admission process for RTE seats.`;
+    if (isGovt) {
+      para2 = `This is a government school. **Education here is free.** The state provides textbooks and a cooked meal every school day under the PM POSHAN scheme. No tuition fee is charged.`;
+    } else if (school.national_mgmt === 'Private Aided') {
+      para2 = `This is a private-aided school — it receives some funding from the government but is managed privately. Fees are usually lower than fully private schools, but you should confirm the current fee structure directly with the school.`;
+    } else {
+      para2 = `This is a private unaided school. It charges tuition fees set by its own management. Under the RTE Act, **25% of seats in Class 1** must be given free to children from low-income families in the neighbourhood. Ask the school about the current admission process for RTE seats.`;
+    }
   }
 
   // Line 3: Status + district context
   let para3 = '';
-  if (school.school_status !== 'Operational') {
-    para3 = `⚠️ **Note:** According to UDISE+ records, this school is listed as **${school.school_status}**. Verify with the Block Education Officer (BEO) in ${school.block} before visiting.`;
-  } else if (districtStats?.dist_literacy_pct) {
-    const lit = districtStats.dist_literacy_pct.toFixed(1);
-    const totalSch = districtStats.total_schools ? districtStats.total_schools.toLocaleString('en-IN') : null;
-    para3 = `${school.district} district has a literacy rate of **${lit}%**${totalSch ? ` and ${totalSch} registered schools` : ''}.`;
+  if (lang === 'hi') {
+    if (school.school_status !== 'Operational') {
+      para3 = `⚠️ **ध्यान दें:** UDISE+ रिकॉर्ड के अनुसार, इस स्कूल की स्थिति **${t(school.school_status, lang)}** दिखाई गई है। कृपया प्रवेश से पहले BEO कार्यालय से जानकारी लें।`;
+    } else if (districtStats?.dist_literacy_pct) {
+      const lit = districtStats.dist_literacy_pct.toFixed(1);
+      const totalSch = districtStats.total_schools ? districtStats.total_schools.toLocaleString('en-IN') : null;
+      para3 = `${t(school.district_slug, lang) || school.district} जिले की साक्षरता दर **${lit}%** है${totalSch ? ` और यहाँ ${totalSch} पंजीकृत स्कूल हैं` : ''}।`;
+    }
+  } else {
+    if (school.school_status !== 'Operational') {
+      para3 = `⚠️ **Note:** According to UDISE+ records, this school is listed as **${school.school_status}**. Verify with the Block Education Officer (BEO) in ${school.block} before visiting.`;
+    } else if (districtStats?.dist_literacy_pct) {
+      const lit = districtStats.dist_literacy_pct.toFixed(1);
+      const totalSch = districtStats.total_schools ? districtStats.total_schools.toLocaleString('en-IN') : null;
+      para3 = `${school.district} district has a literacy rate of **${lit}%**${totalSch ? ` and ${totalSch} registered schools` : ''}.`;
+    }
   }
 
   return [para1, para2, para3].filter(Boolean).join('\n\n');
 }
 
-function getRTEContent(school) {
+function getRTEContent(school, lang = 'en') {
   const isGovt = school.national_mgmt?.includes('Department') || school.national_mgmt?.includes('Local Body') || school.national_mgmt === 'KVS' || school.national_mgmt === 'NVS';
   const stateName = school.state;
 
@@ -81,55 +122,104 @@ function getRTEContent(school) {
   };
 
   const stateRTESchedules = {
-    'Uttar Pradesh': 'UP RTE Section 12(1)(c) admissions are conducted in 3 distinct phases. Online applications normally start in mid-February and conclude in April. Registered schools verify and admit students by June.',
+    'Uttar Pradesh': lang === 'hi'
+      ? 'यूपी आरटीई (RTE) धारा 12(1)(c) प्रवेश प्रक्रिया 3 चरणों में आयोजित की जाती है। ऑनलाइन आवेदन आमतौर पर फरवरी के मध्य से शुरू होते हैं और अप्रैल में समाप्त होते हैं।'
+      : 'UP RTE Section 12(1)(c) admissions are conducted in 3 distinct phases. Online applications normally start in mid-February and conclude in April. Registered schools verify and admit students by June.',
     'Maharashtra': 'Maharashtra RTE 25% admission process online registration typically begins in March and closes by April.',
     'Rajasthan': 'Rajasthan RTE admission portals usually invite applications in April. The official lottery selection occurs in May, and document verification runs through June.',
     'Gujarat': 'Gujarat RTE admission online portals start registering candidates in early March. Verification of parents\' documents occurs at local help centers in April.',
-    'Madhya Pradesh': 'MP RTE portal registration starts in March. Document verification at public service centers (Jila Shiksha Kendra) occurs in early April, followed by online lottery seats distribution.',
-    'Delhi': 'Delhi EWS/DG admission portal runs under the DoE. Registrations open in February and conclude in March, followed by computerized lottery draws.',
-    'Karnataka': 'Karnataka RTE applications under the 25% quota are normally invited online from April to May, with the selection list published by the Department of School Education in June.',
-    'Tamil Nadu': 'Tamil Nadu RTE admissions registration begins in April and concludes in late May. The seat allotment is decided by local schools in June.',
+    'Madhya Pradesh': lang === 'hi'
+      ? 'एमपी आरटीई (MP RTE) प्रवेश प्रक्रिया मार्च से शुरू होती है। जिला शिक्षा केंद्र पर दस्तावेज़ सत्यापन अप्रैल की शुरुआत में होता है, जिसके बाद ऑनलाइन लॉटरी द्वारा सीटें दी जाती हैं।'
+      : 'MP RTE portal registration starts in March. Document verification at public service centers (Jila Shiksha Kendra) occurs in early April, followed by online lottery seats distribution.',
+    'Bihar': lang === 'hi'
+      ? 'बिहार में आरटीई एडमिशन के लिए शिक्षा विभाग के पोर्टल के माध्यम से मार्च-अप्रैल के दौरान आवेदन किया जाता है।'
+      : 'Timeline for RTE admissions in Bihar generally runs from March to June. Please check the official state education website for active deadlines.',
   };
 
   const portal = stateRTEPortals[stateName] || `${stateName.toLowerCase().replace(/ /g, '')}.gov.in`;
-  const schedule = stateRTESchedules[stateName] || `Timeline for RTE admissions in ${stateName} generally runs from March to June. Please check the official state education website for active deadlines and verification schedules.`;
+  const schedule = stateRTESchedules[stateName] || (lang === 'hi' ? `आरटीई प्रवेश की समयसीमा आमतौर पर मार्च से जून तक चलती है। सटीक जानकारी के लिए आधिकारिक राज्य शिक्षा वेबसाइट देखें।` : `Timeline for RTE admissions in ${stateName} generally runs from March to June. Please check the official state education website for active deadlines.`);
+
+  const stepsHi = [
+    `अपने नजदीकी स्कूल की खोज करें — SchoolsPedia का उपयोग करके ${t(school.district_slug, lang) || school.district} जिले में अपने गाँव या पिन कोड के अनुसार खोजें।`,
+    `अपने दस्तावेज़ तैयार करें — बच्चे का जन्म प्रमाण पत्र, बच्चे और माता-पिता का आधार कार्ड, निवास प्रमाण पत्र (राशन कार्ड / बिजली बिल / आधार), और 2 पासपोर्ट साइज फोटो।`,
+    `ऑनलाइन या सीधे स्कूल में आवेदन करें — आधिकारिक RTE पोर्टल ${portal} पर जाएं या अप्रैल-जून के प्रवेश सत्र के दौरान सीधे स्कूल में आवेदन पत्र जमा करें।`,
+    `ब्लॉक शिक्षा अधिकारी (BEO) से संपर्क करें — किसी भी शिकायत या सहायता के लिए BEO ${school.block} से संपर्क करें।`,
+  ];
+
+  const stepsEn = [
+    `Find your nearest government school — Use SchoolsPedia to search by your village or PIN code in ${school.district}.`,
+    `Prepare your documents — Birth certificate of the child, Aadhaar card of child and parent, residence proof (ration card / Aadhaar), 2 passport-size photographs.`,
+    `Apply online — Visit ${portal} or apply directly at the school during April–June admission season.`,
+    `Contact Block Education Officer (BEO) — For disputes, RTE violations, or seat issues, contact BEO ${school.block}.`,
+  ];
+
+  const rteQuotaHi = `आरटीई अधिनियम की धारा 12(1)(c) के तहत, ${school.village} गाँव के 1 किमी के दायरे में आने वाले सभी निजी स्कूलों में प्रवेश स्तर की कक्षा में 25% सीटें आर्थिक रूप से कमजोर वर्ग (EWS) के बच्चों के लिए आरक्षित होनी चाहिए।`;
+  const rteQuotaEn = `Private schools within 1 km of ${school.village} are required under RTE Section 12(1)(c) to reserve 25% seats for children from Economically Weaker Sections (EWS).`;
 
   return {
     isGovt,
     portal,
     schedule,
-    stepsGovt: [
-      `Find your nearest government school — Use SchoolsPedia to search by your village or PIN code in ${school.district}.`,
-      `Prepare your documents — Birth certificate of the child, Aadhaar card of child and parent, residence proof (ration card / Aadhaar), 2 passport-size photographs.`,
-      `Apply online — Visit ${portal} or apply directly at the school during April–June admission season.`,
-      `Contact Block Education Officer (BEO) — For disputes, RTE violations, or seat issues, contact BEO ${school.block}.`,
-    ],
-    rteQuota: `Private schools within 1 km of ${school.village} are required under RTE Section 12(1)(c) to reserve 25% seats for children from Economically Weaker Sections (EWS).`,
+    stepsGovt: lang === 'hi' ? stepsHi : stepsEn,
+    rteQuota: lang === 'hi' ? rteQuotaHi : rteQuotaEn,
   };
 }
 
-function getUDISEBreakdown(udise) {
+function getUDISEBreakdown(udise, lang = 'en') {
   const code = String(udise).padStart(11, '0');
   return [
-    { digits: code.slice(0, 2), label: 'State code', sub: '' },
-    { digits: code.slice(2, 4), label: 'District code', sub: '' },
-    { digits: code.slice(4, 6), label: 'Block code', sub: '' },
-    { digits: code.slice(6, 9), label: 'Cluster code', sub: '' },
-    { digits: code.slice(9),    label: 'School serial', sub: '' },
+    { digits: code.slice(0, 2), label: lang === 'hi' ? 'राज्य कोड' : 'State code', sub: '' },
+    { digits: code.slice(2, 4), label: lang === 'hi' ? 'जिला कोड' : 'District code', sub: '' },
+    { digits: code.slice(4, 6), label: lang === 'hi' ? 'ब्लॉक कोड' : 'Block code', sub: '' },
+    { digits: code.slice(6, 9), label: lang === 'hi' ? 'क्लस्टर कोड' : 'Cluster code', sub: '' },
+    { digits: code.slice(9),    label: lang === 'hi' ? 'स्कूल क्रमांक' : 'School serial', sub: '' },
   ];
 }
 
-function getSchoolFAQs(school, districtStats) {
+function getSchoolFAQs(school, districtStats, lang = 'en') {
   const n   = school.school_name;
   const v   = school.village;
-  const d   = school.district;
+  const d   = t(school.district_slug, lang) || school.district;
   const b   = school.block;
-  const st  = school.state;
+  const st  = t(school.state_slug, lang) || school.state;
   const u   = school.udise_code;
-  const cat = school.school_category;
-  const classRange = { 'Primary': '1 to 5', 'Upper Primary': '6 to 8', 'Secondary': '9 to 10', 'Higher Secondary': '11 to 12' }[cat] || '1 to 8';
+  const cat = t(school.school_category, lang);
+  const classRange = { 'Primary': lang === 'hi' ? '1 से 5' : '1 to 5', 'Upper Primary': lang === 'hi' ? '6 से 8' : '6 to 8', 'Secondary': lang === 'hi' ? '9 से 10' : '9 to 10', 'Higher Secondary': lang === 'hi' ? '11 to 12' : '11 to 12' }[school.school_category] || (lang === 'hi' ? '1 से 8' : '1 to 8');
   const isGovt = school.national_mgmt?.includes('Department') || school.national_mgmt === 'KVS' || school.national_mgmt === 'NVS' || school.national_mgmt?.includes('Local Body');
   const isClosed = school.school_status !== 'Operational';
+
+  if (lang === 'hi') {
+    return [
+      {
+        q: `${n} का UDISE कोड क्या है?`,
+        a: `इस स्कूल का UDISE कोड **${String(u).padStart(11, '0')}** है। यह 11-अंकों का विशिष्ट कोड है जिसकी आवश्यकता आपको छात्रवृत्ति (NSP), स्कूल ट्रांसफर सर्टिफिकेट और बोर्ड परीक्षा पंजीकरण फॉर्म में होगी।`
+      },
+      {
+        q: `क्या ${n} एक सरकारी स्कूल है या निजी?`,
+        a: isGovt
+          ? `यह एक सरकारी स्कूल है। यहाँ शिक्षा बिल्कुल मुफ्त है — कोई ट्यूशन फीस नहीं ली जाती। सरकारी नियमों के अनुसार छात्रों को निःशुल्क पाठ्यपुस्तकें और मध्याह्न भोजन (PM POSHAN) मिलता है।`
+          : `यह एक निजी (Private) स्कूल है। इसकी फीस प्रबंधन द्वारा तय की जाती है। हालांकि, RTE अधिनियम के तहत, इसमें गरीब परिवारों के बच्चों के लिए 25% सीटें आरक्षित हैं।`
+      },
+      {
+        q: `${n} में कौन सी कक्षाएं पढ़ाई जाती हैं?`,
+        a: `यह एक **${cat}** स्कूल है, जहाँ कक्षा **${classRange}** तक की पढ़ाई होती है। ${school.school_category === 'Primary' ? `इसके बाद की पढ़ाई के लिए छात्र आमतौर पर ${b} क्षेत्र के उच्च प्राथमिक या माध्यमिक स्कूलों में जाते हैं।` : ''}`
+      },
+      {
+        q: `${n} कहाँ स्थित है?`,
+        a: `यह ${v} गाँव, ${b} ब्लॉक, ${d} जिला, ${st} में स्थित है।`
+      },
+      {
+        q: `क्या ${n} अभी सक्रिय है और प्रवेश ले रहा है?`,
+        a: isClosed
+          ? `सरकारी UDISE+ रिकॉर्ड के अनुसार, इस स्कूल की स्थिति **${t(school.school_status, lang)}** दिखाई गई है। कृपया प्रवेश से पहले अपने ब्लॉक शिक्षा अधिकारी से जानकारी लें।`
+          : `यह स्कूल UDISE+ रिकॉर्ड में **सक्रिय (Operational)** है। प्रवेश संबंधी जानकारी के लिए सीधे स्कूल का दौरा करें या BEO कार्यालय से संपर्क करें।`
+      },
+      {
+        q: `${n} में क्या-क्या सुविधाएँ उपलब्ध हैं?`,
+        a: `वर्तमान डेटासेट में इस स्कूल की सुविधाओं (जैसे पुस्तकालय, कंप्यूटर, शौचालय आदि) का विस्तृत विवरण उपलब्ध नहीं है। स्कूल के Report Card की जांच करने के लिए UDISE कोड **${String(u).padStart(11, '0')}** के साथ आधिकारिक **udiseplus.gov.in** पोर्टल पर जाएं या सीधे स्कूल जाकर सुविधाओं की पुष्टि करें।`
+      }
+    ];
+  }
 
   return [
     {
@@ -144,7 +234,7 @@ function getSchoolFAQs(school, districtStats) {
     },
     {
       q: `Which classes does ${n} teach?`,
-      a: `It's a **${cat}** school — it teaches Class **${classRange}**. ${cat === 'Primary' ? `For middle school or high school, students from ${v} usually go to a school in the ${b} area.` : ''}`
+      a: `It's a **${cat}** school — it teaches Class **${classRange}**. ${school.school_category === 'Primary' ? `For middle school or high school, students from ${v} usually go to a school in the ${b} area.` : ''}`
     },
     {
       q: `Where is ${n} located?`,
@@ -175,31 +265,49 @@ const FACILITIES = [
   { icon: '💻', label: 'Computer Lab', key: 'computer' },
 ];
 
-function getFacilityStatus(school, key) {
+function getFacilityStatus(school, key, lang = 'en') {
   const isGovt = school.national_mgmt?.includes('Department') || school.national_mgmt?.includes('Local Body') || school.national_mgmt === 'KVS' || school.national_mgmt === 'NVS';
   const hasDbColumns = school.has_library !== undefined;
 
+  const labels = lang === 'hi' ? {
+    provided: 'प्रदान किया जाता है',
+    notProvided: 'उपलब्ध नहीं',
+    available: 'उपलब्ध',
+    notAvailable: 'उपलब्ध नहीं',
+    functional: 'कार्यात्मक',
+    checkPortal: 'UDISE+ पोर्टल देखें',
+    providedGovt: 'प्रदान किया जाता है (सरकारी)'
+  } : {
+    provided: 'Provided',
+    notProvided: 'Not Provided',
+    available: 'Available',
+    notAvailable: 'Not Available',
+    functional: 'Functional',
+    checkPortal: 'Check UDISE+',
+    providedGovt: 'Provided (Govt)'
+  };
+
   // If actual DB columns exist, use them
   if (hasDbColumns) {
-    if (key === 'mdm')        return isGovt ? { status: 'available', label: 'Provided' } : { status: 'not_available', label: 'Not Provided' };
-    if (key === 'electricity') return school.has_electricity === 1 ? { status: 'available', label: 'Available' } : { status: 'not_available', label: 'Not Available' };
-    if (key === 'library')     return school.has_library === 1 ? { status: 'available', label: 'Available' } : { status: 'not_available', label: 'Not Available' };
-    if (key === 'computer')    return school.has_computers === 1 ? { status: 'available', label: 'Available' } : { status: 'not_available', label: 'Not Available' };
-    if (key === 'boys_toilet') { const c = school.boys_toilets_count || 0; return c > 0 ? { status: 'available', label: `${c} Functional` } : { status: 'not_available', label: 'Not Available' }; }
-    if (key === 'girls_toilet') { const c = school.girls_toilets_count || 0; return c > 0 ? { status: 'available', label: `${c} Functional` } : { status: 'not_available', label: 'Not Available' }; }
+    if (key === 'mdm')        return isGovt ? { status: 'available', label: labels.provided } : { status: 'not_available', label: labels.notProvided };
+    if (key === 'electricity') return school.has_electricity === 1 ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
+    if (key === 'library')     return school.has_library === 1 ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
+    if (key === 'computer')    return school.has_computers === 1 ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
+    if (key === 'boys_toilet') { const c = school.boys_toilets_count || 0; return c > 0 ? { status: 'available', label: `${c} ${labels.functional}` } : { status: 'not_available', label: labels.notAvailable }; }
+    if (key === 'girls_toilet') { const c = school.girls_toilets_count || 0; return c > 0 ? { status: 'available', label: `${c} ${labels.functional}` } : { status: 'not_available', label: labels.notAvailable }; }
     // classrooms and playground assumed present if school is operational
-    return { status: 'verify', label: 'Check UDISE+' };
+    return { status: 'verify', label: labels.checkPortal };
   }
 
   // No facility columns in DB — do NOT fabricate. Only assert mid-day meal for govt schools.
-  if (key === 'mdm') return isGovt ? { status: 'available', label: 'Provided (Govt)' } : { status: 'not_available', label: 'Not Provided' };
-  return { status: 'verify', label: 'Check UDISE+' };
+  if (key === 'mdm') return isGovt ? { status: 'available', label: labels.providedGovt } : { status: 'not_available', label: labels.notProvided };
+  return { status: 'verify', label: labels.checkPortal };
 }
 
 const udiseColors = ['#EFF6FF', '#F0FDFA', '#FFF7ED', '#F5F3FF', '#FFF1F2'];
 const udiseTextColors = ['#1E40AF', '#0D9488', '#F97316', '#7C3AED', '#BE123C'];
 
-export default async function SchoolPage({ params }) {
+export default async function SchoolPage({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug, block: blockSlug, village: villageSlug, school: schoolSlug } = await params;
 
   const school = await getSchoolBySlug(schoolSlug);
@@ -211,29 +319,58 @@ export default async function SchoolPage({ params }) {
     getSchoolReviewStats(school.udise_code),
   ]);
 
-  const faqs = getSchoolFAQs(school, districtStats);
-  const rte  = getRTEContent(school);
-  const udiseBreakdown = getUDISEBreakdown(school.udise_code);
+  const faqs = getSchoolFAQs(school, districtStats, lang);
+  const rte  = getRTEContent(school, lang);
+  const udiseBreakdown = getUDISEBreakdown(school.udise_code, lang);
 
   const schoolJsonLd = schoolSchema(school, districtStats, reviewStats);
+  const pathPrefix = lang === 'hi' ? '/hi' : '';
+
   const crumbJsonLd  = breadcrumbSchema([
-    { name: 'Home', url: '/' },
-    { name: school.state, url: `/schools/${stateSlug}` },
-    { name: school.district, url: `/schools/${stateSlug}/${districtSlug}` },
-    { name: school.block, url: `/schools/${stateSlug}/${districtSlug}/${blockSlug}` },
-    { name: school.village, url: `/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}` },
-    { name: school.school_name, url: school.url },
+    { name: t('Home', lang), url: '/' },
+    { name: t(school.state_slug, lang) || school.state, url: `${pathPrefix}/schools/${stateSlug}` },
+    { name: t(school.district_slug, lang) || school.district, url: `${pathPrefix}/schools/${stateSlug}/${districtSlug}` },
+    { name: school.block, url: `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}` },
+    { name: school.village, url: `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}` },
+    { name: school.school_name, url: `${pathPrefix}${school.url}` },
   ]);
   const faqJsonLd = faqSchema(faqs);
 
   const isOperational = school.school_status === 'Operational';
   const fmt = (n) => n ? Number(n).toLocaleString('en-IN') : '—';
-  const fmtPop = (n) => {
-    if (!n) return '—';
-    if (n >= 10000000) return `${(n/10000000).toFixed(1)} Cr`;
-    if (n >= 100000) return `${(n/100000).toFixed(1)} Lakh`;
-    return n.toLocaleString('en-IN');
-  };
+
+  const jumpLinks = lang === 'hi' ? [
+    { label: 'अवलोकन', id: 'overview' },
+    { label: 'के बारे में', id: 'about' },
+    { label: 'UDISE कोड', id: 'udise' },
+    { label: 'सुविधाएँ', id: 'infrastructure' },
+    { label: 'प्रवेश (RTE)', id: 'admissions' },
+    { label: 'समीक्षाएँ', id: 'reviews' },
+    { label: 'FAQs', id: 'faqs' }
+  ] : [
+    { label: 'Overview', id: 'overview' },
+    { label: 'About', id: 'about' },
+    { label: 'UDISE Code', id: 'udise' },
+    { label: 'Infrastructure', id: 'infrastructure' },
+    { label: 'Admissions', id: 'admissions' },
+    { label: 'Reviews', id: 'reviews' },
+    { label: 'FAQs', id: 'faqs' }
+  ];
+
+  const stateName = t(school.state_slug, lang) || school.state;
+  const districtName = t(school.district_slug, lang) || school.district;
+
+  const FACILITIES_LOCALIZED = [
+    { icon: '🚪', label: lang === 'hi' ? 'कक्षाएँ' : 'Classrooms',   key: 'classrooms' },
+    { icon: '💧', label: lang === 'hi' ? 'पेयजल' : 'Drinking Water', key: 'water' },
+    { icon: '🚻', label: lang === 'hi' ? 'छात्र शौचालय' : 'Boys Toilet',  key: 'boys_toilet' },
+    { icon: '🚺', label: lang === 'hi' ? 'छात्रा शौचालय' : 'Girls Toilet', key: 'girls_toilet' },
+    { icon: '⚡', label: lang === 'hi' ? 'बिजली' : 'Electricity',  key: 'electricity' },
+    { icon: '📚', label: lang === 'hi' ? 'पुस्तकालय' : 'Library',      key: 'library' },
+    { icon: '🏃', label: lang === 'hi' ? 'खेल का मैदान' : 'Playground',   key: 'playground' },
+    { icon: '🍲', label: lang === 'hi' ? 'मध्याह्न भोजन' : 'Mid-Day Meal', key: 'mdm' },
+    { icon: '💻', label: lang === 'hi' ? 'कंप्यूटर लैब' : 'Computer Lab', key: 'computer' },
+  ];
 
   return (
     <>
@@ -244,11 +381,11 @@ export default async function SchoolPage({ params }) {
 
       {/* Breadcrumb */}
       <BreadcrumbNav items={[
-        { label: 'Home', href: '/' },
-        { label: school.state, href: `/schools/${stateSlug}` },
-        { label: school.district, href: `/schools/${stateSlug}/${districtSlug}` },
-        { label: school.block, href: `/schools/${stateSlug}/${districtSlug}/${blockSlug}` },
-        { label: school.village, href: `/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}` },
+        { label: t('Home', lang), href: '/' },
+        { label: stateName, href: `${pathPrefix}/schools/${stateSlug}` },
+        { label: districtName, href: `${pathPrefix}/schools/${stateSlug}/${districtSlug}` },
+        { label: school.block, href: `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}` },
+        { label: school.village, href: `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}` },
         { label: school.school_name },
       ]} />
 
@@ -256,7 +393,7 @@ export default async function SchoolPage({ params }) {
       <div style={{ background: '#1E40AF', padding: '24px 24px 20px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: isOperational ? '#10B981' : '#EF4444', color: 'white', fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: 12 }}>
-            {isOperational ? '✅ OPERATIONAL' : '⚠️ CLOSED'}
+            {isOperational ? (lang === 'hi' ? '✅ सक्रिय (Operational)' : '✅ OPERATIONAL') : (lang === 'hi' ? '⚠️ बंद (Closed)' : '⚠️ CLOSED')}
           </div>
           <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', fontWeight: 700, color: 'white', lineHeight: 1.3, marginBottom: 10 }}>
             {school.school_name}
@@ -264,14 +401,14 @@ export default async function SchoolPage({ params }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', fontSize: '0.8rem', color: '#93C5FD' }}>
             <span>UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace', color: '#BAE6FD' }}>{String(school.udise_code).padStart(11, '0')}</strong></span>
             <span style={{ color: '#475569' }}>·</span>
-            <span>📍 {school.village}, {school.block}, {school.district}, {school.state}</span>
+            <span>📍 {school.village}, {school.block}, {districtName}, {stateName}</span>
             <span style={{ color: '#475569' }}>·</span>
-            <span>🏫 {school.school_category} · {school.school_type} · {school.national_mgmt?.replace('Department of Education', 'Government')}</span>
+            <span>🏫 {t(school.school_category, lang)} · {t(school.school_type, lang)} · {t(school.national_mgmt, lang)}</span>
             {reviewStats && reviewStats.count > 0 && (
               <>
                 <span style={{ color: '#475569' }}>·</span>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#F59E0B', color: '#1E293B', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: 99 }}>
-                  ⭐ {reviewStats.avgRating} ({reviewStats.count} {reviewStats.count === 1 ? 'review' : 'reviews'})
+                  ⭐ {reviewStats.avgRating} ({reviewStats.count} {lang === 'hi' ? 'समीक्षा' : (reviewStats.count === 1 ? 'review' : 'reviews')})
                 </span>
               </>
             )}
@@ -294,15 +431,7 @@ export default async function SchoolPage({ params }) {
             whiteSpace: 'nowrap' 
           }}
         >
-          {[
-            { label: 'Overview', id: 'overview' },
-            { label: 'About', id: 'about' },
-            { label: 'UDISE Code', id: 'udise' },
-            { label: 'Infrastructure', id: 'infrastructure' },
-            { label: 'Admissions', id: 'admissions' },
-            { label: 'Reviews', id: 'reviews' },
-            { label: 'FAQs', id: 'faqs' }
-          ].map(link => (
+          {jumpLinks.map(link => (
             <a key={link.id} href={`#${link.id}`} className="jump-link" style={{ display: 'inline-block', flexShrink: 0, padding: '14px 0', fontSize: '0.85rem', fontWeight: 650, color: '#475569', textDecoration: 'none', borderBottom: '2px solid transparent', transition: 'all 0.15s ease' }}>
               {link.label}
             </a>
@@ -318,32 +447,40 @@ export default async function SchoolPage({ params }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* School Info Summary Paragraph */}
             <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.7, margin: '0 0 4px 0' }}>
-              <strong>{school.school_name}</strong> is a {school.school_category} school in {school.village}, {school.district}, {school.state}.
-              UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {school.school_type} · {school.national_mgmt} · {school.school_status}
+              {lang === 'hi' ? (
+                <>
+                  <strong>{school.school_name}</strong> {stateName} के {districtName} जिले में {school.village} गाँव का एक {t(school.school_category, lang)} स्कूल है। UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {t(school.school_type, lang)} · {t(school.national_mgmt, lang)} · {t(school.school_status, lang)}
+                </>
+              ) : (
+                <>
+                  <strong>{school.school_name}</strong> is a {school.school_category} school in {school.village}, {school.district}, {school.state}.
+                  UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {school.school_type} · {school.national_mgmt} · {school.school_status}
+                </>
+              )}
             </p>
 
             {/* School Info Table */}
             <div id="overview" className="card">
               <div className="card-header">
                 <span style={{ fontSize: 18 }}>ℹ️</span>
-                <span>School Information</span>
+                <span>{lang === 'hi' ? 'स्कूल की जानकारी' : 'School Information'}</span>
               </div>
               <div className="card-body">
                 <table className="info-table">
                   <tbody>
-                    <tr><td>UDISE Code</td><td><span className="udise-pill">{String(school.udise_code).padStart(11, '0')}</span></td></tr>
-                    <tr><td>School Name</td><td>{school.school_name}</td></tr>
-                    <tr><td>State</td><td>{school.state}</td></tr>
-                    <tr><td>District</td><td>{school.district}</td></tr>
-                    <tr><td>Block</td><td>{school.block}</td></tr>
-                    <tr><td>Village</td><td>{school.village}</td></tr>
-                    {school.cluster && <tr><td>Cluster</td><td>{school.cluster}</td></tr>}
-                    <tr><td>Location</td><td><span className={`badge ${school.location === 'Rural' ? 'badge-green' : 'badge-blue'}`}>{school.location === 'Rural' ? '🌿 Rural' : '🏙️ Urban'}</span></td></tr>
-                    <tr><td>Management</td><td>{school.national_mgmt}</td></tr>
-                    <tr><td>Category</td><td><span className="badge badge-blue">{school.school_category}</span></td></tr>
-                    <tr><td>School Type</td><td><span className="badge badge-teal">{school.school_type}</span></td></tr>
-                    <tr><td>Status</td><td><span className={`badge ${isOperational ? 'badge-green' : 'badge-red'}`}>{isOperational ? '✅ Operational' : '⚠️ Closed'}</span></td></tr>
-                    {districtStats?.dist_sample_pin && <tr><td>PIN Code</td><td>{districtStats.dist_sample_pin}</td></tr>}
+                    <tr><td>{lang === 'hi' ? 'UDISE कोड' : 'UDISE Code'}</td><td><span className="udise-pill">{String(school.udise_code).padStart(11, '0')}</span></td></tr>
+                    <tr><td>{lang === 'hi' ? 'स्कूल का नाम' : 'School Name'}</td><td>{school.school_name}</td></tr>
+                    <tr><td>{lang === 'hi' ? 'राज्य' : 'State'}</td><td>{stateName}</td></tr>
+                    <tr><td>{lang === 'hi' ? 'जिला' : 'District'}</td><td>{districtName}</td></tr>
+                    <tr><td>{lang === 'hi' ? 'ब्लॉक' : 'Block'}</td><td>{school.block}</td></tr>
+                    <tr><td>{lang === 'hi' ? 'गाँव' : 'Village'}</td><td>{school.village}</td></tr>
+                    {school.cluster && <tr><td>{lang === 'hi' ? 'क्लस्टर' : 'Cluster'}</td><td>{school.cluster}</td></tr>}
+                    <tr><td>{lang === 'hi' ? 'क्षेत्र' : 'Location'}</td><td><span className={`badge ${school.location === 'Rural' ? 'badge-green' : 'badge-blue'}`}>{school.location === 'Rural' ? (lang === 'hi' ? '🌿 ग्रामीण' : '🌿 Rural') : (lang === 'hi' ? '🏙️ शहरी' : '🏙️ Urban')}</span></td></tr>
+                    <tr><td>{lang === 'hi' ? 'प्रबंधन' : 'Management'}</td><td>{t(school.national_mgmt, lang)}</td></tr>
+                    <tr><td>{lang === 'hi' ? 'श्रेणी' : 'Category'}</td><td><span className="badge badge-blue">{t(school.school_category, lang)}</span></td></tr>
+                    <tr><td>{lang === 'hi' ? 'स्कूल का प्रकार' : 'School Type'}</td><td><span className="badge badge-teal">{t(school.school_type, lang)}</span></td></tr>
+                    <tr><td>{lang === 'hi' ? 'स्थिति' : 'Status'}</td><td><span className={`badge ${isOperational ? 'badge-green' : 'badge-red'}`}>{isOperational ? (lang === 'hi' ? '✅ सक्रिय (Operational)' : '✅ Operational') : (lang === 'hi' ? '⚠️ बंद (Closed)' : '⚠️ Closed')}</span></td></tr>
+                    {districtStats?.dist_sample_pin && <tr><td>{lang === 'hi' ? 'पिन कोड' : 'PIN Code'}</td><td>{districtStats.dist_sample_pin}</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -355,14 +492,18 @@ export default async function SchoolPage({ params }) {
             {/* About Section */}
             <div id="about" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                📖 About {school.school_name}
+                📖 {lang === 'hi' ? `${school.school_name} के बारे में` : `About ${school.school_name}`}
               </h2>
-              {getSchoolDescription(school, districtStats, stateSlug, districtSlug, blockSlug, villageSlug).split('\n\n').map((para, i) => (
+              {getSchoolDescription(school, districtStats, stateSlug, districtSlug, blockSlug, villageSlug, lang).split('\n\n').map((para, i) => (
                 <p key={i} style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.8, marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
               ))}
               {(school.national_mgmt?.includes('Department') || school.national_mgmt?.includes('Local Body')) && (
                 <div className="highlight-box">
-                  <p><strong>Mid-Day Meal (PM POSHAN):</strong> Government schools provide a cooked meal to students every school day. This is free and does not require any application.</p>
+                  {lang === 'hi' ? (
+                    <p><strong>मध्याह्न भोजन (PM POSHAN):</strong> सरकारी स्कूल हर स्कूल दिन छात्रों को पका हुआ भोजन प्रदान करते हैं। यह मुफ़्त है और इसके लिए किसी आवेदन की आवश्यकता नहीं है।</p>
+                  ) : (
+                    <p><strong>Mid-Day Meal (PM POSHAN):</strong> Government schools provide a cooked meal to students every school day. This is free and does not require any application.</p>
+                  )}
                 </div>
               )}
             </div>
@@ -370,12 +511,20 @@ export default async function SchoolPage({ params }) {
             {/* UDISE Code Breakdown */}
             <div id="udise" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                🔢 UDISE Code — {String(school.udise_code).padStart(11, '0')}
+                🔢 {lang === 'hi' ? `UDISE कोड — ${String(school.udise_code).padStart(11, '0')}` : `UDISE Code — ${String(school.udise_code).padStart(11, '0')}`}
               </h2>
               <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 14 }}>
-                The UDISE code of {school.school_name} is <strong>{String(school.udise_code).padStart(11, '0')}</strong>. UDISE stands for Unified District Information System for Education — a unique 11-digit code assigned to every school in India by the Ministry of Education, Government of India.
+                {lang === 'hi' ? (
+                  <>
+                    {school.school_name} का UDISE कोड <strong>{String(school.udise_code).padStart(11, '0')}</strong> है। UDISE का अर्थ है शिक्षा के लिए एकीकृत जिला सूचना प्रणाली — भारत सरकार के शिक्षा मंत्रालय द्वारा भारत के प्रत्येक स्कूल को आवंटित 11 अंकों का एक विशिष्ट कोड।
+                  </>
+                ) : (
+                  <>
+                    The UDISE code of {school.school_name} is <strong>{String(school.udise_code).padStart(11, '0')}</strong>. UDISE stands for Unified District Information System for Education — a unique 11-digit code assigned to every school in India by the Ministry of Education, Government of India.
+                  </>
+                )}
               </p>
-              <h3 style={{ fontSize: '0.825rem', fontWeight: 700, color: '#1E40AF', marginBottom: 10 }}>How to read this UDISE code</h3>
+              <h3 style={{ fontSize: '0.825rem', fontWeight: 700, color: '#1E40AF', marginBottom: 10 }}>{lang === 'hi' ? 'इस UDISE कोड को कैसे समझें' : 'How to read this UDISE code'}</h3>
               <div className="udise-breakdown-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 14 }}>
                 {udiseBreakdown.map((part, i) => (
                   <div key={i} style={{ background: udiseColors[i], borderRadius: 8, padding: '10px 6px', textAlign: 'center' }}>
@@ -385,23 +534,33 @@ export default async function SchoolPage({ params }) {
                 ))}
               </div>
               <div className="highlight-box teal">
-                <p>Your child needs this UDISE code for scholarship applications, college admission forms, and verifying school credentials with government portals like Scholarships.gov.in and NSP.</p>
+                {lang === 'hi' ? (
+                  <p>छात्रवृत्ति (NSP), कॉलेज प्रवेश और राष्ट्रीय छात्रवृत्ति पोर्टल (Scholarships.gov.in) पर स्कूल की प्रामाणिकता की जांच करने के लिए आपके बच्चे को इस UDISE कोड की आवश्यकता होगी।</p>
+                ) : (
+                  <p>Your child needs this UDISE code for scholarship applications, college admission forms, and verifying school credentials with government portals like Scholarships.gov.in and NSP.</p>
+                )}
               </div>
             </div>
 
             {/* Facilities */}
             <div id="infrastructure" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 8, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                🔧 School Facilities
+                🔧 {lang === 'hi' ? 'स्कूल की सुविधाएँ' : 'School Facilities'}
               </h2>
               <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
-                <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
-                  <strong>⚠️ Data not available in current dataset.</strong> We don't have facility records (toilets, electricity, library etc.) for this school. For accurate infrastructure details, download the free School Report Card from <strong>udiseplus.gov.in</strong> using UDISE code <strong>{String(school.udise_code).padStart(11, '0')}</strong>.
-                </p>
+                {lang === 'hi' ? (
+                  <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
+                    <strong>⚠️ डेटा उपलब्ध नहीं है।</strong> वर्तमान डेटासेट में इस स्कूल की सुविधाओं (शौचालय, बिजली, पुस्तकालय आदि) के सटीक रिकॉर्ड उपलब्ध नहीं हैं। सही जानकारी के लिए UDISE+ पोर्टल से UDISE कोड <strong>{String(school.udise_code).padStart(11, '0')}</strong> के माध्यम से स्कूल का निःशुल्क रिपोर्ट कार्ड डाउनलोड करें।
+                  </p>
+                ) : (
+                  <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
+                    <strong>⚠️ Data not available in current dataset.</strong> We don't have facility records (toilets, electricity, library etc.) for this school. For accurate infrastructure details, download the free School Report Card from <strong>udiseplus.gov.in</strong> using UDISE code <strong>{String(school.udise_code).padStart(11, '0')}</strong>.
+                  </p>
+                )}
               </div>
               <div className="facilities-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 14 }}>
-                {FACILITIES.map(f => {
-                  const { status, label } = getFacilityStatus(school, f.key);
+                {FACILITIES_LOCALIZED.map(f => {
+                  const { status, label } = getFacilityStatus(school, f.key, lang);
                   const statusColor = status === 'available' ? '#10B981' : status === 'verify' ? '#94A3B8' : '#EF4444';
                   return (
                     <div key={f.key} style={{ border: '1px solid #E2E8F0', borderRadius: 8, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8, background: '#F8FAFC' }}>
@@ -415,7 +574,11 @@ export default async function SchoolPage({ params }) {
                 })}
               </div>
               <p style={{ fontSize: '0.775rem', color: '#64748B', lineHeight: 1.6, marginTop: 4 }}>
-                Before visiting any school, check if separate toilets for boys and girls are working, and whether drinking water is available. You can also ask the Block Education Officer (BEO) in {school.block} for an inspection report.
+                {lang === 'hi' ? (
+                  'किसी भी स्कूल में जाने से पहले, यह जांच लें कि वहाँ लड़कों और लड़कियों के लिए अलग शौचालय चालू हैं या नहीं, और पेयजल उपलब्ध है या नहीं। आप ब्लॉक शिक्षा अधिकारी (BEO) से भी स्कूल की निरीक्षण रिपोर्ट मांग सकते हैं।'
+                ) : (
+                  `Before visiting any school, check if separate toilets for boys and girls are working, and whether drinking water is available. You can also ask the Block Education Officer (BEO) in ${school.block} for an inspection report.`
+                )}
               </p>
             </div>
 
@@ -423,15 +586,15 @@ export default async function SchoolPage({ params }) {
             {nearby.length > 0 && (
               <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
                 <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                  🏫 Nearby Schools in {school.village}
+                  🏫 {lang === 'hi' ? `${school.village} में आस-पास के स्कूल` : `Nearby Schools in ${school.village}`}
                 </h2>
                 <div className="nearby-schools-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
                   {nearby.map(nb => (
-                    <Link key={nb.udise_code} href={nb.url || '#'} style={{ textDecoration: 'none' }}>
+                    <Link key={nb.udise_code} href={nb.url ? `${pathPrefix}${nb.url}` : '#'} style={{ textDecoration: 'none' }}>
                       <div style={{ border: '1px solid #E2E8F0', borderRadius: 8, padding: '10px 12px', cursor: 'pointer', background: '#F8FAFC', transition: 'border-color 0.15s' }}>
                         <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#1E293B', marginBottom: 4, lineHeight: 1.3 }}>{nb.school_name}</div>
                         <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
-                          <span style={{ background: '#EFF6FF', color: '#1E40AF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 99 }}>{nb.school_category}</span>
+                          <span style={{ background: '#EFF6FF', color: '#1E40AF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 99 }}>{t(nb.school_category, lang)}</span>
                           <span style={{ fontSize: '0.7rem', color: '#64748B' }}>{nb.village}</span>
                         </div>
                         <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: '#94A3B8' }}>UDISE: {nb.udise_code}</div>
@@ -445,14 +608,22 @@ export default async function SchoolPage({ params }) {
             {/* RTE Section */}
             <div id="admissions" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                📜 RTE Admission — Enrolling Your Child
+                📜 {lang === 'hi' ? 'आरटीई प्रवेश — अपने बच्चे का नामांकन' : 'RTE Admission — Enrolling Your Child'}
               </h2>
               <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 14 }}>
-                Under the RTE Act (2009), every child aged 6 to 14 has the right to free education. {rte.isGovt ? 'This is already a government school — admission here is free.' : `This is a private school. Under RTE, it must give 25% of Class 1 seats free to children from low-income families in ${school.village} and nearby areas.`}
+                {lang === 'hi' ? (
+                  <>
+                    आरटीई अधिनियम (2009) के तहत, 6 से 14 वर्ष की आयु के प्रत्येक बच्चे को मुफ्त शिक्षा का अधिकार है। {rte.isGovt ? 'यह पहले से ही एक सरकारी स्कूल है — यहाँ प्रवेश बिल्कुल मुफ्त है।' : `यह एक निजी स्कूल है। आरटीई के तहत, इसे ${school.village} और आस-पास के क्षेत्रों के गरीब परिवारों के बच्चों को 25% सीटें मुफ्त देनी होंगी।`}
+                  </>
+                ) : (
+                  <>
+                    Under the RTE Act (2009), every child aged 6 to 14 has the right to free education. {rte.isGovt ? 'This is already a government school — admission here is free.' : `This is a private school. Under RTE, it must give 25% of Class 1 seats free to children from low-income families in ${school.village} and nearby areas.`}
+                  </>
+                )}
               </p>
 
               <div style={{ background: '#EFF6FF', borderLeft: '4px solid #3B82F6', borderRadius: '0 8px 8px 0', padding: '12px 16px', marginBottom: 16 }}>
-                <p style={{ fontSize: '0.825rem', color: '#1E40AF', margin: 0, fontWeight: 700, marginBottom: 4 }}>📅 Admission Timeline Alert</p>
+                <p style={{ fontSize: '0.825rem', color: '#1E40AF', margin: 0, fontWeight: 700, marginBottom: 4 }}>📅 {lang === 'hi' ? 'प्रवेश समय-सीमा चेतावनी' : 'Admission Timeline Alert'}</p>
                 <p style={{ fontSize: '0.825rem', color: '#1E3A8A', margin: 0, lineHeight: 1.6 }}>{rte.schedule}</p>
               </div>
 
@@ -477,7 +648,7 @@ export default async function SchoolPage({ params }) {
 
             {/* FAQ */}
             <div id="faqs" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>FAQs</h2>
+              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>{t('FAQs', lang)}</h2>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {faqs.map(({ q, a }) => (
                   <details key={q} className="faq-item">
@@ -495,22 +666,26 @@ export default async function SchoolPage({ params }) {
 
             {/* Disclaimer */}
             <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '14px 18px' }}>
-              <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#92400E', marginBottom: 6 }}>⚠️ Disclaimer</div>
+              <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#92400E', marginBottom: 6 }}>⚠️ {lang === 'hi' ? 'अस्वीकरण (Disclaimer)' : 'Disclaimer'}</div>
               <p style={{ fontSize: '0.775rem', color: '#78350F', lineHeight: 1.75 }}>
-                The information on this page is sourced from UDISE+, published by the Ministry of Education, Government of India, and from Census of India demographic data. SchoolsPedia.in is an independent information platform and is not affiliated with, endorsed by, or officially connected to the Ministry of Education or any state education department. All data is for informational purposes only. Always verify with the school directly or your Block Education Officer (BEO) before making enrollment decisions.
+                {lang === 'hi' ? (
+                  'इस पृष्ठ की जानकारी शिक्षा मंत्रालय, भारत सरकार द्वारा प्रकाशित UDISE+ और भारत की जनगणना के जनसांख्यिकी डेटा से ली गई है। SchoolsPedia.in एक स्वतंत्र सूचना मंच है और शिक्षा मंत्रालय या किसी राज्य के शिक्षा विभाग से आधिकारिक रूप से संबद्ध नहीं है। सभी डेटा केवल जानकारी के लिए हैं। किसी भी स्कूल में नामांकन का निर्णय लेने से पहले सीधे स्कूल या अपने ब्लॉक शिक्षा अधिकारी (BEO) से जानकारी सत्यापित करें।'
+                ) : (
+                  'The information on this page is sourced from UDISE+, published by the Ministry of Education, Government of India, and from Census of India demographic data. SchoolsPedia.in is an independent information platform and is not affiliated with, endorsed by, or officially connected to the Ministry of Education or any state education department. All data is for informational purposes only. Always verify with the school directly or your Block Education Officer (BEO) before making enrollment decisions.'
+                )}
               </p>
             </div>
 
             {/* Breadcrumb trail */}
             <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 18px' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>🗺 You are here</div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>🗺️ {lang === 'hi' ? 'आप यहाँ हैं' : 'You are here'}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 {[
-                  { label: 'Home', href: '/' },
-                  { label: school.state, href: `/schools/${stateSlug}` },
-                  { label: school.district, href: `/schools/${stateSlug}/${districtSlug}` },
-                  { label: school.block, href: `/schools/${stateSlug}/${districtSlug}/${blockSlug}` },
-                  { label: school.village, href: `/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}` },
+                  { label: t('Home', lang), href: '/' },
+                  { label: stateName, href: `${pathPrefix}/schools/${stateSlug}` },
+                  { label: districtName, href: `${pathPrefix}/schools/${stateSlug}/${districtSlug}` },
+                  { label: school.block, href: `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}` },
+                  { label: school.village, href: `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}` },
                   { label: school.school_name, href: null },
                 ].map((item, i) => (
                   <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -530,14 +705,16 @@ export default async function SchoolPage({ params }) {
 
             {/* At a Glance */}
             <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>School at a glance</div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>
+                {lang === 'hi' ? 'स्कूल एक नज़र में' : 'School at a glance'}
+              </div>
               {[
-                ['Category', school.school_category, '#1E40AF'],
-                ['Type', school.school_type, '#0D9488'],
-                ['Management', school.national_mgmt?.replace('Department of Education', 'Dept. of Education'), '#1E293B'],
-                ['Location', school.location, '#16A34A'],
-                ['Status', school.school_status, isOperational ? '#10B981' : '#EF4444'],
-                ['UDISE Code', String(school.udise_code).padStart(11, '0'), '#1E40AF'],
+                [lang === 'hi' ? 'श्रेणी' : 'Category', t(school.school_category, lang), '#1E40AF'],
+                [lang === 'hi' ? 'प्रकार' : 'Type', t(school.school_type, lang), '#0D9488'],
+                [lang === 'hi' ? 'प्रबंधन' : 'Management', t(school.national_mgmt, lang)?.replace('Department of Education', 'Dept. of Education'), '#1E293B'],
+                [lang === 'hi' ? 'क्षेत्र' : 'Location', school.location === 'Rural' ? (lang === 'hi' ? '🌿 ग्रामीण' : 'Rural') : (lang === 'hi' ? '🏙️ शहरी' : 'Urban'), '#16A34A'],
+                [lang === 'hi' ? 'स्थिति' : 'Status', t(school.school_status, lang), isOperational ? '#10B981' : '#EF4444'],
+                [lang === 'hi' ? 'UDISE कोड' : 'UDISE Code', String(school.udise_code).padStart(11, '0'), '#1E40AF'],
               ].map(([label, val, color]) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F1F5F9', fontSize: '0.8rem' }}>
                   <span style={{ color: '#64748B', fontSize: '0.775rem' }}>{label}</span>
@@ -545,7 +722,7 @@ export default async function SchoolPage({ params }) {
                 </div>
               ))}
               <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-                {['📱 Share', '📋 Copy', '🖨️ Print'].map(btn => (
+                {[lang === 'hi' ? '📱 साझा करें' : '📱 Share', lang === 'hi' ? '📋 कॉपी करें' : '📋 Copy', lang === 'hi' ? '🖨️ प्रिंट करें' : '🖨️ Print'].map(btn => (
                   <button key={btn} style={{ flex: 1, border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: 7, padding: '7px 4px', fontSize: '0.7rem', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>{btn}</button>
                 ))}
               </div>
@@ -554,7 +731,7 @@ export default async function SchoolPage({ params }) {
             {/* Location */}
             {districtStats?.dist_avg_lat && (
               <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>📍 Location</div>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>📍 {lang === 'hi' ? 'स्थान' : 'Location'}</div>
                 <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, height: 110, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <span style={{ fontSize: 24 }}>📍</span>
                   <div style={{ fontSize: '0.8rem', color: '#3B82F6', fontWeight: 600 }}>{school.village}, {school.block}</div>
@@ -565,13 +742,13 @@ export default async function SchoolPage({ params }) {
 
             {/* Quick Links */}
             <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>🔗 Quick Links</div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>🔗 {lang === 'hi' ? 'त्वरित लिंक' : 'Quick Links'}</div>
               {[
-                [`Schools in ${school.village}`, `/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}`],
-                [`${school.block} block schools`, `/schools/${stateSlug}/${districtSlug}/${blockSlug}`],
-                [`${school.district} district schools`, `/schools/${stateSlug}/${districtSlug}`],
-                [`${school.school_category} schools in ${school.state}`, `/search?state=${stateSlug}&category=${school.school_category}`],
-                [`${school.state} schools`, `/schools/${stateSlug}`],
+                [lang === 'hi' ? `${school.village} में स्कूल` : `Schools in ${school.village}`, `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}`],
+                [lang === 'hi' ? `${school.block} ब्लॉक में स्कूल` : `${school.block} block schools`, `${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}`],
+                [lang === 'hi' ? `${districtName} जिले में स्कूल` : `${school.district} district schools`, `${pathPrefix}/schools/${stateSlug}/${districtSlug}`],
+                [lang === 'hi' ? `${stateName} में ${t(school.school_category, lang)} स्कूल` : `${school.school_category} schools in ${school.state}`, `/search?state=${stateSlug}&category=${school.school_category}`],
+                [lang === 'hi' ? `${stateName} में स्कूल` : `${school.state} schools`, `${pathPrefix}/schools/${stateSlug}`],
               ].map(([label, href]) => (
                 <Link key={href} href={href} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F1F5F9', fontSize: '0.8rem', color: '#1E40AF', fontWeight: 500, textDecoration: 'none' }}>
                   {label} <span>→</span>
@@ -583,14 +760,20 @@ export default async function SchoolPage({ params }) {
             <AdSlot size="sidebar" />
 
             {/* District Stats */}
-            <DistrictStats stats={districtStats} districtName={school.district} />
+            <DistrictStats stats={districtStats} districtName={districtName} lang={lang} />
 
             {/* Error Report */}
             <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: 14 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#92400E', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>⚠️ Found an error?</div>
-              <p style={{ fontSize: '0.775rem', color: '#78350F', lineHeight: 1.6, marginBottom: 10 }}>If any detail on this page is incorrect, please report it. We review and update within 7 working days.</p>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#92400E', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>⚠️ {lang === 'hi' ? 'कोई गलती मिली?' : 'Found an error?'}</div>
+              <p style={{ fontSize: '0.775rem', color: '#78350F', lineHeight: 1.6, marginBottom: 10 }}>
+                {lang === 'hi' ? (
+                  'यदि इस पृष्ठ पर कोई जानकारी गलत है, तो कृपया हमें रिपोर्ट करें। हम 7 कार्य दिवसों के भीतर समीक्षा करके अपडेट करते हैं।'
+                ) : (
+                  'If any detail on this page is incorrect, please report it. We review and update within 7 working days.'
+                )}
+              </p>
               <Link href="/contact" style={{ display: 'block', background: '#F97316', color: 'white', textAlign: 'center', padding: '9px', borderRadius: 7, fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>
-                🚩 Report incorrect data
+                {lang === 'hi' ? '🚩 गलत जानकारी की रिपोर्ट करें' : '🚩 Report incorrect data'}
               </Link>
             </div>
 
@@ -599,20 +782,26 @@ export default async function SchoolPage({ params }) {
 
             {/* Search */}
             <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>🔍 Search schools</div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>🔍 {lang === 'hi' ? 'स्कूल खोजें' : 'Search schools'}</div>
               <div style={{ display: 'flex', border: '1px solid #E2E8F0', borderRadius: 8, overflow: 'hidden' }}>
-                <input type="text" placeholder="School name, UDISE..." style={{ flex: 1, border: 'none', outline: 'none', padding: '9px 10px', fontSize: '0.8rem', background: '#F8FAFC' }} />
+                <input type="text" placeholder={lang === 'hi' ? 'स्कूल का नाम, UDISE...' : 'School name, UDISE...'} style={{ flex: 1, border: 'none', outline: 'none', padding: '9px 10px', fontSize: '0.8rem', background: '#F8FAFC' }} />
                 <Link href="/search" style={{ background: '#1E40AF', color: 'white', border: 'none', padding: '9px 12px', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>🔍</Link>
               </div>
-              <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6 }}>Search from 16.5 lakh+ schools across India</div>
+              <div style={{ fontSize: '0.7rem', color: '#94A3B8', marginTop: 6 }}>
+                {lang === 'hi' ? 'भारत के 16.5 लाख+ स्कूलों में से खोजें' : 'Search from 16.5 lakh+ schools across India'}
+              </div>
             </div>
 
             {/* CTA */}
             <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', borderRadius: 10, padding: 16 }}>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: 'white', marginBottom: 6 }}>Can&apos;t find your school?</div>
-              <div style={{ fontSize: '0.8rem', color: '#BAE6FD', lineHeight: 1.5, marginBottom: 14 }}>Search from 16.5 lakh+ schools across all 36 states</div>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: 'white', marginBottom: 6 }}>
+                {lang === 'hi' ? 'अपना स्कूल नहीं मिल रहा?' : "Can't find your school?"}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#BAE6FD', lineHeight: 1.5, marginBottom: 14 }}>
+                {lang === 'hi' ? 'सभी 36 राज्यों के 16.5 लाख+ स्कूलों में खोजें' : 'Search from 16.5 lakh+ schools across all 36 states'}
+              </div>
               <Link href="/search" style={{ display: 'block', background: '#F97316', color: 'white', textAlign: 'center', padding: '10px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
-                🔍 Search all schools
+                🔍 {lang === 'hi' ? 'सभी स्कूल खोजें' : 'Search all schools'}
               </Link>
             </div>
           </div>

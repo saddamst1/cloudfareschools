@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function SearchBox({ placeholder = 'School name, UDISE code, village, district...', stateSlug = null, districtSlug = null }) {
+export default function SearchBox({ placeholder = 'School name, UDISE code, village, district...', stateSlug = null, districtSlug = null, lang = 'en' }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -76,7 +76,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
           aria-label="Search schools"
         />
         <button onClick={handleSearch} aria-label="Search">
-          {loading ? '⏳' : '🔍'} Search
+          {loading ? '⏳' : '🔍'} {lang === 'hi' ? 'खोजें' : 'Search'}
         </button>
       </div>
 
@@ -96,10 +96,12 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
         }}>
           {/* Scrollable container for suggestion items */}
           <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
-            {results.map((r, i) => (
-              <a
-                key={r.udise_code || i}
-                href={r.url}
+            {results.map((r, i) => {
+              const resolvedUrl = lang === 'hi' && r.url?.startsWith('/schools/') ? `/hi${r.url}` : r.url;
+              return (
+                <a
+                  key={r.udise_code || i}
+                  href={resolvedUrl}
                 style={{
                   display: 'block',
                   padding: '11px 16px',
@@ -118,8 +120,9 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
                   <span style={{ fontSize: '0.7rem', fontWeight: 600, color: categoryColor(r.school_category), background: '#EFF6FF', padding: '1px 6px', borderRadius: 99 }}>{r.school_category}</span>
                 </div>
                 <div style={{ fontSize: '0.7rem', color: '#64748B', marginTop: 2, fontFamily: 'monospace' }}>UDISE: {String(r.udise_code).padStart(11, '0')}</div>
-              </a>
-            ))}
+                </a>
+              );
+            })}
           </div>
           {/* Sticky view all results bar */}
           <a

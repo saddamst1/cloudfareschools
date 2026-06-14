@@ -4,6 +4,7 @@ import { getAllDistrictSlugs, getDistrict, getDistrictBlocks, getDistrictCategor
 import { getDistrictMeta, breadcrumbSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
 import SearchBox from '@/components/SearchBox';
+import DistrictStats from '@/components/DistrictStats';
 
 export const revalidate = 86400;
 
@@ -22,14 +23,20 @@ export async function generateStaticParams() {
   return list;
 }
 
-export async function generateMetadata({ params }) {
+import { t } from '@/lib/translate';
+
+export async function getDistrictPageMetadata({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug } = await params;
   const district = await getDistrict(stateSlug, districtSlug);
   if (!district) return { title: 'District Not Found | SchoolsPedia' };
-  return getDistrictMeta(district);
+  return getDistrictMeta(district, lang);
 }
 
-export default async function DistrictPage({ params }) {
+export async function generateMetadata(props) {
+  return getDistrictPageMetadata({ ...props, lang: 'en' });
+}
+
+export default async function DistrictPage({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug } = await params;
   const [district, blocks, categories, adjacent, districtSchools] = await Promise.all([
     getDistrict(stateSlug, districtSlug),
@@ -40,19 +47,64 @@ export default async function DistrictPage({ params }) {
   ]);
   if (!district) notFound();
 
+  const stateName = t(district.state_slug, lang);
+  const districtName = t(district.district_slug, lang);
+
   const crumbSchema = breadcrumbSchema([
-    { name: 'Home', url: '/' },
-    { name: district.state_name, url: `/schools/${stateSlug}` },
-    { name: district.district_name, url: `/schools/${stateSlug}/${districtSlug}` },
+    { name: t('Home', lang), url: '/' },
+    { name: stateName, url: `${lang === 'hi' ? '/hi' : ''}/schools/${stateSlug}` },
+    { name: districtName, url: `${lang === 'hi' ? '/hi' : ''}/schools/${stateSlug}/${districtSlug}` },
   ]);
 
   const fmt = (n) => n ? Number(n).toLocaleString('en-IN') : '—';
   const fmtPop = (n) => {
     if (!n) return '—';
-    if (n >= 10000000) return `${(n/10000000).toFixed(1)} Cr`;
-    if (n >= 100000) return `${(n/100000).toFixed(1)} Lakh`;
+    if (n >= 10000000) return `${(n/10000000).toFixed(1)} ${lang === 'hi' ? 'करोड़' : 'Cr'}`;
+    if (n >= 100000) return `${(n/100000).toFixed(1)} ${lang === 'hi' ? 'लाख' : 'Lakh'}`;
     return n.toLocaleString('en-IN');
   };
+
+  const pathPrefix = lang === 'hi' ? '/hi' : '';
+
+  const faqs = lang === 'hi' ? [
+    {
+      q: `${districtName} जिले में कुल कितने ब्लॉक और स्कूल हैं?`,
+      a: `${districtName} जिले में UDISE+ के अंतर्गत कुल **${fmt(district.total_schools)} स्कूल** और **${district.block_count} ब्लॉक** हैं। अपने गाँव और स्कूलों को देखने के लिए ऊपर दी गई सूची में से किसी भी ब्लॉक पर क्लिक करें।`
+    },
+    {
+      q: `${districtName} जिले में साक्षरता दर क्या है?`,
+      a: district.dist_literacy_pct
+        ? `${districtName} जिले में साक्षरता दर जनगणना डेटा के अनुसार **${district.dist_literacy_pct.toFixed(1)}%** है।`
+        : `${districtName} जिले के लिए साक्षरता दर का डेटा उपलब्ध नहीं है।`
+    },
+    {
+      q: `${districtName} के किसी विशिष्ट गाँव में स्कूल कैसे खोजें?`,
+      a: `सबसे पहले ऊपर दी गई सूची से अपने ब्लॉक पर क्लिक करें। ब्लॉक पृष्ठ पर उस ब्लॉक के सभी गाँवों की सूची दिखाई देगी। अपने गाँव पर क्लिक करके आप वहाँ के सभी पंजीकृत स्कूलों की सूची UDISE कोड के साथ देख सकते हैं।`
+    },
+    {
+      q: `क्या ${districtName} के निजी स्कूल आरटीई (RTE) के तहत मुफ्त सीटें प्रदान करते हैं?`,
+      a: `हाँ। शिक्षा के अधिकार (RTE) अधिनियम के तहत, सभी निजी गैर-सहायता प्राप्त स्कूलों को अपनी प्रवेश कक्षा (नर्सरी या कक्षा 1) में 25% सीटें पड़ोस के आर्थिक रूप से कमजोर और वंचित समूहों के बच्चों के लिए मुफ्त आरक्षित रखनी होती हैं।`
+    }
+  ] : [
+    {
+      q: `How many blocks and schools are in ${district.district_name}?`,
+      a: `${district.district_name} has **${fmt(district.total_schools)} schools** across **${district.block_count} blocks**. Click any block in the list above to see its villages and schools.`
+    },
+    {
+      q: `What is the literacy rate in ${district.district_name}?`,
+      a: district.dist_literacy_pct
+        ? `The literacy rate in ${district.district_name} is **${district.dist_literacy_pct.toFixed(1)}%** as per Census data.`
+        : `Literacy rate data for ${district.district_name} is not available in our current dataset. Check the Census of India website for district-level education data.`
+    },
+    {
+      q: `How do I find a school in a specific village in ${district.district_name}?`,
+      a: `Click the block your village belongs to from the list above. The block page shows all villages. Click your village to see every school registered there in UDISE+.`
+    },
+    {
+      q: `Do private schools in ${district.district_name} offer free seats under RTE?`,
+      a: `Yes. Private unaided schools must keep 25% of their entry-class seats (Nursery or Class 1) free for children from low-income or disadvantaged families. Admission is through the state's RTE portal — not directly at the school.`
+    }
+  ];
 
   return (
     <>
@@ -60,10 +112,10 @@ export default async function DistrictPage({ params }) {
 
       <div className="breadcrumb">
         <div className="breadcrumb-inner">
-          <Link href="/">Home</Link><span className="sep">›</span>
-          <Link href="/schools">Schools</Link><span className="sep">›</span>
-          <Link href={`/schools/${stateSlug}`}>{district.state_name}</Link><span className="sep">›</span>
-          <span className="current">{district.district_name}</span>
+          <Link href="/">{t('Home', lang)}</Link><span className="sep">›</span>
+          <Link href="/schools">{t('Schools', lang)}</Link><span className="sep">›</span>
+          <Link href={`${pathPrefix}/schools/${stateSlug}`}>{stateName}</Link><span className="sep">›</span>
+          <span className="current">{districtName}</span>
         </div>
       </div>
 
@@ -71,18 +123,23 @@ export default async function DistrictPage({ params }) {
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '28px 24px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.4rem, 3vw, 1.85rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
-            Schools in {district.district_name} District, {district.state_name}
+            {lang === 'hi' ? `${stateName} के ${districtName} जिले में स्कूल` : `Schools in ${district.district_name} District, ${district.state_name}`}
           </h1>
           <p style={{ fontSize: '0.875rem', color: '#93C5FD', lineHeight: 1.6, marginBottom: 0 }}>
-            {fmt(district.total_schools)} schools across {district.block_count} blocks
-            {district.dist_literacy_pct ? ` · Literacy: ${district.dist_literacy_pct.toFixed(1)}%` : ''}
-            {district.dist_population ? ` · Population: ${fmtPop(district.dist_population)}` : ''}
+            {lang === 'hi' ? (
+              `कुल ${fmt(district.total_schools)} स्कूल, जो ${district.block_count} ब्लॉकों में फैले हैं`
+            ) : (
+              `${fmt(district.total_schools)} schools across ${district.block_count} blocks`
+            )}
+            {district.dist_literacy_pct ? ` · ${lang === 'hi' ? 'साक्षरता' : 'Literacy'}: ${district.dist_literacy_pct.toFixed(1)}%` : ''}
+            {district.dist_population ? ` · ${lang === 'hi' ? 'जनसंख्या' : 'Population'}: ${fmtPop(district.dist_population)}` : ''}
           </p>
           <div style={{ marginTop: 20, maxWidth: 600 }}>
             <SearchBox 
-              placeholder={`Search schools in ${district.district_name}...`} 
+              placeholder={lang === 'hi' ? `${districtName} में स्कूल खोजें...` : `Search schools in ${district.district_name}...`} 
               stateSlug={stateSlug} 
               districtSlug={districtSlug} 
+              lang={lang}
             />
           </div>
         </div>
@@ -98,7 +155,7 @@ export default async function DistrictPage({ params }) {
             {categories && categories.length > 0 && (
               <div style={{ marginTop: 24, marginBottom: 8 }}>
                 <span style={{ fontSize: '0.825rem', fontWeight: 700, color: '#475569', display: 'block', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                  Filter schools by category:
+                  {t('Filter schools by category', lang)}:
                 </span>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {categories.map(cat => (
@@ -118,7 +175,7 @@ export default async function DistrictPage({ params }) {
                       }}
                       className="category-chip"
                     >
-                      🏫 {cat.school_category} ({fmt(cat.count)})
+                      🏫 {t(cat.school_category, lang)} ({fmt(cat.count)})
                     </Link>
                   ))}
                 </div>
@@ -128,18 +185,18 @@ export default async function DistrictPage({ params }) {
             {/* Blocks Grid */}
             <div style={{ marginTop: 24 }}>
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, marginBottom: 14 }}>
-                Blocks in {district.district_name} ({blocks.length})
+                {lang === 'hi' ? `${districtName} में ब्लॉक` : `Blocks in ${district.district_name}`} ({blocks.length})
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 10 }}>
                 {blocks.map(b => (
-                  <Link key={b.block_slug} href={`/schools/${stateSlug}/${b.district_slug || districtSlug}/${b.block_slug}`} style={{ textDecoration: 'none' }}>
+                  <Link key={b.block_slug} href={`${pathPrefix}/schools/${stateSlug}/${b.district_slug || districtSlug}/${b.block_slug}`} style={{ textDecoration: 'none' }}>
                     <div className="card" style={{ padding: '14px 16px', cursor: 'pointer' }}>
                       <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1E293B', marginBottom: 6 }}>{b.block_name}</div>
                       <div style={{ display: 'flex', gap: 12, fontSize: '0.775rem', color: '#64748B' }}>
-                        <span>{fmt(b.total_schools)} schools</span>
-                        <span>{b.village_count} villages</span>
+                        <span>{fmt(b.total_schools)} {t('schools', lang)}</span>
+                        <span>{b.village_count} {t('villages', lang)}</span>
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#1E40AF', marginTop: 8 }}>View block →</div>
+                      <div style={{ fontSize: '0.75rem', color: '#1E40AF', marginTop: 8 }}>{t('View block', lang)} →</div>
                     </div>
                   </Link>
                 ))}
@@ -150,11 +207,11 @@ export default async function DistrictPage({ params }) {
             {districtSchools && districtSchools.length > 0 && (
               <div style={{ marginTop: 32 }}>
                 <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.05rem', fontWeight: 700, marginBottom: 16 }}>
-                  🏫 Featured Schools in {district.district_name} District
+                  🏫 {lang === 'hi' ? `${districtName} में प्रमुख स्कूल` : `Featured Schools in ${district.district_name} District`}
                 </h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
                   {districtSchools.map(school => (
-                    <Link key={school.udise_code} href={school.url} style={{ textDecoration: 'none' }}>
+                    <Link key={school.udise_code} href={`${pathPrefix}${school.url}`} style={{ textDecoration: 'none' }}>
                       <div className="card" style={{ padding: '14px 16px', cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                         <div>
                           <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1E293B', marginBottom: 6, lineHeight: 1.4 }}>
@@ -162,7 +219,7 @@ export default async function DistrictPage({ params }) {
                           </div>
                           <div style={{ display: 'flex', gap: 8, fontSize: '0.725rem', color: '#64748B', flexWrap: 'wrap', marginBottom: 6 }}>
                             <span style={{ background: '#EFF6FF', color: '#1E40AF', padding: '2px 8px', borderRadius: 99, fontWeight: 600 }}>
-                              {school.school_category}
+                              {t(school.school_category, lang)}
                             </span>
                             <span>{school.village}</span>
                           </div>
@@ -171,7 +228,7 @@ export default async function DistrictPage({ params }) {
                           <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: '#94A3B8' }}>
                             UDISE: {school.udise_code}
                           </span>
-                          <span style={{ fontSize: '0.725rem', color: '#1E40AF', fontWeight: 600 }}>Explore →</span>
+                          <span style={{ fontSize: '0.725rem', color: '#1E40AF', fontWeight: 600 }}>{t('Explore', lang)} →</span>
                         </div>
                       </div>
                     </Link>
@@ -186,46 +243,44 @@ export default async function DistrictPage({ params }) {
               {/* About District */}
               <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '22px' }}>
                 <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                  Schools in {district.district_name} District
+                  {lang === 'hi' ? `${districtName} जिले में स्कूल` : `Schools in ${district.district_name} District`}
                 </h2>
-                <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: district.dist_literacy_pct || district.dist_population ? 12 : 0 }}>
-                  {district.district_name} has <strong>{fmt(district.total_schools)} schools</strong> across <strong>{district.block_count} blocks</strong>. To find a school near you, click on the block your village falls under — the block page will list all villages, and the village page shows every school registered there.
-                </p>
-                {(district.dist_literacy_pct || district.dist_population) && (
-                  <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 0 }}>
-                    {district.dist_literacy_pct ? <><strong>Literacy rate: {district.dist_literacy_pct.toFixed(1)}%</strong> (Census data). </> : null}
-                    {district.dist_population ? <>Population: <strong>{fmtPop(district.dist_population)}</strong>.</> : null}
-                    {district.dist_sex_ratio ? <> Sex ratio: <strong>{Math.round(district.dist_sex_ratio)} females per 1,000 males</strong>.</> : null}
-                  </p>
+                {lang === 'hi' ? (
+                  <>
+                    <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: district.dist_literacy_pct || district.dist_population ? 12 : 0 }}>
+                      <strong>{districtName}</strong> जिले में UDISE+ के अनुसार कुल <strong>{fmt(district.total_schools)} स्कूल</strong> हैं जो <strong>{district.block_count} ब्लॉकों</strong> में स्थित हैं। अपने नजदीकी स्कूल को खोजने के लिए, उस ब्लॉक पर क्लिक करें जिसके अंतर्गत आपका गाँव आता है - ब्लॉक विवरण पृष्ठ पर सभी गाँवों की सूची मिलेगी, और गाँव के पृष्ठ पर वहाँ पंजीकृत सभी स्कूलों की जानकारी प्राप्त होगी।
+                    </p>
+                    {(district.dist_literacy_pct || district.dist_population) && (
+                      <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 0 }}>
+                        {district.dist_literacy_pct ? <>साक्षरता दर: <strong>{district.dist_literacy_pct.toFixed(1)}%</strong> (जनगणना डेटा)। </> : null}
+                        {district.dist_population ? <>जनसंख्या: <strong>{fmtPop(district.dist_population)}</strong>।</> : null}
+                        {district.dist_sex_ratio ? <> लिंगानुपात: <strong>{Math.round(district.dist_sex_ratio)} महिलाएँ प्रति 1,000 पुरुष</strong>।</> : null}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: district.dist_literacy_pct || district.dist_population ? 12 : 0 }}>
+                      {district.district_name} has <strong>{fmt(district.total_schools)} schools</strong> across <strong>{district.block_count} blocks</strong>. To find a school near you, click on the block your village falls under — the block page will list all villages, and the village page shows every school registered there.
+                    </p>
+                    {(district.dist_literacy_pct || district.dist_population) && (
+                      <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 0 }}>
+                        {district.dist_literacy_pct ? <><strong>Literacy rate: {district.dist_literacy_pct.toFixed(1)}%</strong> (Census data). </> : null}
+                        {district.dist_population ? <>Population: <strong>{fmtPop(district.dist_population)}</strong>.</> : null}
+                        {district.dist_sex_ratio ? <> Sex ratio: <strong>{Math.round(district.dist_sex_ratio)} females per 1,000 males</strong>.</> : null}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
               {/* District FAQs */}
               <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '22px' }}>
                 <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 16, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                  FAQs
+                  {t('FAQs', lang)}
                 </h2>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {[
-                    {
-                      q: `How many blocks and schools are in ${district.district_name}?`,
-                      a: `${district.district_name} has **${fmt(district.total_schools)} schools** across **${district.block_count} blocks**. Click any block in the list above to see its villages and schools.`
-                    },
-                    {
-                      q: `What is the literacy rate in ${district.district_name}?`,
-                      a: district.dist_literacy_pct
-                        ? `The literacy rate in ${district.district_name} is **${district.dist_literacy_pct.toFixed(1)}%** as per Census data.`
-                        : `Literacy rate data for ${district.district_name} is not available in our current dataset. Check the Census of India website for district-level education data.`
-                    },
-                    {
-                      q: `How do I find a school in a specific village in ${district.district_name}?`,
-                      a: `Click the block your village belongs to from the list above. The block page shows all villages. Click your village to see every school registered there in UDISE+.`
-                    },
-                    {
-                      q: `Do private schools in ${district.district_name} offer free seats under RTE?`,
-                      a: `Yes. Private unaided schools must keep 25% of their entry-class seats (Nursery or Class 1) free for children from low-income or disadvantaged families. Admission is through the state's RTE portal — not directly at the school.`
-                    }
-                  ].map(({ q, a }) => (
+                  {faqs.map(({ q, a }) => (
                     <details key={q} className="faq-item">
                       <summary>
                         <span className="faq-q">
@@ -245,18 +300,21 @@ export default async function DistrictPage({ params }) {
             {adjacent && adjacent.length > 0 && (
               <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '22px', marginTop: 24 }}>
                 <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
-                  🗺️ Browse Nearby Districts in {district.state_name}
+                  🗺️ {lang === 'hi' ? `${stateName} में आस-पास के जिले देखें` : `Browse Nearby Districts in ${district.state_name}`}
                 </h2>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {adjacent.map(adj => (
-                    <Link key={adj.district_slug} href={`/schools/${stateSlug}/${adj.district_slug}`}
-                          className="adj-district-tag"
-                          style={{ display: 'inline-block', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 12px', fontSize: '0.85rem', color: '#1E293B', fontWeight: 600, textDecoration: 'none', transition: 'border-color 0.15s ease' }}
-                    >
-                      {adj.district_name}
-                      <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, marginLeft: 6 }}>({fmt(adj.total_schools)} schools)</span>
-                    </Link>
-                  ))}
+                  {adjacent.map(adj => {
+                    const adjName = t(adj.district_slug, lang);
+                    return (
+                      <Link key={adj.district_slug} href={`${pathPrefix}/schools/${stateSlug}/${adj.district_slug}`}
+                            className="adj-district-tag"
+                            style={{ display: 'inline-block', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 12px', fontSize: '0.85rem', color: '#1E293B', fontWeight: 600, textDecoration: 'none', transition: 'border-color 0.15s ease' }}
+                      >
+                        {adjName}
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500, marginLeft: 6 }}>({fmt(adj.total_schools)} {t('schools', lang)})</span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -267,29 +325,13 @@ export default async function DistrictPage({ params }) {
           {/* Sidebar — District Census Data */}
           <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 14 }}>
             {(district.dist_population || district.dist_literacy_pct) && (
-              <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 16 }}>
-                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>
-                  📊 {district.district_name} Census Data
-                </div>
-                {[
-                  ['Literacy Rate', district.dist_literacy_pct ? `${district.dist_literacy_pct.toFixed(1)}%` : '—', '#0D9488'],
-                  ['Population', fmtPop(district.dist_population), '#1E293B'],
-                  ['Sex Ratio', district.dist_sex_ratio ? `${Math.round(district.dist_sex_ratio)}/1000` : '—', '#7C3AED'],
-                  ['Total Schools', fmt(district.total_schools), '#1E40AF'],
-                  ['Blocks', district.block_count, '#F97316'],
-                ].map(([label, val, color]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F1F5F9', fontSize: '0.8rem' }}>
-                    <span style={{ color: '#64748B', fontSize: '0.775rem' }}>{label}</span>
-                    <span style={{ color, fontWeight: 700 }}>{val}</span>
-                  </div>
-                ))}
-              </div>
+              <DistrictStats stats={district} districtName={districtName} lang={lang} />
             )}
             <AdSlot size="sidebar" />
           </div>
         </div>
       </div>
-      
+
       <style>{`
         .adj-district-tag:hover {
           border-color: #1E40AF !important;

@@ -1,11 +1,13 @@
-export default function DistrictStats({ stats, districtName }) {
+import { t } from '../lib/translate.js';
+
+export default function DistrictStats({ stats, districtName, lang = 'en' }) {
   if (!stats) return null;
   const fmt = (n) => n ? Number(n).toLocaleString('en-IN') : '—';
   const fmtPct = (n) => n ? `${Number(n).toFixed(1)}%` : '—';
   const fmtPop = (n) => {
     if (!n) return '—';
-    if (n >= 10000000) return `${(n/10000000).toFixed(1)} Cr`;
-    if (n >= 100000)   return `${(n/100000).toFixed(1)} Lakh`;
+    if (n >= 10000000) return `${(n/10000000).toFixed(1)} ${lang === 'hi' ? 'करोड़' : 'Cr'}`;
+    if (n >= 100000)   return `${(n/100000).toFixed(1)} ${lang === 'hi' ? 'लाख' : 'Lakh'}`;
     return n.toLocaleString('en-IN');
   };
 
@@ -14,19 +16,57 @@ export default function DistrictStats({ stats, districtName }) {
   const isAboveAverage = litRate >= nationalAvg;
   const progressColor = isAboveAverage ? '#10B981' : '#F97316';
 
+  const labels = lang === 'hi' ? {
+    districtData: 'जिला डेटा',
+    literacy: 'साक्षरता',
+    aboveAvg: 'राष्ट्रीय औसत से अधिक',
+    belowAvg: 'राष्ट्रीय औसत से कम',
+    nationalAvgLabel: 'राष्ट्रीय औसत (74.0%)',
+    distribution: 'स्कूलों का वितरण',
+    govtVsPvt: 'सरकारी बनाम निजी',
+    govt: 'सरकारी',
+    pvt: 'निजी',
+    litRate: 'साक्षरता दर',
+    totalSchools: 'कुल स्कूल',
+    govtSchools: 'सरकारी स्कूल',
+    pvtSchools: 'निजी स्कूल',
+    population: 'जनसंख्या',
+    sexRatio: 'लिंगानुपात',
+    scPop: 'अनुसूचित जाति (SC) %',
+    stPop: 'अनुसूचित जनजाति (ST) %',
+  } : {
+    districtData: 'District Data',
+    literacy: 'Literacy',
+    aboveAvg: 'Above National Avg',
+    belowAvg: 'Below National Avg',
+    nationalAvgLabel: 'National Avg (74.0%)',
+    distribution: 'School Distribution',
+    govtVsPvt: 'Govt vs Private',
+    govt: 'Govt',
+    pvt: 'Private',
+    litRate: 'Literacy Rate',
+    totalSchools: 'Total Schools',
+    govtSchools: 'Govt. Schools',
+    pvtSchools: 'Private Schools',
+    population: 'Population',
+    sexRatio: 'Sex Ratio',
+    scPop: 'SC Population',
+    stPop: 'ST Population',
+  };
+
   return (
     <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14 }}>
       <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>
-        📊 {districtName} District Data
+        📊 {districtName} {labels.districtData}
       </div>
 
       {/* Literacy Rate Progress Bar */}
       {stats.dist_literacy_pct && (
         <div style={{ margin: '8px 0 14px 0', padding: '10px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 650, color: '#475569', marginBottom: 6 }}>
-            <span>Literacy: {litRate.toFixed(1)}%</span>
+            <span>{labels.literacy}: {litRate.toFixed(1)}%</span>
             <span style={{ color: progressColor, fontWeight: 700 }}>
-              {isAboveAverage ? 'Above National Avg' : 'Below National Avg'}
+              {isAboveAverage ? labels.aboveAvg : labels.belowAvg}
             </span>
           </div>
           {/* Progress bar track */}
@@ -38,7 +78,7 @@ export default function DistrictStats({ stats, districtName }) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: '#94A3B8', marginTop: 4 }}>
             <span>0%</span>
-            <span style={{ color: '#EF4444' }}>National Avg (74.0%)</span>
+            <span style={{ color: '#EF4444' }}>{labels.nationalAvgLabel}</span>
             <span>100%</span>
           </div>
         </div>
@@ -48,8 +88,8 @@ export default function DistrictStats({ stats, districtName }) {
       {stats.dist_govt_schools && stats.dist_private_schools && stats.total_schools && (
         <div style={{ margin: '8px 0 14px 0', padding: '10px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 650, color: '#475569', marginBottom: 6 }}>
-            <span>School Distribution</span>
-            <span>Govt vs Private</span>
+            <span>{labels.distribution}</span>
+            <span>{labels.govtVsPvt}</span>
           </div>
           {/* Stacked bar */}
           <div style={{ width: '100%', height: 8, background: '#E2E8F0', borderRadius: 99, overflow: 'hidden', display: 'flex' }}>
@@ -59,25 +99,25 @@ export default function DistrictStats({ stats, districtName }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: '#64748B', marginTop: 6 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16A34A', display: 'inline-block' }} />
-              Govt ({((stats.dist_govt_schools / stats.total_schools) * 100).toFixed(0)}%)
+              {labels.govt} ({((stats.dist_govt_schools / stats.total_schools) * 100).toFixed(0)}%)
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#E11D48', display: 'inline-block' }} />
-              Private ({((stats.dist_private_schools / stats.total_schools) * 100).toFixed(0)}%)
+              {labels.pvt} ({((stats.dist_private_schools / stats.total_schools) * 100).toFixed(0)}%)
             </span>
           </div>
         </div>
       )}
 
       {[
-        ['Literacy Rate', fmtPct(stats.dist_literacy_pct), '#0D9488'],
-        ['Total Schools', fmt(stats.total_schools), '#1E40AF'],
-        ['Govt. Schools', fmt(stats.dist_govt_schools), '#16A34A'],
-        ['Private Schools', fmt(stats.dist_private_schools), '#E11D48'],
-        ['Population', fmtPop(stats.dist_population), '#1E293B'],
-        ['Sex Ratio', stats.dist_sex_ratio ? `${Math.round(stats.dist_sex_ratio)}/1000` : '—', '#7C3AED'],
-        ['SC Population', fmtPct(stats.dist_sc_pct), '#475569'],
-        ['ST Population', fmtPct(stats.dist_st_pct), '#475569'],
+        [labels.litRate, fmtPct(stats.dist_literacy_pct), '#0D9488'],
+        [labels.totalSchools, fmt(stats.total_schools), '#1E40AF'],
+        [labels.govtSchools, fmt(stats.dist_govt_schools), '#16A34A'],
+        [labels.pvtSchools, fmt(stats.dist_private_schools), '#E11D48'],
+        [labels.population, fmtPop(stats.dist_population), '#1E293B'],
+        [labels.sexRatio, stats.dist_sex_ratio ? `${Math.round(stats.dist_sex_ratio)}/1000` : '—', '#7C3AED'],
+        [labels.scPop, fmtPct(stats.dist_sc_pct), '#475569'],
+        [labels.stPop, fmtPct(stats.dist_st_pct), '#475569'],
       ].map(([label, val, color]) => (
         <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F1F5F9', fontSize: '0.8rem' }}>
           <span style={{ color: '#64748B', fontSize: '0.775rem' }}>{label}</span>
