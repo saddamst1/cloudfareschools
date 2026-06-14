@@ -4,6 +4,7 @@ import { getHomepageMeta, faqSchema, organizationSchema } from '../lib/seo';
 import SearchBox from '../components/SearchBox';
 import AdSlot from '../components/AdSlot';
 import StateCard from '../components/StateCard';
+import AuthorBox from '../components/AuthorBox';
 
 export const revalidate = 86400; // Revalidate once a day
 
@@ -397,7 +398,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-
+      <AuthorBox />
 
       <style>{`
         @media (max-width: 640px) {

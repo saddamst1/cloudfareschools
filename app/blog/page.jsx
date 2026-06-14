@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import AdSlot from '../../components/AdSlot';
+import AuthorBox from '../../components/AuthorBox';
 
 export const metadata = {
   title: 'SchoolsPedia Blog — Indian Education Insights & Guides',
@@ -318,6 +319,10 @@ export default function BlogIndexPage() {
           </div>
 
         </div>
+      </div>
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 32px' }}>
+        <AuthorBox />
       </div>
 
       <style>{`

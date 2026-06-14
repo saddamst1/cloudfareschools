@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AUTHORS } from '../../../../data/authors';
+import { ARTICLE_DATA } from '../../../../data/articles-data';
+import { getFeaturedImage } from '../../[slug]/page';
 import AdSlot from '../../../../components/AdSlot';
+import AuthorBox from '../../../../components/AuthorBox';
 
 // Pre-render the author routes at build time
 export async function generateStaticParams() {
@@ -150,6 +153,10 @@ export default async function AuthorPage({ params }) {
           </div>
 
         </div>
+      </div>
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 32px' }}>
+        <AuthorBox />
       </div>
     </>
   );

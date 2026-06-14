@@ -316,7 +316,8 @@ async function run() {
   const indexDrops = [
     'idx_schools_state_slug', 'idx_schools_district_slug', 'idx_schools_block_slug',
     'idx_schools_village_slug', 'idx_schools_slug', 'idx_schools_udise_code',
-    'idx_villages_slugs', 'idx_block_villages_slugs', 'idx_blocks_slugs', 'idx_districts_slugs'
+    'idx_villages_slugs', 'idx_block_villages_slugs', 'idx_blocks_slugs', 'idx_districts_slugs',
+    'idx_schools_lower_name', 'idx_schools_trgm_direct', 'idx_schools_trgm_village', 'idx_schools_trgm_district'
   ];
   for (const idx of indexDrops) {
     await pgPool.query(`DROP INDEX IF EXISTS ${idx}`);
@@ -384,6 +385,10 @@ async function run() {
     CREATE INDEX IF NOT EXISTS idx_schools_village_slug ON schools (state_slug, district_slug, block_slug, village_slug);
     CREATE INDEX IF NOT EXISTS idx_schools_slug ON schools (school_slug);
     CREATE INDEX IF NOT EXISTS idx_schools_udise_code ON schools (udise_code);
+    CREATE INDEX IF NOT EXISTS idx_schools_lower_name ON schools (lower(school_name));
+    CREATE INDEX IF NOT EXISTS idx_schools_trgm_direct ON schools USING gin (school_name gin_trgm_ops);
+    CREATE INDEX IF NOT EXISTS idx_schools_trgm_village ON schools USING gin (village gin_trgm_ops);
+    CREATE INDEX IF NOT EXISTS idx_schools_trgm_district ON schools USING gin (district gin_trgm_ops);
 
     CREATE INDEX IF NOT EXISTS idx_villages_slugs ON villages (state_slug, district_slug, village_slug);
     CREATE INDEX IF NOT EXISTS idx_block_villages_slugs ON block_villages (state_slug, district_slug, block_slug, village_slug);

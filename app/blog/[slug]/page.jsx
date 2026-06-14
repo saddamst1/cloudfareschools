@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import AdSlot from '../../../components/AdSlot';
 import { breadcrumbSchema } from '../../../lib/seo';
 import { AUTHORS } from '../../../data/authors';
+import AuthorBox from '../../../components/AuthorBox';
 
 export const revalidate = 86400; // Revalidate daily
 
@@ -244,6 +245,10 @@ export default async function BlogPostPage({ params }) {
           </div>
 
         </div>
+      </div>
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px 32px' }}>
+        <AuthorBox />
       </div>
 
       <style>{`
