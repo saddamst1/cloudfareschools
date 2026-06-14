@@ -14,10 +14,6 @@ export default function Footer() {
               Find any school by state, district, block, village or UDISE code — free and fast.
             </p>
             <p style={{ fontSize: '0.7rem', color: '#475569' }}>Data: UDISE+, Ministry of Education, Govt. of India · Census of India</p>
-            <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-              <span className="f-badge">🛡️ UDISE+ Sourced</span>
-              <span className="f-badge">🔒 SSL Secured</span>
-            </div>
           </div>
 
           {/* Quick Links */}
