@@ -1,0 +1,36 @@
+# Ignore local large database files
+data/schoolspedia.db
+data/schoolspedia.db-wal
+data/schoolspedia.db-shm
+
+# Ignore local Next.js build cache (Vercel compiles on its own server)
+.next/
+
+# Ignore deprecated static sitemap backups
+public/sitemaps-old/
+
+# Ignore development python scripts & tools
+*.py
+verify_svgs.py
+migrate.py
+migrate_to_postgres.js
+
+# Ignore temporary testing scripts
+test_images.js
+test_gen_svgs.js
+test_svg.js
+test_sqlite.mjs
+inspect.js
+inspect.mjs
+inspect_libsql.js
+output_udise.svg
+temp_gen.js
+temp_route.mjs
+
+# Ignore database schema logs
+db_columns.txt
+db_tables.txt
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

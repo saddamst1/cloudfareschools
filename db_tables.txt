@@ -1,0 +1,152 @@
+Tables in database:
+
+Table: schools
+  (0, 'udise_code', 'INTEGER', 0, None, 1)
+  (1, 'school_name', 'TEXT', 1, None, 0)
+  (2, 'state', 'TEXT', 1, None, 0)
+  (3, 'district', 'TEXT', 1, None, 0)
+  (4, 'block', 'TEXT', 1, None, 0)
+  (5, 'village', 'TEXT', 1, None, 0)
+  (6, 'cluster', 'TEXT', 0, None, 0)
+  (7, 'location', 'TEXT', 0, None, 0)
+  (8, 'state_mgmt', 'TEXT', 0, None, 0)
+  (9, 'national_mgmt', 'TEXT', 0, None, 0)
+  (10, 'school_category', 'TEXT', 0, None, 0)
+  (11, 'school_type', 'TEXT', 0, None, 0)
+  (12, 'school_status', 'TEXT', 0, None, 0)
+  (13, 'state_slug', 'TEXT', 1, None, 0)
+  (14, 'district_slug', 'TEXT', 1, None, 0)
+  (15, 'block_slug', 'TEXT', 1, None, 0)
+  (16, 'village_slug', 'TEXT', 1, None, 0)
+  (17, 'school_slug', 'TEXT', 1, None, 0)
+  (18, 'url', 'TEXT', 1, None, 0)
+  Row Count: 1653159
+
+Table: villages
+  (0, 'village_code', 'INTEGER', 0, None, 1)
+  (1, 'village_name', 'TEXT', 1, None, 0)
+  (2, 'village_slug', 'TEXT', 1, None, 0)
+  (3, 'block_code', 'INTEGER', 0, None, 0)
+  (4, 'block_name', 'TEXT', 0, None, 0)
+  (5, 'block_is_pesa', 'TEXT', 0, None, 0)
+  (6, 'district_code', 'INTEGER', 0, None, 0)
+  (7, 'district_name', 'TEXT', 1, None, 0)
+  (8, 'district_slug', 'TEXT', 1, None, 0)
+  (9, 'state_code', 'INTEGER', 0, None, 0)
+  (10, 'state_name', 'TEXT', 1, None, 0)
+  (11, 'state_slug', 'TEXT', 1, None, 0)
+  (12, 'is_tribal_area', 'TEXT', 0, None, 0)
+  (13, 'page_url', 'TEXT', 0, None, 0)
+  (14, 'dist_population', 'INTEGER', 0, None, 0)
+  (15, 'dist_male', 'INTEGER', 0, None, 0)
+  (16, 'dist_female', 'INTEGER', 0, None, 0)
+  (17, 'dist_sex_ratio', 'REAL', 0, None, 0)
+  (18, 'dist_literacy_pct', 'REAL', 0, None, 0)
+  (19, 'dist_male_lit_pct', 'REAL', 0, None, 0)
+  (20, 'dist_female_lit_pct', 'REAL', 0, None, 0)
+  (21, 'dist_area_sqkm', 'REAL', 0, None, 0)
+  (22, 'dist_pop_density', 'REAL', 0, None, 0)
+  (23, 'dist_sc_pct', 'REAL', 0, None, 0)
+  (24, 'dist_st_pct', 'REAL', 0, None, 0)
+  (25, 'dist_hindus', 'INTEGER', 0, None, 0)
+  (26, 'dist_hindu_pct', 'REAL', 0, None, 0)
+  (27, 'dist_muslims', 'INTEGER', 0, None, 0)
+  (28, 'dist_muslim_pct', 'REAL', 0, None, 0)
+  (29, 'dist_total_schools', 'INTEGER', 0, None, 0)
+  (30, 'dist_govt_schools', 'INTEGER', 0, None, 0)
+  (31, 'dist_private_schools', 'INTEGER', 0, None, 0)
+  (32, 'dist_sample_pin', 'INTEGER', 0, None, 0)
+  (33, 'dist_avg_lat', 'REAL', 0, None, 0)
+  (34, 'dist_avg_long', 'REAL', 0, None, 0)
+  (35, 'block_schools', 'INTEGER', 0, None, 0)
+  Row Count: 652177
+
+Table: states
+  (0, 'state_slug', 'TEXT', 0, None, 1)
+  (1, 'state_name', 'TEXT', 1, None, 0)
+  (2, 'total_schools', 'INTEGER', 0, '0', 0)
+  (3, 'district_count', 'INTEGER', 0, '0', 0)
+  (4, 'block_count', 'INTEGER', 0, '0', 0)
+  (5, 'village_count', 'INTEGER', 0, '0', 0)
+  Row Count: 36
+
+Table: districts
+  (0, 'district_slug', 'TEXT', 1, None, 2)
+  (1, 'state_slug', 'TEXT', 1, None, 1)
+  (2, 'district_name', 'TEXT', 1, None, 0)
+  (3, 'state_name', 'TEXT', 1, None, 0)
+  (4, 'total_schools', 'INTEGER', 0, '0', 0)
+  (5, 'block_count', 'INTEGER', 0, '0', 0)
+  (6, 'village_count', 'INTEGER', 0, '0', 0)
+  (7, 'dist_population', 'INTEGER', 0, None, 0)
+  (8, 'dist_literacy_pct', 'REAL', 0, None, 0)
+  (9, 'dist_sex_ratio', 'REAL', 0, None, 0)
+  (10, 'dist_avg_lat', 'REAL', 0, None, 0)
+  (11, 'dist_avg_long', 'REAL', 0, None, 0)
+  (12, 'dist_sample_pin', 'INTEGER', 0, None, 0)
+  Row Count: 748
+
+Table: blocks
+  (0, 'block_slug', 'TEXT', 1, None, 3)
+  (1, 'district_slug', 'TEXT', 1, None, 2)
+  (2, 'state_slug', 'TEXT', 1, None, 1)
+  (3, 'block_name', 'TEXT', 1, None, 0)
+  (4, 'district_name', 'TEXT', 1, None, 0)
+  (5, 'state_name', 'TEXT', 1, None, 0)
+  (6, 'total_schools', 'INTEGER', 0, '0', 0)
+  (7, 'village_count', 'INTEGER', 0, '0', 0)
+  Row Count: 7453
+
+Table: block_villages
+  (0, 'village_slug', 'TEXT', 1, None, 4)
+  (1, 'block_slug', 'TEXT', 1, None, 3)
+  (2, 'district_slug', 'TEXT', 1, None, 2)
+  (3, 'state_slug', 'TEXT', 1, None, 1)
+  (4, 'village_name', 'TEXT', 1, None, 0)
+  (5, 'school_count', 'INTEGER', 0, '0', 0)
+  Row Count: 588312
+
+Table: schools_fts
+  (0, 'school_name', '', 0, None, 0)
+  (1, 'village', '', 0, None, 0)
+  (2, 'district', '', 0, None, 0)
+  (3, 'state', '', 0, None, 0)
+  (4, 'udise_code', '', 0, None, 0)
+  (5, 'school_slug', '', 0, None, 0)
+  (6, 'url', '', 0, None, 0)
+  Row Count: 1653159
+
+Table: schools_fts_data
+  (0, 'id', 'INTEGER', 0, None, 1)
+  (1, 'block', 'BLOB', 0, None, 0)
+  Row Count: 16591
+
+Table: schools_fts_idx
+  (0, 'segid', '', 1, None, 1)
+  (1, 'term', '', 1, None, 2)
+  (2, 'pgno', '', 0, None, 0)
+  Row Count: 8117
+
+Table: schools_fts_docsize
+  (0, 'id', 'INTEGER', 0, None, 1)
+  (1, 'sz', 'BLOB', 0, None, 0)
+  Row Count: 1653159
+
+Table: schools_fts_config
+  (0, 'k', '', 1, None, 1)
+  (1, 'v', '', 0, None, 0)
+  Row Count: 1
+
+Table: reviews
+  (0, 'id', 'INTEGER', 0, None, 1)
+  (1, 'udise_code', 'TEXT', 1, None, 0)
+  (2, 'reviewer_name', 'TEXT', 1, None, 0)
+  (3, 'rating', 'INTEGER', 1, None, 0)
+  (4, 'comment', 'TEXT', 1, None, 0)
+  (5, 'created_at', 'DATETIME', 0, 'CURRENT_TIMESTAMP', 0)
+  Row Count: 0
+
+Table: sqlite_sequence
+  (0, 'name', '', 0, None, 0)
+  (1, 'seq', '', 0, None, 0)
+  Row Count: 0

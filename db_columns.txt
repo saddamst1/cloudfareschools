@@ -1,0 +1,25 @@
+Checking database path: C:\Users\shana\.gemini\antigravity\scratch\schoolspedia\data\schoolspedia.db
+Exists: True
+Schools Table columns:
+(0, 'udise_code', 'INTEGER', 0, None, 1)
+(1, 'school_name', 'TEXT', 1, None, 0)
+(2, 'state', 'TEXT', 1, None, 0)
+(3, 'district', 'TEXT', 1, None, 0)
+(4, 'block', 'TEXT', 1, None, 0)
+(5, 'village', 'TEXT', 1, None, 0)
+(6, 'cluster', 'TEXT', 0, None, 0)
+(7, 'location', 'TEXT', 0, None, 0)
+(8, 'state_mgmt', 'TEXT', 0, None, 0)
+(9, 'national_mgmt', 'TEXT', 0, None, 0)
+(10, 'school_category', 'TEXT', 0, None, 0)
+(11, 'school_type', 'TEXT', 0, None, 0)
+(12, 'school_status', 'TEXT', 0, None, 0)
+(13, 'state_slug', 'TEXT', 1, None, 0)
+(14, 'district_slug', 'TEXT', 1, None, 0)
+(15, 'block_slug', 'TEXT', 1, None, 0)
+(16, 'village_slug', 'TEXT', 1, None, 0)
+(17, 'school_slug', 'TEXT', 1, None, 0)
+(18, 'url', 'TEXT', 1, None, 0)
+
+Sample Row:
+(927091600, 'Pr Inter College 1454', 'Uttar Pradesh', 'Lucknow', 'Nagar Shaitra, Lucknow', 'Lko Ward', 'Jiyamau', 'Urban', 'Pvt. Unaided (Recognized)', 'Private Unaided (Recognized)', 'Upper Pr. and Secondary', 'Co-educational', 'Permanently Closed', 'uttar-pradesh', 'lucknow', 'nagar-shaitra-lucknow', 'lko-ward', 'pr-inter-college-1454-927091600', '/schools/uttar-pradesh/lucknow/nagar-shaitra-lucknow/lko-ward/pr-inter-college-1454-927091600')
