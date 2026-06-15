@@ -4,6 +4,7 @@ import { ARTICLE_DATA } from '@/data/articles-data';
 export const revalidate = 86400; // Cache sitemaps for 24 hours
 
 const SITE_URL = process.env.SITE_URL || 'https://www.schoolspedia.in';
+const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];
 
 export async function GET(request, { params }) {
   const { filename } = await params;
@@ -23,6 +24,9 @@ export async function GET(request, { params }) {
       const states = await query('SELECT state_slug FROM states ORDER BY state_slug');
       states.forEach(s => {
         xml += `<sitemap><loc>${SITE_URL}/sitemaps/blocks-${s.state_slug}.xml</loc></sitemap>`;
+        if (TARGET_STATES.includes(s.state_slug)) {
+          xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-blocks-${s.state_slug}.xml</loc></sitemap>`;
+        }
       });
 
       // Fetch districts for school and village sitemaps
@@ -30,6 +34,10 @@ export async function GET(request, { params }) {
       districts.forEach(d => {
         xml += `<sitemap><loc>${SITE_URL}/sitemaps/schools-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
         xml += `<sitemap><loc>${SITE_URL}/sitemaps/villages-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
+        if (TARGET_STATES.includes(d.state_slug)) {
+          xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-schools-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
+          xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-villages-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
+        }
       });
 
       xml += '</sitemapindex>';
@@ -110,6 +118,9 @@ export async function GET(request, { params }) {
       // Individual States
       states.forEach(s => {
         xml += `<url><loc>${SITE_URL}/schools/${s.state_slug}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
+        if (TARGET_STATES.includes(s.state_slug)) {
+          xml += `<url><loc>${SITE_URL}/hi/schools/${s.state_slug}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`;
+        }
       });
       xml += '</urlset>';
       
@@ -146,6 +157,9 @@ export async function GET(request, { params }) {
       
       districts.forEach(d => {
         xml += `<url><loc>${SITE_URL}/schools/${d.state_slug}/${d.district_slug}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
+        if (TARGET_STATES.includes(d.state_slug)) {
+          xml += `<url><loc>${SITE_URL}/hi/schools/${d.state_slug}/${d.district_slug}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
+        }
       });
       xml += '</urlset>';
       
@@ -160,7 +174,7 @@ export async function GET(request, { params }) {
     }
   }
 
-  // 4. Blocks by State Sitemap
+  // 4. Blocks by State Sitemap (English)
   const blockMatch = filename.match(/^blocks-([a-z-]+)\.xml$/);
   if (blockMatch) {
     try {
@@ -186,7 +200,36 @@ export async function GET(request, { params }) {
     }
   }
 
-  // 5. Schools by District Sitemap
+  // 4b. Hindi Blocks by State Sitemap
+  const hiBlockMatch = filename.match(/^hi-blocks-([a-z-]+)\.xml$/);
+  if (hiBlockMatch) {
+    try {
+      const stateSlug = hiBlockMatch[1];
+      if (!TARGET_STATES.includes(stateSlug)) {
+        return new Response('Not Found', { status: 404 });
+      }
+      const blocks = await query('SELECT district_slug, block_slug FROM blocks WHERE state_slug = ? ORDER BY block_slug', [stateSlug]);
+      
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+      
+      blocks.forEach(b => {
+        xml += `<url><loc>${SITE_URL}/hi/schools/${stateSlug}/${b.district_slug}/${b.block_slug}</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>`;
+      });
+      xml += '</urlset>';
+      
+      return new Response(xml, {
+        headers: {
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+        },
+      });
+    } catch (e) {
+      return new Response('Error generating blocks sitemap', { status: 500 });
+    }
+  }
+
+  // 5. Schools by District Sitemap (English)
   const schoolMatch = filename.match(/^schools-([a-z-]+)-([a-z-]+)\.xml$/);
   if (schoolMatch) {
     try {
@@ -213,7 +256,37 @@ export async function GET(request, { params }) {
     }
   }
 
-  // 6. Villages by District Sitemap
+  // 5b. Hindi Schools by District Sitemap
+  const hiSchoolMatch = filename.match(/^hi-schools-([a-z-]+)-([a-z-]+)\.xml$/);
+  if (hiSchoolMatch) {
+    try {
+      const stateSlug = hiSchoolMatch[1];
+      const districtSlug = hiSchoolMatch[2];
+      if (!TARGET_STATES.includes(stateSlug)) {
+        return new Response('Not Found', { status: 404 });
+      }
+      const schools = await query('SELECT url FROM schools WHERE state_slug = ? AND district_slug = ? ORDER BY school_slug', [stateSlug, districtSlug]);
+      
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+      
+      schools.forEach(s => {
+        xml += `<url><loc>${SITE_URL}/hi${s.url}</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`;
+      });
+      xml += '</urlset>';
+      
+      return new Response(xml, {
+        headers: {
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+        },
+      });
+    } catch (e) {
+      return new Response('Error generating schools sitemap', { status: 500 });
+    }
+  }
+
+  // 6. Villages by District Sitemap (English)
   const villageMatch = filename.match(/^villages-([a-z-]+)-([a-z-]+)\.xml$/);
   if (villageMatch) {
     try {
@@ -227,6 +300,38 @@ export async function GET(request, { params }) {
       villages.forEach(v => {
         if (v.page_url) {
           xml += `<url><loc>${SITE_URL}${v.page_url}</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`;
+        }
+      });
+      xml += '</urlset>';
+      
+      return new Response(xml, {
+        headers: {
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+        },
+      });
+    } catch (e) {
+      return new Response('Error generating villages sitemap', { status: 500 });
+    }
+  }
+
+  // 6b. Hindi Villages by District Sitemap
+  const hiVillageMatch = filename.match(/^hi-villages-([a-z-]+)-([a-z-]+)\.xml$/);
+  if (hiVillageMatch) {
+    try {
+      const stateSlug = hiVillageMatch[1];
+      const districtSlug = hiVillageMatch[2];
+      if (!TARGET_STATES.includes(stateSlug)) {
+        return new Response('Not Found', { status: 404 });
+      }
+      const villages = await query('SELECT page_url FROM villages WHERE state_slug = ? AND district_slug = ? ORDER BY village_slug', [stateSlug, districtSlug]);
+      
+      let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+      xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+      
+      villages.forEach(v => {
+        if (v.page_url) {
+          xml += `<url><loc>${SITE_URL}/hi${v.page_url}</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`;
         }
       });
       xml += '</urlset>';

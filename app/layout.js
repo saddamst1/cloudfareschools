@@ -5,6 +5,26 @@ import AuthorBox from '../components/AuthorBox';
 import { organizationSchema, websiteSchema } from '../lib/seo';
 import Script from 'next/script';
 
+import { Outfit, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-heading',
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
+});
+
 export const metadata = {
   metadataBase: new URL('https://www.schoolspedia.in'),
   title: {
@@ -55,19 +75,8 @@ export default function RootLayout({ children }) {
   const siteSchema = websiteSchema();
 
   return (
-    <html lang="en-IN">
+    <html lang="en-IN" className={`${outfit.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
-        {process.env.NODE_ENV === 'production' && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}`}
-            crossOrigin="anonymous"
-          />
-        )}
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
@@ -81,6 +90,15 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
+        {/* Google AdSense (Optimized loading via next/script) */}
+        {process.env.NODE_ENV === 'production' && (
+          <Script
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}`}
+            strategy="afterInteractive"
+            crossOrigin="anonymous"
+          />
+        )}
+
         {/* Google Analytics (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-GPNB12813S"

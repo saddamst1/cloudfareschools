@@ -3,6 +3,10 @@ const nextConfig = {
   // Turbopack config (Next.js 16 default bundler)
   turbopack: {},
 
+  experimental: {
+    cpus: 2,
+  },
+
   // Webpack config for --webpack flag fallback
   webpack: (config, { isServer }) => {
     config.experiments = {
