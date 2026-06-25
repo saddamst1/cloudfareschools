@@ -52,3 +52,5 @@ output_udise.svg
 test_*.js
 test_*.mjs
 verify_*.py
+
+.vercel

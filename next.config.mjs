@@ -48,11 +48,11 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
-      // ISR school/state/district pages — serve stale while revalidating
+      // ISR school/state/district pages — cache for 30 days, stale-while-revalidate for 7 days
       {
         source: '/schools/(.*)',
         headers: [
-          { key: 'Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=86400' },
+          { key: 'Cache-Control', value: 'public, s-maxage=2592000, stale-while-revalidate=604800' },
         ],
       },
       // Blog articles — longer cache, rarely updated
