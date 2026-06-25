@@ -288,7 +288,26 @@ async function run() {
         has_electricity INTEGER DEFAULT 0,
         has_computers INTEGER DEFAULT 0,
         boys_toilets_count INTEGER DEFAULT 0,
-        girls_toilets_count INTEGER DEFAULT 0
+        girls_toilets_count INTEGER DEFAULT 0,
+        school_id BIGINT,
+        pincode VARCHAR(20),
+        address TEXT,
+        email VARCHAR(255),
+        headmaster_name VARCHAR(255),
+        establishment_year INTEGER,
+        phone VARCHAR(100),
+        website VARCHAR(255),
+        medium_of_instruction VARCHAR(255),
+        has_playground VARCHAR(50),
+        has_internet VARCHAR(50),
+        has_toilet INTEGER DEFAULT 0,
+        total_students INTEGER,
+        boys INTEGER,
+        girls INTEGER,
+        total_teachers INTEGER,
+        male_teachers INTEGER,
+        female_teachers INTEGER,
+        last_updated VARCHAR(100)
     );
 
     CREATE TABLE IF NOT EXISTS reviews (
@@ -364,17 +383,22 @@ async function run() {
     'location', 'state_mgmt', 'national_mgmt', 'school_category', 'school_type',
     'school_status', 'state_slug', 'district_slug', 'block_slug', 'village_slug',
     'school_slug', 'url', 'has_library', 'has_electricity', 'has_computers',
-    'boys_toilets_count', 'girls_toilets_count'
+    'boys_toilets_count', 'girls_toilets_count', 'school_id', 'pincode', 'address',
+    'email', 'headmaster_name', 'establishment_year', 'phone', 'website',
+    'medium_of_instruction', 'has_playground', 'has_internet', 'has_toilet',
+    'total_students', 'boys', 'girls', 'total_teachers', 'male_teachers',
+    'female_teachers', 'last_updated'
   ], 300, 10); // Concurrency 10, batch size 300
 
   // 7. Reviews and Submissions table (usually empty or small during init)
-  await migrateTable(sqliteClient, pgPool, 'reviews', [
-    'udise_code', 'reviewer_name', 'rating', 'comment'
-  ], 1000, 2);
-  
-  await migrateTable(sqliteClient, pgPool, 'contact_submissions', [
-    'name', 'email', 'school', 'details'
-  ], 1000, 2);
+  // Commeted out to protect production user data from truncate:
+  // await migrateTable(sqliteClient, pgPool, 'reviews', [
+  //   'udise_code', 'reviewer_name', 'rating', 'comment'
+  // ], 1000, 2);
+  // 
+  // await migrateTable(sqliteClient, pgPool, 'contact_submissions', [
+  //   'name', 'email', 'school', 'details'
+  // ], 1000, 2);
 
   // Re-create indexes POST-loading
   console.log('[Migration] Creating optimized database indexes...');

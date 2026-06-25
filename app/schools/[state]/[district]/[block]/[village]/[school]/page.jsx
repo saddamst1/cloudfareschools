@@ -293,9 +293,32 @@ function getFacilityStatus(school, key, lang = 'en') {
     if (key === 'electricity') return school.has_electricity === 1 ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
     if (key === 'library')     return school.has_library === 1 ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
     if (key === 'computer')    return school.has_computers === 1 ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
-    if (key === 'boys_toilet') { const c = school.boys_toilets_count || 0; return c > 0 ? { status: 'available', label: `${c} ${labels.functional}` } : { status: 'not_available', label: labels.notAvailable }; }
-    if (key === 'girls_toilet') { const c = school.girls_toilets_count || 0; return c > 0 ? { status: 'available', label: `${c} ${labels.functional}` } : { status: 'not_available', label: labels.notAvailable }; }
-    // classrooms and playground assumed present if school is operational
+    
+    if (key === 'playground') {
+      const p = school.has_playground;
+      const isAvailable = p && (String(p).includes('1-Yes') || String(p) === '1');
+      return isAvailable ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
+    }
+    if (key === 'internet') {
+      const inet = school.has_internet;
+      const isAvailable = inet && (String(inet).includes('1-Yes') || String(inet) === '1');
+      return isAvailable ? { status: 'available', label: labels.available } : { status: 'not_available', label: labels.notAvailable };
+    }
+    
+    if (key === 'boys_toilet') {
+      const c = school.boys_toilets_count || 0;
+      if (c > 0) return { status: 'available', label: `${c} ${labels.functional}` };
+      if (school.has_toilet === 1) return { status: 'available', label: labels.available };
+      return { status: 'not_available', label: labels.notAvailable };
+    }
+    if (key === 'girls_toilet') {
+      const c = school.girls_toilets_count || 0;
+      if (c > 0) return { status: 'available', label: `${c} ${labels.functional}` };
+      if (school.has_toilet === 1) return { status: 'available', label: labels.available };
+      return { status: 'not_available', label: labels.notAvailable };
+    }
+    
+    // classrooms assumed present if school is operational
     return { status: 'verify', label: labels.checkPortal };
   }
 
@@ -368,6 +391,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
     { icon: '⚡', label: lang === 'hi' ? 'बिजली' : 'Electricity',  key: 'electricity' },
     { icon: '📚', label: lang === 'hi' ? 'पुस्तकालय' : 'Library',      key: 'library' },
     { icon: '🏃', label: lang === 'hi' ? 'खेल का मैदान' : 'Playground',   key: 'playground' },
+    { icon: '🌐', label: lang === 'hi' ? 'इंटरनेट' : 'Internet',        key: 'internet' },
     { icon: '🍲', label: lang === 'hi' ? 'मध्याह्न भोजन' : 'Mid-Day Meal', key: 'mdm' },
     { icon: '💻', label: lang === 'hi' ? 'कंप्यूटर लैब' : 'Computer Lab', key: 'computer' },
   ];
@@ -480,11 +504,161 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                     <tr><td>{lang === 'hi' ? 'श्रेणी' : 'Category'}</td><td><span className="badge badge-blue">{t(school.school_category, lang)}</span></td></tr>
                     <tr><td>{lang === 'hi' ? 'स्कूल का प्रकार' : 'School Type'}</td><td><span className="badge badge-teal">{t(school.school_type, lang)}</span></td></tr>
                     <tr><td>{lang === 'hi' ? 'स्थिति' : 'Status'}</td><td><span className={`badge ${isOperational ? 'badge-green' : 'badge-red'}`}>{isOperational ? (lang === 'hi' ? '✅ सक्रिय (Operational)' : '✅ Operational') : (lang === 'hi' ? '⚠️ बंद (Closed)' : '⚠️ Closed')}</span></td></tr>
-                    {districtStats?.dist_sample_pin && <tr><td>{lang === 'hi' ? 'पिन कोड' : 'PIN Code'}</td><td>{districtStats.dist_sample_pin}</td></tr>}
+                    {(school.pincode || districtStats?.dist_sample_pin) && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'पिन कोड' : 'PIN Code'}</td>
+                        <td>{school.pincode || districtStats.dist_sample_pin}</td>
+                      </tr>
+                    )}
+                    {school.establishment_year && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'स्थापना वर्ष' : 'Establishment Year'}</td>
+                        <td>{school.establishment_year}</td>
+                      </tr>
+                    )}
+                    {school.medium_of_instruction && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'शिक्षा का माध्यम' : 'Medium of Instruction'}</td>
+                        <td>{school.medium_of_instruction}</td>
+                      </tr>
+                    )}
+                    {school.headmaster_name && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'प्रधानाध्यापक' : 'Headmaster'}</td>
+                        <td><strong>{school.headmaster_name}</strong> <span style={{ color: '#10B981', marginLeft: 4 }}>✅</span></td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
+                {school.last_updated && (
+                  <div style={{ fontSize: '0.7rem', color: '#94A3B8', textAlign: 'right', marginTop: 8 }}>
+                    {lang === 'hi' ? `अंतिम अपडेट: ${school.last_updated}` : `Last Updated: ${school.last_updated}`}
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Contact & Communication Card */}
+            {(school.address || school.email || school.phone || school.website) && (
+              <div id="contact-info" className="card">
+                <div className="card-header">
+                  <span style={{ fontSize: 18 }}>📞</span>
+                  <span>{lang === 'hi' ? 'सम्पर्क और विवरण' : 'Contact & Details'}</span>
+                </div>
+                <div className="card-body">
+                  <table className="info-table">
+                    <tbody>
+                      {school.address && (
+                        <tr>
+                          <td>{lang === 'hi' ? 'पता' : 'Address'}</td>
+                          <td style={{ lineHeight: 1.5 }}>{school.address}</td>
+                        </tr>
+                      )}
+                      {school.email && (
+                        <tr>
+                          <td>{lang === 'hi' ? 'ईमेल' : 'Email'}</td>
+                          <td><a href={`mailto:${school.email}`} style={{ color: '#1E40AF', textDecoration: 'underline' }}>{school.email}</a></td>
+                        </tr>
+                      )}
+                      {school.phone && (
+                        <tr>
+                          <td>{lang === 'hi' ? 'फोन नंबर' : 'Phone'}</td>
+                          <td><a href={`tel:${school.phone}`} style={{ color: '#1E40AF', textDecoration: 'underline' }}>{school.phone}</a></td>
+                        </tr>
+                      )}
+                      {school.website && (
+                        <tr>
+                          <td>{lang === 'hi' ? 'वेबसाइट' : 'Website'}</td>
+                          <td><a href={school.website.startsWith('http') ? school.website : `https://${school.website}`} target="_blank" rel="noopener noreferrer" style={{ color: '#1E40AF', textDecoration: 'underline', fontWeight: 600 }}>{school.website}</a></td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Student & Teacher Statistics Card */}
+            {(school.total_students > 0 || school.total_teachers > 0) && (
+              <div id="school-stats" className="card">
+                <div className="card-header">
+                  <span style={{ fontSize: 18 }}>📊</span>
+                  <span>{lang === 'hi' ? 'छात्र और शिक्षक आंकड़े' : 'Student & Teacher Statistics'}</span>
+                </div>
+                <div className="card-body" style={{ padding: '16px 20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    
+                    {/* Students Stats */}
+                    {school.total_students > 0 && (
+                      <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', marginBottom: 6 }}>
+                          👨‍🎓 {lang === 'hi' ? 'कुल छात्र' : 'Total Students'}
+                        </div>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>
+                          {school.total_students}
+                        </div>
+                        {(school.boys > 0 || school.girls > 0) && (
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.725rem', color: '#475569', marginBottom: 4 }}>
+                              <span>{lang === 'hi' ? `बालक: ${school.boys}` : `Boys: ${school.boys}`}</span>
+                              <span>{lang === 'hi' ? `बालिकाएं: ${school.girls}` : `Girls: ${school.girls}`}</span>
+                            </div>
+                            <div style={{ width: '100%', height: 8, background: '#EFF6FF', borderRadius: 99, overflow: 'hidden', display: 'flex' }}>
+                              <div style={{ width: `${(school.boys / school.total_students) * 100}%`, height: '100%', background: '#3B82F6' }} />
+                              <div style={{ width: `${(school.girls / school.total_students) * 100}%`, height: '100%', background: '#EC4899' }} />
+                            </div>
+                            <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: 4, textAlign: 'center' }}>
+                              {lang === 'hi' ? `${((school.boys / school.total_students) * 100).toFixed(0)}% बालक · ${((school.girls / school.total_students) * 100).toFixed(0)}% बालिकाएं` : `${((school.boys / school.total_students) * 100).toFixed(0)}% Boys · ${((school.girls / school.total_students) * 100).toFixed(0)}% Girls`}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Teachers Stats */}
+                    {school.total_teachers > 0 && (
+                      <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', marginBottom: 6 }}>
+                          👩‍🏫 {lang === 'hi' ? 'कुल शिक्षक' : 'Total Teachers'}
+                        </div>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1E293B', marginBottom: 10 }}>
+                          {school.total_teachers}
+                        </div>
+                        {(school.male_teachers !== null || school.female_teachers !== null) && (
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.725rem', color: '#475569', marginBottom: 4 }}>
+                              <span>{lang === 'hi' ? `पुरुष: ${school.male_teachers || 0}` : `Male: ${school.male_teachers || 0}`}</span>
+                              <span>{lang === 'hi' ? `महिला: ${school.female_teachers || 0}` : `Female: ${school.female_teachers || 0}`}</span>
+                            </div>
+                            <div style={{ width: '100%', height: 8, background: '#F1F5F9', borderRadius: 99, overflow: 'hidden', display: 'flex' }}>
+                              <div style={{ width: `${((school.male_teachers || 0) / school.total_teachers) * 100}%`, height: '100%', background: '#6366F1' }} />
+                              <div style={{ width: `${((school.female_teachers || 0) / school.total_teachers) * 100}%`, height: '100%', background: '#8B5CF6' }} />
+                            </div>
+                            <div style={{ fontSize: '0.65rem', color: '#94A3B8', marginTop: 4, textAlign: 'center' }}>
+                              {lang === 'hi' ? `${(((school.male_teachers || 0) / school.total_teachers) * 100).toFixed(0)}% पुरुष · ${(((school.female_teachers || 0) / school.total_teachers) * 100).toFixed(0)}% महिला` : `${(((school.male_teachers || 0) / school.total_teachers) * 100).toFixed(0)}% Male · ${(((school.female_teachers || 0) / school.total_teachers) * 100).toFixed(0)}% Female`}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Student-Teacher Ratio */}
+                  {school.total_students > 0 && school.total_teachers > 0 && (
+                    <div style={{ marginTop: 14, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 18 }}>💡</span>
+                      <p style={{ fontSize: '0.8rem', color: '#065F46', margin: 0 }}>
+                        {lang === 'hi' ? (
+                          <><strong>छात्र-शिक्षक अनुपात (PTR):</strong> इस स्कूल में हर <strong>{(school.total_students / school.total_teachers).toFixed(0)} छात्रों</strong> पर 1 शिक्षक कार्यरत है, जो व्यक्तिगत ध्यान देने के लिए {school.total_students / school.total_teachers <= 30 ? 'बहुत अच्छा' : 'सामान्य'} है (आरटीई मानक: 30:1)।</>
+                        ) : (
+                          <><strong>Student-Teacher Ratio (PTR):</strong> There is 1 teacher for every <strong>{(school.total_students / school.total_teachers).toFixed(0)} students</strong> in this school, which is {school.total_students / school.total_teachers <= 30 ? 'excellent' : 'reasonable'} for personalized attention (RTE Standard is 30:1).</>
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Ad */}
             <AdSlot size="responsive" />
@@ -547,18 +721,20 @@ export default async function SchoolPage({ params, lang = 'en' }) {
               <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 8, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
                 🔧 {lang === 'hi' ? 'स्कूल की सुविधाएँ' : 'School Facilities'}
               </h2>
-              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
-                {lang === 'hi' ? (
-                  <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
-                    <strong>⚠️ डेटा उपलब्ध नहीं है।</strong> वर्तमान डेटासेट में इस स्कूल की सुविधाओं (शौचालय, बिजली, पुस्तकालय आदि) के सटीक रिकॉर्ड उपलब्ध नहीं हैं। सही जानकारी के लिए UDISE+ पोर्टल से UDISE कोड <strong>{String(school.udise_code).padStart(11, '0')}</strong> के माध्यम से स्कूल का निःशुल्क रिपोर्ट कार्ड डाउनलोड करें।
-                  </p>
-                ) : (
-                  <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
-                    <strong>⚠️ Data not available in current dataset.</strong> We don't have facility records (toilets, electricity, library etc.) for this school. For accurate infrastructure details, download the free School Report Card from <strong>udiseplus.gov.in</strong> using UDISE code <strong>{String(school.udise_code).padStart(11, '0')}</strong>.
-                  </p>
-                )}
-              </div>
-              <div className="facilities-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 14 }}>
+              {!(school.has_playground || school.has_internet || school.has_library === 1 || school.has_electricity === 1 || school.has_toilet === 1) && (
+                <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
+                  {lang === 'hi' ? (
+                    <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
+                      <strong>⚠️ डेटा उपलब्ध नहीं है।</strong> वर्तमान डेटासेट में इस स्कूल की सुविधाओं (शौचालय, बिजली, पुस्तकालय आदि) के सटीक रिकॉर्ड उपलब्ध नहीं हैं। सही जानकारी के लिए UDISE+ पोर्टल से UDISE कोड <strong>{String(school.udise_code).padStart(11, '0')}</strong> के माध्यम से स्कूल का निःशुल्क रिपोर्ट कार्ड डाउनलोड करें।
+                    </p>
+                  ) : (
+                    <p style={{ fontSize: '0.8rem', color: '#78350F', margin: 0 }}>
+                      <strong>⚠️ Data not available in current dataset.</strong> We don't have facility records (toilets, electricity, library etc.) for this school. For accurate infrastructure details, download the free School Report Card from <strong>udiseplus.gov.in</strong> using UDISE code <strong>{String(school.udise_code).padStart(11, '0')}</strong>.
+                    </p>
+                  )}
+                </div>
+              )}
+              <div className="facilities-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8, marginBottom: 14 }}>
                 {FACILITIES_LOCALIZED.map(f => {
                   const { status, label } = getFacilityStatus(school, f.key, lang);
                   const statusColor = status === 'available' ? '#10B981' : status === 'verify' ? '#94A3B8' : '#EF4444';
