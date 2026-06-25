@@ -58,7 +58,23 @@ async function bulkInsert(pgClient, tableName, columns, rows) {
     placeholders.push(`(${rowPlaceholders.join(',')})`);
   });
 
-  const queryStr = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${placeholders.join(',')}`;
+  let queryStr = `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${placeholders.join(',')}`;
+  
+  // Make query idempotent on retry connection failures by adding ON CONFLICT DO NOTHING
+  if (tableName === 'schools') {
+    queryStr += ' ON CONFLICT (udise_code) DO NOTHING';
+  } else if (tableName === 'villages') {
+    queryStr += ' ON CONFLICT (village_code) DO NOTHING';
+  } else if (tableName === 'block_villages') {
+    queryStr += ' ON CONFLICT (state_slug, district_slug, block_slug, village_slug) DO NOTHING';
+  } else if (tableName === 'blocks') {
+    queryStr += ' ON CONFLICT (state_slug, district_slug, block_slug) DO NOTHING';
+  } else if (tableName === 'districts') {
+    queryStr += ' ON CONFLICT (state_slug, district_slug) DO NOTHING';
+  } else if (tableName === 'states') {
+    queryStr += ' ON CONFLICT (state_slug) DO NOTHING';
+  }
+
   await pgClient.query(queryStr, values);
 }
 
