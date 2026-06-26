@@ -26,11 +26,10 @@ export async function GET(request) {
       count: results.length,
     });
 
-    // Cache identical queries for 60 seconds at CDN / browser level.
-    // Stale-while-revalidate means the user never waits for a refresh.
+    // Disable CDN caching for search results to avoid cross-query cache pollution
     response.headers.set(
       'Cache-Control',
-      'public, s-maxage=60, stale-while-revalidate=300'
+      'no-store, no-cache, must-revalidate, proxy-revalidate'
     );
     return response;
 
