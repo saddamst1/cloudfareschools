@@ -13,6 +13,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
 
   useEffect(() => {
     if (query.length < 2) { setResults([]); setOpen(false); return; }
+    let ignore = false;
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
@@ -22,14 +23,23 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
         if (districtSlug) url += `&district=${districtSlug}`;
         const res = await fetch(url);
         const data = await res.json();
-        setResults(data.results || []);
-        setOpen(true);
+        if (!ignore) {
+          setResults(data.results || []);
+          setOpen(true);
+        }
       } catch {
-        setResults([]);
+        if (!ignore) {
+          setResults([]);
+        }
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     }, 280);
+    return () => {
+      ignore = true;
+    };
   }, [query, stateSlug, districtSlug]);
 
   useEffect(() => {
