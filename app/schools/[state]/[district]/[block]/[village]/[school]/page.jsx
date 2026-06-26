@@ -330,6 +330,19 @@ function getFacilityStatus(school, key, lang = 'en') {
 const udiseColors = ['#EFF6FF', '#F0FDFA', '#FFF7ED', '#F5F3FF', '#FFF1F2'];
 const udiseTextColors = ['#1E40AF', '#0D9488', '#F97316', '#7C3AED', '#BE123C'];
 
+function cleanEmail(email) {
+  if (!email) return '';
+  let cleaned = email
+    .replace(/\[at\]/gi, '@')
+    .replace(/\[dot\]/gi, '.')
+    .replace(/\s+/g, '')
+    .trim();
+  if (cleaned.endsWith('.cm')) {
+    cleaned = cleaned.replace(/\.cm$/, '.com');
+  }
+  return cleaned;
+}
+
 export default async function SchoolPage({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug, block: blockSlug, village: villageSlug, school: schoolSlug } = await params;
 
@@ -483,49 +496,29 @@ export default async function SchoolPage({ params, lang = 'en' }) {
               )}
             </p>
 
-            {/* School Info Table */}
+            {/* Card 1: School Profile */}
             <div id="overview" className="card">
               <div className="card-header">
-                <span style={{ fontSize: 18 }}>ℹ️</span>
-                <span>{lang === 'hi' ? 'स्कूल की जानकारी' : 'School Information'}</span>
+                <span style={{ fontSize: 18 }}>🏫</span>
+                <span>{lang === 'hi' ? 'स्कूल प्रोफ़ाइल' : 'School Profile'}</span>
               </div>
               <div className="card-body">
                 <table className="info-table">
                   <tbody>
+                    <tr><td>{lang === 'hi' ? 'स्कूल का नाम' : 'School Name'}</td><td><strong>{school.school_name}</strong></td></tr>
                     <tr><td>{lang === 'hi' ? 'UDISE कोड' : 'UDISE Code'}</td><td><span className="udise-pill">{String(school.udise_code).padStart(11, '0')}</span></td></tr>
-                    <tr><td>{lang === 'hi' ? 'स्कूल का नाम' : 'School Name'}</td><td>{school.school_name}</td></tr>
-                    <tr><td>{lang === 'hi' ? 'राज्य' : 'State'}</td><td>{stateName}</td></tr>
-                    <tr><td>{lang === 'hi' ? 'जिला' : 'District'}</td><td>{districtName}</td></tr>
-                    <tr><td>{lang === 'hi' ? 'ब्लॉक' : 'Block'}</td><td>{school.block}</td></tr>
-                    <tr><td>{lang === 'hi' ? 'गाँव' : 'Village'}</td><td>{school.village}</td></tr>
-                    {school.cluster && <tr><td>{lang === 'hi' ? 'क्लस्टर' : 'Cluster'}</td><td>{school.cluster}</td></tr>}
-                    <tr><td>{lang === 'hi' ? 'क्षेत्र' : 'Location'}</td><td><span className={`badge ${school.location === 'Rural' ? 'badge-green' : 'badge-blue'}`}>{school.location === 'Rural' ? (lang === 'hi' ? '🌿 ग्रामीण' : '🌿 Rural') : (lang === 'hi' ? '🏙️ शहरी' : '🏙️ Urban')}</span></td></tr>
-                    <tr><td>{lang === 'hi' ? 'प्रबंधन' : 'Management'}</td><td>{t(school.national_mgmt, lang)}</td></tr>
-                    <tr><td>{lang === 'hi' ? 'श्रेणी' : 'Category'}</td><td><span className="badge badge-blue">{t(school.school_category, lang)}</span></td></tr>
-                    <tr><td>{lang === 'hi' ? 'स्कूल का प्रकार' : 'School Type'}</td><td><span className="badge badge-teal">{t(school.school_type, lang)}</span></td></tr>
-                    <tr><td>{lang === 'hi' ? 'स्थिति' : 'Status'}</td><td><span className={`badge ${isOperational ? 'badge-green' : 'badge-red'}`}>{isOperational ? (lang === 'hi' ? '✅ सक्रिय (Operational)' : '✅ Operational') : (lang === 'hi' ? '⚠️ बंद (Closed)' : '⚠️ Closed')}</span></td></tr>
-                    {(school.pincode || districtStats?.dist_sample_pin) && (
-                      <tr>
-                        <td>{lang === 'hi' ? 'पिन कोड' : 'PIN Code'}</td>
-                        <td>{school.pincode || districtStats.dist_sample_pin}</td>
-                      </tr>
-                    )}
-                    {school.establishment_year && (
-                      <tr>
-                        <td>{lang === 'hi' ? 'स्थापना वर्ष' : 'Establishment Year'}</td>
-                        <td>{school.establishment_year}</td>
-                      </tr>
-                    )}
-                    {school.medium_of_instruction && (
-                      <tr>
-                        <td>{lang === 'hi' ? 'शिक्षा का माध्यम' : 'Medium of Instruction'}</td>
-                        <td>{school.medium_of_instruction}</td>
-                      </tr>
-                    )}
                     {school.headmaster_name && (
                       <tr>
                         <td>{lang === 'hi' ? 'प्रधानाध्यापक' : 'Headmaster'}</td>
                         <td><strong>{school.headmaster_name}</strong> <span style={{ color: '#10B981', marginLeft: 4 }}>✅</span></td>
+                      </tr>
+                    )}
+                    <tr><td>{lang === 'hi' ? 'स्थिति' : 'Status'}</td><td><span className={`badge ${isOperational ? 'badge-green' : 'badge-red'}`}>{isOperational ? (lang === 'hi' ? '✅ सक्रिय (Operational)' : '✅ Operational') : (lang === 'hi' ? '⚠️ बंद (Closed)' : '⚠️ Closed')}</span></td></tr>
+                    <tr><td>{lang === 'hi' ? 'प्रबंधन' : 'Management'}</td><td>{t(school.national_mgmt, lang)}</td></tr>
+                    {school.establishment_year && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'स्थापना वर्ष' : 'Establishment Year'}</td>
+                        <td>{school.establishment_year}</td>
                       </tr>
                     )}
                   </tbody>
@@ -535,6 +528,59 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                     {lang === 'hi' ? `अंतिम अपडेट: ${school.last_updated}` : `Last Updated: ${school.last_updated}`}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Card 2: Location & Address */}
+            <div id="location-info" className="card">
+              <div className="card-header">
+                <span style={{ fontSize: 18 }}>📍</span>
+                <span>{lang === 'hi' ? 'प्रशासनिक स्थान और पता' : 'Location & Address'}</span>
+              </div>
+              <div className="card-body">
+                <table className="info-table">
+                  <tbody>
+                    <tr><td>{lang === 'hi' ? 'राज्य' : 'State'}</td><td><Link href={`${pathPrefix}/schools/${stateSlug}`} style={{ color: '#1E40AF', textDecoration: 'underline', fontWeight: 600 }}>{stateName}</Link></td></tr>
+                    <tr><td>{lang === 'hi' ? 'जिला' : 'District'}</td><td><Link href={`${pathPrefix}/schools/${stateSlug}/${districtSlug}`} style={{ color: '#1E40AF', textDecoration: 'underline', fontWeight: 600 }}>{districtName}</Link></td></tr>
+                    <tr><td>{lang === 'hi' ? 'ब्लॉक' : 'Block'}</td><td><Link href={`${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}`} style={{ color: '#1E40AF', textDecoration: 'underline', fontWeight: 600 }}>{school.block}</Link></td></tr>
+                    <tr><td>{lang === 'hi' ? 'गाँव' : 'Village'}</td><td><Link href={`${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}/${villageSlug}`} style={{ color: '#1E40AF', textDecoration: 'underline', fontWeight: 600 }}>{school.village}</Link></td></tr>
+                    {school.cluster && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'क्लस्टर' : 'Cluster'}</td>
+                        <td>{school.cluster}</td>
+                      </tr>
+                    )}
+                    <tr><td>{lang === 'hi' ? 'क्षेत्र' : 'Location Type'}</td><td><span className={`badge ${school.location === 'Rural' ? 'badge-green' : 'badge-blue'}`}>{school.location === 'Rural' ? (lang === 'hi' ? '🌿 ग्रामीण' : '🌿 Rural') : (lang === 'hi' ? '🏙️ शहरी' : '🏙️ Urban')}</span></td></tr>
+                    {(school.pincode || districtStats?.dist_sample_pin) && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'पिन कोड' : 'PIN Code'}</td>
+                        <td>{school.pincode || districtStats.dist_sample_pin}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Card 3: Academic Details */}
+            <div id="academic-info" className="card">
+              <div className="card-header">
+                <span style={{ fontSize: 18 }}>📖</span>
+                <span>{lang === 'hi' ? 'शैक्षणिक विवरण' : 'Academic Information'}</span>
+              </div>
+              <div className="card-body">
+                <table className="info-table">
+                  <tbody>
+                    <tr><td>{lang === 'hi' ? 'श्रेणी' : 'Category'}</td><td><span className="badge badge-blue">{t(school.school_category, lang)}</span></td></tr>
+                    <tr><td>{lang === 'hi' ? 'स्कूल का प्रकार' : 'School Type'}</td><td><span className="badge badge-teal">{t(school.school_type, lang)}</span></td></tr>
+                    {school.medium_of_instruction && (
+                      <tr>
+                        <td>{lang === 'hi' ? 'शिक्षा का माध्यम' : 'Medium of Instruction'}</td>
+                        <td>{school.medium_of_instruction}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
 
@@ -557,7 +603,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                       {school.email && (
                         <tr>
                           <td>{lang === 'hi' ? 'ईमेल' : 'Email'}</td>
-                          <td><a href={`mailto:${school.email}`} style={{ color: '#1E40AF', textDecoration: 'underline' }}>{school.email}</a></td>
+                          <td><a href={`mailto:${cleanEmail(school.email)}`} style={{ color: '#1E40AF', textDecoration: 'underline' }}>{cleanEmail(school.email)}</a></td>
                         </tr>
                       )}
                       {school.phone && (
@@ -988,6 +1034,19 @@ export default async function SchoolPage({ params, lang = 'en' }) {
         .jump-link:hover {
           color: #1E40AF !important;
           border-bottom-color: #1E40AF !important;
+        }
+        .card {
+          transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+        }
+        .card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08), 0 8px 8px -6px rgba(0, 0, 0, 0.08) !important;
+        }
+        .info-table tr {
+          transition: background-color 0.15s ease;
+        }
+        .info-table tr:hover {
+          background-color: #F8FAFC !important;
         }
       `}</style>
     </>
