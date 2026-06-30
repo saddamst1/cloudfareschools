@@ -27,7 +27,7 @@ export default function ContactPage() {
 
       <div style={{ background: '#1E40AF', padding: '36px 24px', color: 'white', textAlign: 'center' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2.2rem', fontWeight: 800, color: 'white' }}>Contact & Support</h1>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '2.2rem', fontWeight: 800, color: 'white' }}>Contact & Support</h1>
           <p style={{ fontSize: '1rem', color: '#93C5FD', marginTop: 8, maxWidth: 600, marginLeft: 'auto', marginRight: 'auto' }}>
             Found a data discrepancy or need help? Report school errors or reach out to our team.
           </p>

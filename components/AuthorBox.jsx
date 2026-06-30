@@ -38,7 +38,7 @@ export default function AuthorBox() {
           <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0D9488', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
             Founder & Chief Editor
           </div>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '1.4rem', color: '#1E293B', fontFamily: 'Outfit, sans-serif' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '1.4rem', color: '#1E293B', fontFamily: 'var(--font-heading), sans-serif' }}>
             Sahajul
           </h3>
           <p style={{ margin: 0, fontSize: '0.95rem', color: '#475569', lineHeight: 1.6 }}>

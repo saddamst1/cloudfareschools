@@ -49,7 +49,7 @@ export default async function SearchPage({ searchParams }) {
       {/* Search & Filter Header Banner */}
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0F172A 100%)', padding: '36px 24px', color: 'white' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.6rem', fontWeight: 800, color: 'white', marginBottom: 16 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.6rem', fontWeight: 800, color: 'white', marginBottom: 16 }}>
             Explore 16.5 Lakh+ Schools
           </h1>
           <form method="GET" style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 800 }}>
@@ -116,7 +116,7 @@ export default async function SearchPage({ searchParams }) {
 
         {q && (
           <div style={{ marginTop: 24 }}>
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>
               {results.length > 0 
                 ? `${results.length} results found matching "${q}"` 
                 : `No results found for "${q}"`}
@@ -149,7 +149,7 @@ export default async function SearchPage({ searchParams }) {
         {!q && (
           <div style={{ marginTop: 32, textAlign: 'center', padding: '40px 0', maxWidth: 600, margin: '0 auto' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🏫</div>
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>
               Search School Directories
             </h2>
             <p style={{ fontSize: '0.9rem', color: '#64748B', lineHeight: 1.6, marginBottom: 24 }}>

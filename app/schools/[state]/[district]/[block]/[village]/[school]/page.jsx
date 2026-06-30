@@ -7,16 +7,11 @@ import BreadcrumbNav from '@/components/BreadcrumbNav';
 import DistrictStats from '@/components/DistrictStats';
 import SchoolReviews from '@/components/SchoolReviews';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 // Pre-build top schools at build time (rest will ISR on-demand)
-export async function generateStaticParams() {
-  return [
-    // Pre-generate a real demo school
-    { state: 'uttar-pradesh', district: 'lucknow', block: 'chinhat', village: 'ali-nager', school: 'p-s-ali-nagar-9270100101' },
-  ];
-}
+
 
 
 
@@ -432,11 +427,11 @@ export default async function SchoolPage({ params, lang = 'en' }) {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: isOperational ? '#10B981' : '#EF4444', color: 'white', fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: 12 }}>
             {isOperational ? (lang === 'hi' ? '✅ सक्रिय (Operational)' : '✅ OPERATIONAL') : (lang === 'hi' ? '⚠️ बंद (Closed)' : '⚠️ CLOSED')}
           </div>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', fontWeight: 700, color: 'white', lineHeight: 1.3, marginBottom: 10 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', fontWeight: 700, color: 'white', lineHeight: 1.3, marginBottom: 10 }}>
             {school.school_name}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', fontSize: '0.8rem', color: '#93C5FD' }}>
-            <span>UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace', color: '#BAE6FD' }}>{String(school.udise_code).padStart(11, '0')}</strong></span>
+            <span>UDISE: <strong style={{ fontFamily: 'var(--font-mono), monospace', color: '#BAE6FD' }}>{String(school.udise_code).padStart(11, '0')}</strong></span>
             <span style={{ color: '#475569' }}>·</span>
             <span>📍 {school.village}, {school.block}, {districtName}, {stateName}</span>
             <span style={{ color: '#475569' }}>·</span>
@@ -486,12 +481,12 @@ export default async function SchoolPage({ params, lang = 'en' }) {
             <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.7, margin: '0 0 4px 0' }}>
               {lang === 'hi' ? (
                 <>
-                  <strong>{school.school_name}</strong> {stateName} के {districtName} जिले में {school.village} गाँव का एक {t(school.school_category, lang)} स्कूल है। UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {t(school.school_type, lang)} · {t(school.national_mgmt, lang)} · {t(school.school_status, lang)}
+                  <strong>{school.school_name}</strong> {stateName} के {districtName} जिले में {school.village} गाँव का एक {t(school.school_category, lang)} स्कूल है। UDISE: <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {t(school.school_type, lang)} · {t(school.national_mgmt, lang)} · {t(school.school_status, lang)}
                 </>
               ) : (
                 <>
                   <strong>{school.school_name}</strong> is a {school.school_category} school in {school.village}, {school.district}, {school.state}.
-                  UDISE: <strong style={{ fontFamily: 'JetBrains Mono, monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {school.school_type} · {school.national_mgmt} · {school.school_status}
+                  UDISE: <strong style={{ fontFamily: 'var(--font-mono), monospace' }}>{String(school.udise_code).padStart(11, '0')}</strong> · {school.school_type} · {school.national_mgmt} · {school.school_status}
                 </>
               )}
             </p>
@@ -711,7 +706,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
             {/* About Section */}
             <div id="about" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
                 📖 {lang === 'hi' ? `${school.school_name} के बारे में` : `About ${school.school_name}`}
               </h2>
               {getSchoolDescription(school, districtStats, stateSlug, districtSlug, blockSlug, villageSlug, lang).split('\n\n').map((para, i) => (
@@ -730,7 +725,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
             {/* UDISE Code Breakdown */}
             <div id="udise" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
                 🔢 {lang === 'hi' ? `UDISE कोड — ${String(school.udise_code).padStart(11, '0')}` : `UDISE Code — ${String(school.udise_code).padStart(11, '0')}`}
               </h2>
               <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 14 }}>
@@ -748,7 +743,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
               <div className="udise-breakdown-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 14 }}>
                 {udiseBreakdown.map((part, i) => (
                   <div key={i} style={{ background: udiseColors[i], borderRadius: 8, padding: '10px 6px', textAlign: 'center' }}>
-                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '1rem', fontWeight: 700, color: udiseTextColors[i] }}>{part.digits}</div>
+                    <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '1rem', fontWeight: 700, color: udiseTextColors[i] }}>{part.digits}</div>
                     <div style={{ fontSize: '0.65rem', color: '#64748B', marginTop: 4, lineHeight: 1.3 }}>{part.label}</div>
                   </div>
                 ))}
@@ -764,7 +759,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
             {/* Facilities */}
             <div id="infrastructure" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 8, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 8, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
                 🔧 {lang === 'hi' ? 'स्कूल की सुविधाएँ' : 'School Facilities'}
               </h2>
               {!(school.has_playground || school.has_internet || school.has_library === 1 || school.has_electricity === 1 || school.has_toilet === 1) && (
@@ -807,7 +802,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
             {/* Nearby Schools */}
             {nearby.length > 0 && (
               <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-                <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
+                <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 14, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
                   🏫 {lang === 'hi' ? `${school.village} में आस-पास के स्कूल` : `Nearby Schools in ${school.village}`}
                 </h2>
                 <div className="nearby-schools-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
@@ -819,7 +814,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                           <span style={{ background: '#EFF6FF', color: '#1E40AF', fontSize: '0.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 99 }}>{t(nb.school_category, lang)}</span>
                           <span style={{ fontSize: '0.7rem', color: '#64748B' }}>{nb.village}</span>
                         </div>
-                        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: '#94A3B8' }}>UDISE: {nb.udise_code}</div>
+                        <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.7rem', color: '#94A3B8' }}>UDISE: {nb.udise_code}</div>
                       </div>
                     </Link>
                   ))}
@@ -829,7 +824,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
             {/* RTE Section */}
             <div id="admissions" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12, paddingBottom: 10, borderBottom: '2px solid #EFF6FF' }}>
                 📜 {lang === 'hi' ? 'आरटीई प्रवेश — अपने बच्चे का नामांकन' : 'RTE Admission — Enrolling Your Child'}
               </h2>
               <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.75, marginBottom: 14 }}>
@@ -870,7 +865,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
             {/* FAQ */}
             <div id="faqs" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '20px 18px' }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>{t('FAQs', lang)}</h2>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>{t('FAQs', lang)}</h2>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {faqs.map(({ q, a }) => (
                   <details key={q} className="faq-item">
@@ -957,7 +952,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                 <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, height: 110, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <span style={{ fontSize: 24 }}>📍</span>
                   <div style={{ fontSize: '0.8rem', color: '#3B82F6', fontWeight: 600 }}>{school.village}, {school.block}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontFamily: 'monospace' }}>{Number(districtStats.dist_avg_lat).toFixed(4)}°N, {Number(districtStats.dist_avg_long).toFixed(4)}°E</div>
+                  <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontFamily: 'var(--font-mono), monospace' }}>{Number(districtStats.dist_avg_lat).toFixed(4)}°N, {Number(districtStats.dist_avg_long).toFixed(4)}°E</div>
                 </div>
               </div>
             )}
@@ -1016,7 +1011,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
             {/* CTA */}
             <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', borderRadius: 10, padding: 16 }}>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: 'white', marginBottom: 6 }}>
+              <div style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '0.95rem', fontWeight: 700, color: 'white', marginBottom: 6 }}>
                 {lang === 'hi' ? 'अपना स्कूल नहीं मिल रहा?' : "Can't find your school?"}
               </div>
               <div style={{ fontSize: '0.8rem', color: '#BAE6FD', lineHeight: 1.5, marginBottom: 14 }}>

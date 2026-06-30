@@ -158,7 +158,7 @@ export default async function BlogPostPage({ params }) {
           <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2DD4BF', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>
             {article.icon} {article.tag}
           </div>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', lineHeight: 1.25, marginBottom: 14, maxWidth: 900 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', lineHeight: 1.25, marginBottom: 14, maxWidth: 900 }}>
             {article.title}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', fontSize: '0.825rem' }}>

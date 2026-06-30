@@ -53,7 +53,7 @@ export default function ContactForm() {
     return (
       <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 12, padding: '32px', textAlign: 'center' }}>
         <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
-        <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#065F46', marginBottom: 8 }}>
+        <h3 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#065F46', marginBottom: 8 }}>
           Report Submitted Successfully!
         </h3>
         <p style={{ fontSize: '0.875rem', color: '#047857', lineHeight: 1.6, margin: 0 }}>

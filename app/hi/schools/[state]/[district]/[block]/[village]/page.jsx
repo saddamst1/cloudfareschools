@@ -1,7 +1,7 @@
 import VillagePage, { getVillagePageMetadata } from '@/app/schools/[state]/[district]/[block]/[village]/page';
 import { redirect } from 'next/navigation';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];

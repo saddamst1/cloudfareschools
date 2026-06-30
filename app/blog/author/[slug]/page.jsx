@@ -70,13 +70,13 @@ export default async function AuthorPage({ params }) {
                 </div>
                 
                 <div style={{ flex: 1 }}>
-                  <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.75rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>
+                  <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.75rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>
                     {author.name}
                   </h1>
                   <p style={{ fontSize: '0.875rem', color: '#0D9488', fontWeight: 700, marginTop: 4 }}>
                     {author.role}
                   </p>
-                  <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 2, fontFamily: 'monospace' }}>
+                  <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 2, fontFamily: 'var(--font-mono), monospace' }}>
                     🎓 {author.credentials}
                   </p>
                   
@@ -107,7 +107,7 @@ export default async function AuthorPage({ params }) {
 
             {/* Posts by this author list */}
             <div>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.15rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.15rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>
                 Articles Published by {author.name}
               </h2>
               

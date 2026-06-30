@@ -251,7 +251,7 @@ export default function BlogIndexPage() {
       {/* Hero Banner */}
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '48px 24px', color: 'white' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', marginBottom: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', marginBottom: 0 }}>
             Blog
           </h1>
           <p style={{ fontSize: '1rem', color: '#BAE6FD', marginTop: 10, lineHeight: 1.5 }}>Guides on UDISE codes, RTE admissions, school boards, and how Indian school data works.</p>

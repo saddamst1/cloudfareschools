@@ -94,7 +94,7 @@ export default function RootLayout({ children }) {
         {process.env.NODE_ENV === 'production' && (
           <Script
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
             crossOrigin="anonymous"
           />
         )}

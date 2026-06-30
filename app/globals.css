@@ -99,7 +99,7 @@ a:hover { color: var(--brand-blue-dark); }
 /* ── Logo ──────────────────────────────────────────────────── */
 
 .logo-text {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-heading), sans-serif;
   font-weight: 700;
   font-size: 1.25rem;
   color: var(--brand-blue);
@@ -134,7 +134,7 @@ a:hover { color: var(--brand-blue-dark); }
 .btn-primary {
   background: var(--brand-blue);
   color: white !important;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 10px 22px;
@@ -151,7 +151,7 @@ a:hover { color: var(--brand-blue-dark); }
 .btn-orange {
   background: var(--brand-orange);
   color: white !important;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 10px 22px;
@@ -165,7 +165,7 @@ a:hover { color: var(--brand-blue-dark); }
 .btn-outline {
   background: transparent;
   color: var(--brand-blue) !important;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-body), sans-serif;
   font-weight: 600;
   font-size: 0.875rem;
   padding: 9px 20px;
@@ -227,7 +227,7 @@ a:hover { color: var(--brand-blue-dark); }
 
 .section { padding: 36px 24px; }
 .section-title {
-  font-family: 'Sora', sans-serif;
+  font-family: var(--font-heading), sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -267,7 +267,7 @@ a:hover { color: var(--brand-blue-dark); }
 /* ── UDISE Pill ──────────────────────────────────────────────── */
 
 .udise-pill {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono), monospace;
   font-size: 0.875rem;
   font-weight: 700;
   background: var(--brand-blue-bg);
@@ -282,7 +282,7 @@ a:hover { color: var(--brand-blue-dark); }
 /* ── Stat Number ─────────────────────────────────────────────── */
 
 .stat-num {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-heading), sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--brand-blue);
@@ -327,7 +327,7 @@ a:hover { color: var(--brand-blue-dark); }
   background: #1E293B;
   color: #94A3B8;
 }
-.footer-logo { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.1rem; color: white; }
+.footer-logo { font-family: var(--font-heading), sans-serif; font-weight: 700; font-size: 1.1rem; color: white; }
 .footer-logo .teal { color: #2DD4BF; }
 .f-badge {
   background: #0F172A;
@@ -387,7 +387,7 @@ a:hover { color: var(--brand-blue-dark); }
   outline: none;
   padding: 14px 18px;
   font-size: 0.95rem;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-body), sans-serif;
   color: var(--text-primary);
   background: transparent;
 }
@@ -401,7 +401,7 @@ a:hover { color: var(--brand-blue-dark); }
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-body), sans-serif;
   white-space: nowrap;
 }
 .search-box button:hover { background: var(--brand-orange-dark); }

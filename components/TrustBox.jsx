@@ -7,7 +7,7 @@ export default function TrustBox() {
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '24px 28px', display: 'flex', gap: 18, alignItems: 'flex-start', flexWrap: 'wrap' }}>
           
           {/* Avatar branding */}
-          <div style={{ width: 50, height: 50, borderRadius: '50%', background: '#EFF6FF', border: '2px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.05rem', fontWeight: 800, color: '#1E40AF', flexShrink: 0, fontFamily: 'Sora, sans-serif' }}>
+          <div style={{ width: 50, height: 50, borderRadius: '50%', background: '#EFF6FF', border: '2px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.05rem', fontWeight: 800, color: '#1E40AF', flexShrink: 0, fontFamily: 'var(--font-heading), sans-serif' }}>
             SP
           </div>
           

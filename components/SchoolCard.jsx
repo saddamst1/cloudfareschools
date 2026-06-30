@@ -62,7 +62,7 @@ export default function SchoolCard({ school, lang = 'en' }) {
 
         {/* UDISE + Status */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.75rem', color: '#94A3B8' }}>
+          <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.75rem', color: '#94A3B8' }}>
             UDISE: {String(school.udise_code).padStart(11, '0')}
           </span>
           <span style={{ fontSize: '0.7rem', fontWeight: 600, color: isOperational ? '#10B981' : '#EF4444' }}>

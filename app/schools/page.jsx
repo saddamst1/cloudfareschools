@@ -3,7 +3,7 @@ import { getAllStates } from '@/lib/queries';
 import StateCard from '@/components/StateCard';
 import AdSlot from '@/components/AdSlot';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Schools in India — Browse by State | SchoolsPedia',
@@ -25,7 +25,7 @@ export default async function SchoolsIndexPage() {
             <span>›</span>
             <span style={{ color: 'white' }}>All States</span>
           </div>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 700, color: 'white', marginBottom: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 700, color: 'white', marginBottom: 0 }}>
             Schools in India — Browse by State
           </h1>
         </div>
@@ -48,7 +48,7 @@ export default async function SchoolsIndexPage() {
         </div>
 
         <div style={{ marginTop: 24 }}>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>
+          <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 16 }}>
             All 36 States & Union Territories
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 10 }}>

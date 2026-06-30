@@ -163,7 +163,7 @@ export default function DistrictsDirectory({ districts }) {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontSize: '1.1rem' }}>📍</span>
-                    <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B', margin: 0 }}>
+                    <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '0.95rem', fontWeight: 700, color: '#1E293B', margin: 0 }}>
                       {stateName}
                     </h2>
                     <span style={{ fontSize: '0.7rem', background: '#EFF6FF', color: '#1E40AF', padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>

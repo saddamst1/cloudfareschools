@@ -37,7 +37,7 @@ export default async function AboutPage() {
       {/* Hero Banner */}
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '48px 24px', color: 'white', position: 'relative' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', marginBottom: 12 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', marginBottom: 12 }}>
             About SchoolsPedia
           </h1>
           <p style={{ fontSize: '1.05rem', color: '#BAE6FD', lineHeight: 1.6, maxWidth: 700 }}>

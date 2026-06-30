@@ -22,7 +22,7 @@ export default function NotFound() {
           fontSize: '4rem',
           fontWeight: 900,
           color: '#1E40AF',
-          fontFamily: 'Outfit, sans-serif',
+          fontFamily: 'var(--font-heading), sans-serif',
           lineHeight: 1,
           marginBottom: 8,
         }}>404</div>

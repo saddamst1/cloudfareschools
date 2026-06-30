@@ -4,7 +4,7 @@ import AdSlot from '@/components/AdSlot';
 import DistrictsDirectory from '@/components/DistrictsDirectory';
 import { faqSchema } from '@/lib/seo';
 
-export const revalidate = 86400; // Daily static revalidation
+export const dynamic = 'force-dynamic'; // Daily static revalidation
 
 export const metadata = {
   title: 'Schools in India — Browse by District | SchoolsPedia',
@@ -54,7 +54,7 @@ export default async function DistrictsIndexPage() {
       {/* Hero Header */}
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '32px 24px 28px', color: 'white' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', fontWeight: 800, color: 'white', marginBottom: 0 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', fontWeight: 800, color: 'white', marginBottom: 0 }}>
             Browse Schools by District
           </h1>
         </div>

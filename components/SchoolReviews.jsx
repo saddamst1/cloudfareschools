@@ -130,7 +130,7 @@ export default function SchoolReviews({ udiseCode, schoolName }) {
       {/* Header bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: 16, marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 8 }}>
             💬 Parent & Alumni Reviews
           </h2>
           <p style={{ fontSize: '0.75rem', color: '#64748B', marginTop: 2 }}>
@@ -150,7 +150,7 @@ export default function SchoolReviews({ udiseCode, schoolName }) {
       {/* Review Form Drawer */}
       {formOpen && (
         <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 20, marginBottom: 24 }} className="animate-fade-up">
-          <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12 }}>
+          <h3 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, color: '#1E293B', marginBottom: 12 }}>
             Share Your Experience
           </h3>
           
@@ -249,7 +249,7 @@ export default function SchoolReviews({ udiseCode, schoolName }) {
               {/* Ratings Summary Card */}
               <div style={{ background: '#F8FAFC', borderRadius: 10, padding: 16, display: 'flex', alignItems: 'center', gap: 24, marginBottom: 20, border: '1px solid #F1F5F9' }}>
                 <div style={{ textAlign: 'center', borderRight: '1px solid #E2E8F0', paddingRight: 24 }}>
-                  <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2.5rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
+                  <div style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '2.5rem', fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>
                     {avgRating}
                   </div>
                   <div style={{ marginTop: 6 }}>

@@ -5,7 +5,7 @@ import { getBlockMeta, breadcrumbSchema } from '@/lib/seo';
 import SchoolCard from '@/components/SchoolCard';
 import AdSlot from '@/components/AdSlot';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 import { t } from '@/lib/translate';
 
@@ -92,7 +92,7 @@ export default async function BlockPage({ params, searchParams, lang = 'en' }) {
 
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '28px 24px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.75rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.75rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
             {lang === 'hi' ? `${districtName} के ${blockName} ब्लॉक में स्कूल` : `Schools in ${block.block_name} Block, ${block.district_name}`}
           </h1>
           <p style={{ fontSize: '0.875rem', color: '#93C5FD' }}>
@@ -150,7 +150,7 @@ export default async function BlockPage({ params, searchParams, lang = 'en' }) {
         </div>
 
         {/* Schools Grid */}
-        <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, marginBottom: 14 }}>
+        <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, marginBottom: 14 }}>
           {lang === 'hi' ? (
             `${blockName} में ${fmt(schoolsData.total)} स्कूल${category ? ` — ${t(category, lang)}` : ''}`
           ) : (

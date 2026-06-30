@@ -83,13 +83,13 @@ export default async function HomePage() {
             India&apos;s Largest School Directory — {fmtNum(stats?.total_schools)} Verified Schools
           </div>
 
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16, maxWidth: 800, marginLeft: 'auto', marginRight: 'auto', letterSpacing: '-1px' }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16, maxWidth: 800, marginLeft: 'auto', marginRight: 'auto', letterSpacing: '-1px' }}>
             Find Any School in India by Name, <br />
             <span className="gradient-text-teal">UDISE Code, Village or District</span>
           </h1>
 
           <p style={{ fontSize: '1.05rem', color: '#94A3B8', marginBottom: 36, lineHeight: 1.6, maxWidth: 700, margin: '0 auto 36px' }}>
-            Every school in India has an 11-digit UDISE code — a government registration number that tells you if the school is real. We’ve collected records for 16.5 lakh schools so you can look up any school in seconds, without wading through government portals.
+            Every school in India has an 11-digit UDISE code — a government registration number that tells you if the school is real. We’ve collected records for 16.5 lakh schools so you can look up any school in seconds, without searching through slow government websites.
           </p>
 
           <SearchBox />
@@ -115,7 +115,7 @@ export default async function HomePage() {
             { num: `${fmtNum(stats?.total_villages)}+`, label: 'Indexed Villages',      color: '#F97316', desc: 'Granular rural primary directories' },
           ].map(({ num, label, color, desc }) => (
             <div key={label} style={{ padding: '24px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} className="stats-card-border">
-              <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.8rem', fontWeight: 800, color, lineHeight: 1.1 }}>{num}</div>
+              <div style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.8rem', fontWeight: 800, color, lineHeight: 1.1 }}>{num}</div>
               <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#1E293B', marginTop: 6 }}>{label}</div>
               <div style={{ fontSize: '0.7rem', color: '#64748B', marginTop: 3, lineHeight: 1.35 }}>{desc}</div>
             </div>
@@ -142,7 +142,7 @@ export default async function HomePage() {
       <section style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '32px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.15rem', fontWeight: 700, color: '#1E293B' }}>Browse schools by state</h2>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.15rem', fontWeight: 700, color: '#1E293B' }}>Browse schools by state</h2>
             <Link href="/schools" style={{ fontSize: '0.85rem', color: '#1E40AF', fontWeight: 600 }}>View all 36 states →</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
@@ -160,7 +160,7 @@ export default async function HomePage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.15rem', fontWeight: 700, color: '#1E293B' }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.15rem', fontWeight: 700, color: '#1E293B' }}>
                 Featured Districts & Cities
               </h2>
               <p style={{ fontSize: '0.8rem', color: '#64748B', marginTop: 2 }}>
@@ -209,7 +209,7 @@ export default async function HomePage() {
       <section style={{ background: '#F8FAFC', padding: '32px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.15rem', fontWeight: 700 }}>Explore by school category</h2>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.15rem', fontWeight: 700 }}>Explore by school category</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
             {SCHOOL_CATEGORIES.map((cat, i) => (
@@ -232,7 +232,7 @@ export default async function HomePage() {
       <section style={{ background: 'white', borderTop: '1px solid #E2E8F0', borderBottom: '1px solid #E2E8F0', padding: '48px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>How to Find Your School in 4 Simple Clicks</h2>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.4rem', fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>How to Find Your School in 4 Simple Clicks</h2>
             <p style={{ fontSize: '0.9rem', color: '#64748B' }}>Follow our structured geographic hierarchy down to the school level</p>
           </div>
           <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 16, padding: '36px 24px' }}>
@@ -244,7 +244,7 @@ export default async function HomePage() {
                 { num: 4, label: 'Get School Details',   sub: 'See UDISE codes, facilities, and board info instantly', bg: '#F97316', icon: '🏫' },
               ].map(step => (
                 <div key={step.num} className="step-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                  <div style={{ width: 42, height: 42, borderRadius: '50%', background: step.bg, color: 'white', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, fontFamily: 'Outfit, sans-serif', boxShadow: '0 4px 10px rgba(30,64,175,0.15)' }}>{step.num}</div>
+                  <div style={{ width: 42, height: 42, borderRadius: '50%', background: step.bg, color: 'white', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, fontFamily: 'var(--font-heading), sans-serif', boxShadow: '0 4px 10px rgba(30,64,175,0.15)' }}>{step.num}</div>
                   <div style={{ fontSize: 24, marginBottom: 8, filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.05))' }}>{step.icon}</div>
                   <div style={{ fontSize: '0.925rem', fontWeight: 700, color: '#1E293B', marginBottom: 4 }}>{step.label}</div>
                   <div style={{ fontSize: '0.775rem', color: '#64748B', lineHeight: 1.45 }}>{step.sub}</div>
@@ -344,7 +344,7 @@ export default async function HomePage() {
       <section style={{ background: 'white', borderTop: '1px solid #E2E8F0', padding: '36px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '24px' }}>
-            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#1E293B', marginBottom: 20 }}>FAQs</h2>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#1E293B', marginBottom: 20 }}>FAQs</h2>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {HOME_FAQS.map(({ q, a }) => (
                 <details key={q} className="faq-item">
@@ -366,7 +366,7 @@ export default async function HomePage() {
       <section style={{ background: '#F8FAFC', borderTop: '1px solid #E2E8F0', padding: '48px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.35rem', fontWeight: 700 }}>Latest insights from our blog</h2>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.35rem', fontWeight: 700 }}>Latest insights from our blog</h2>
             <Link href="/blog" style={{ fontSize: '0.85rem', color: '#1E40AF', fontWeight: 600 }}>View all articles →</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 18 }}>

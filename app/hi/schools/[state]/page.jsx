@@ -1,17 +1,11 @@
 import StatePage, { getStatePageMetadata } from '@/app/schools/[state]/page';
 import { redirect } from 'next/navigation';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];
 
-export async function generateStaticParams() {
-  return [
-    { state: 'uttar-pradesh' },
-    { state: 'bihar' },
-    { state: 'madhya-pradesh' }
-  ];
-}
+
 
 export async function generateMetadata(props) {
   const { state: stateSlug } = await props.params;

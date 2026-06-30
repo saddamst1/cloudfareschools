@@ -4,7 +4,7 @@ import { getAllStates, getState, getStateDistricts, getStateCategoryCounts, getS
 import { getStateMeta, breadcrumbSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 
 const STATE_BOARDS = {
   'uttar-pradesh': { name: 'UP Board of High School and Intermediate Education (UPMSP)', url: 'https://upmsp.edu.in' },
@@ -31,10 +31,7 @@ const STATE_BOARDS = {
   'jammu-and-kashmir': { name: 'Jammu and Kashmir State Board of School Education (JKBOSE)', url: 'https://jkbose.nic.in' }
 };
 
-export async function generateStaticParams() {
-  const states = await getAllStates();
-  return states.map(s => ({ state: s.state_slug }));
-}
+
 
 import { t } from '@/lib/translate';
 
@@ -137,7 +134,7 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
       {/* Hero */}
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '28px 24px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
             {lang === 'hi' ? `${stateName} में स्कूल` : `Schools in ${state.state_name}`}
           </h1>
           <p style={{ fontSize: '0.9rem', color: '#93C5FD', lineHeight: 1.6, marginBottom: 18 }}>
@@ -150,7 +147,7 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {[[ '📚', fmt(state.total_schools), t('Total Schools', lang) ], [ '🏛️', state.district_count, t('Districts', lang) ], [ '🗺️', state.block_count, t('Blocks', lang) ]].map(([icon, n, label]) => (
               <div key={label} style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 8, padding: '10px 16px', border: '1px solid rgba(255,255,255,0.2)' }}>
-                <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{icon} {n}</div>
+                <div style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{icon} {n}</div>
                 <div style={{ fontSize: '0.75rem', color: '#BAE6FD' }}>{label}</div>
               </div>
             ))}
@@ -167,7 +164,7 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
 
             {/* Districts Grid */}
             <div style={{ marginTop: 24 }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.05rem', fontWeight: 700, marginBottom: 16 }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.05rem', fontWeight: 700, marginBottom: 16 }}>
                 {lang === 'hi' ? `${stateName} में जिले` : `Districts in ${state.state_name}`} ({districts.length})
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 10 }}>
@@ -197,7 +194,7 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
             {/* School categories */}
             {categories.length > 0 && (
               <div style={{ marginTop: 24 }}>
-                <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1.05rem', fontWeight: 700, marginBottom: 16 }}>
+                <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.05rem', fontWeight: 700, marginBottom: 16 }}>
                   {lang === 'hi' ? `${stateName} में स्कूल की श्रेणियाँ` : `School categories in ${state.state_name}`}
                 </h2>
                 <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
@@ -290,7 +287,7 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
             )}
 
             <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', borderRadius: 10, padding: 16, color: 'white' }}>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8 }}>
+              <div style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8 }}>
                 {lang === 'hi' ? 'अपना स्कूल नहीं मिल रहा?' : "Can't find your school?"}
               </div>
               <div style={{ fontSize: '0.8rem', color: '#BAE6FD', lineHeight: 1.5, marginBottom: 14 }}>

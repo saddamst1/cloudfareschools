@@ -129,7 +129,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
                   <span style={{ fontSize: '0.75rem', color: '#475569' }}>📍 {r.village}, {r.district}, {r.state}</span>
                   <span style={{ fontSize: '0.7rem', fontWeight: 600, color: categoryColor(r.school_category), background: '#EFF6FF', padding: '1px 6px', borderRadius: 99 }}>{r.school_category}</span>
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#64748B', marginTop: 2, fontFamily: 'monospace' }}>UDISE: {String(r.udise_code).padStart(11, '0')}</div>
+                <div style={{ fontSize: '0.7rem', color: '#64748B', marginTop: 2, fontFamily: 'var(--font-mono), monospace' }}>UDISE: {String(r.udise_code).padStart(11, '0')}</div>
                 </a>
               );
             })}

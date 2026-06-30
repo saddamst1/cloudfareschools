@@ -54,3 +54,4 @@ test_*.mjs
 verify_*.py
 
 .vercel
+.env*

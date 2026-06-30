@@ -6,7 +6,7 @@ import AdSlot from '@/components/AdSlot';
 import DistrictStats from '@/components/DistrictStats';
 import SchoolCard from '@/components/SchoolCard';
 
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 import { t } from '@/lib/translate';
@@ -103,7 +103,7 @@ export default async function VillagePage({ params, lang = 'en' }) {
 
       <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '28px 24px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.75rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.75rem)', fontWeight: 700, color: 'white', marginBottom: 8 }}>
             {lang === 'hi' ? `${villageName} गाँव में स्कूल` : `Schools in ${villageName} Village`}
           </h1>
           <p style={{ fontSize: '0.875rem', color: '#93C5FD' }}>
@@ -123,7 +123,7 @@ export default async function VillagePage({ params, lang = 'en' }) {
             <AdSlot size="leaderboard" />
 
             <div style={{ marginTop: 24 }}>
-              <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: '1rem', fontWeight: 700, marginBottom: 14 }}>
+              <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1rem', fontWeight: 700, marginBottom: 14 }}>
                 {lang === 'hi' ? `${villageName} में सभी ${schools.length} स्कूल` : `All ${schools.length} Schools in ${villageName}`}
               </h2>
 
@@ -270,7 +270,7 @@ export default async function VillagePage({ params, lang = 'en' }) {
 
             <DistrictStats stats={districtStats} districtName={districtName} lang={lang} />
             <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', borderRadius: 10, padding: 16, color: 'white' }}>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8 }}>
+              <div style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8 }}>
                 {lang === 'hi' ? 'और स्कूल खोजें' : 'Search more schools'}
               </div>
               <Link href={`${pathPrefix}/schools/${stateSlug}/${districtSlug}/${blockSlug}`} style={{ display: 'block', background: '#F97316', color: 'white', textAlign: 'center', padding: '10px', borderRadius: 8, fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
