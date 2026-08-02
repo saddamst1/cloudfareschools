@@ -1,4 +1,8 @@
-// open-next.config.ts — SchoolsPedia Cloudflare Pages configuration
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
-export default defineCloudflareConfig({});
+const baseConfig = defineCloudflareConfig({});
+
+export default {
+  ...baseConfig,
+  buildCommand: "npx next build",
+};
