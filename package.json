@@ -26,7 +26,11 @@
   },
   "optionalDependencies": {
     "@ast-grep/napi-linux-x64-gnu": "0.40.5",
-    "@ast-grep/napi-linux-x64-musl": "0.40.5"
+    "@ast-grep/napi-linux-x64-musl": "0.40.5",
+    "lightningcss-linux-x64-gnu": "1.32.0",
+    "lightningcss-linux-x64-musl": "1.32.0",
+    "@next/swc-linux-x64-gnu": "16.2.11",
+    "@next/swc-linux-x64-musl": "16.2.11"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.15.13",
