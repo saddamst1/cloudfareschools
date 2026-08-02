@@ -3,20 +3,10 @@ import { query } from '../../../lib/db';
 
 export const dynamic = 'force-dynamic';
 
-// In-memory cache for IP rate-limiting
+// In-memory rate-limiting cache
+// NOTE: On Cloudflare Edge each request is isolated, so this Map is per-request.
+// setInterval / global cleanup is not supported on Edge Runtime — not needed here.
 const rateLimitCache = new Map();
-
-// Clean up old entries in rateLimitCache to prevent memory leaks
-if (typeof global._rateLimitCleanup === 'undefined') {
-  global._rateLimitCleanup = setInterval(() => {
-    const now = Date.now();
-    for (const [ip, data] of rateLimitCache.entries()) {
-      if (now - data.resetTime > 0) {
-        rateLimitCache.delete(ip);
-      }
-    }
-  }, 300000); // Clean every 5 minutes
-}
 
 // GET reviews for a school
 export async function GET(request) {
@@ -111,12 +101,12 @@ export async function POST(request) {
     }
 
     // 2. Link prevention / anti-spam validation
-    // Regex matches common link indicators: http://, https://, www., and common domain extensions like .com, .in, .net, etc.
-    const linkRegex = /https?:\/\/|www\.|\b[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.(com|org|net|in|co|us|info|biz|io|me|net|edu|app|club|xyz)\b/i;
+    // Regex matches http, https, ftp, www, messaging links (t.me, wa.me, bit.ly), all top TLDs (.com, .in, .org, .xyz, etc.), and obfuscated dot text (dot com, [dot])
+    const linkRegex = /https?:\/\/|ftp:\/\/|www\.|t\.me|wa\.me|bit\.ly|tinyurl|\b[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.(com|org|net|in|co|us|info|biz|io|me|edu|app|club|xyz|site|top|vip|tech|store|live|online|cc|link|click|one|world|pro|run|shop|global|ai|tv|mobi|asia|dev)\b|\b(dot\s*com|dot\s*in|dot\s*org|dot\s*net|\[dot\]|\(dot\))\b/i;
     
     if (linkRegex.test(commentClean) || linkRegex.test(nameClean)) {
       return NextResponse.json({ 
-        error: 'Links, URLs, or website domains are not allowed in reviews. Please write a text-only comment.' 
+        error: 'Links, URLs, or website domains are strictly not allowed in reviews. Please submit a text-only review.' 
       }, { status: 400 });
     }
 

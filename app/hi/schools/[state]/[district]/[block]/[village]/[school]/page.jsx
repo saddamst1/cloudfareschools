@@ -1,8 +1,7 @@
 import SchoolPage, { getSchoolPageMetadata } from '@/app/schools/[state]/[district]/[block]/[village]/[school]/page';
 import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
+export const revalidate = 2592000; // 30 days cache
 
 const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];
 

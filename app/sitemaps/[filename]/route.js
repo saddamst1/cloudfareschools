@@ -9,49 +9,14 @@ const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];
 export async function GET(request, { params }) {
   const { filename } = await params;
 
-  // 1. Sitemap Index
+  // 1. Sitemap Index – redirect to the new sitemap.xml
   if (filename === 'sitemap-index.xml') {
-    try {
-      let xml = '<?xml version="1.0" encoding="UTF-8"?>';
-      xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-      
-      // Core indices
-      xml += `<sitemap><loc>${SITE_URL}/sitemaps/states.xml</loc></sitemap>`;
-      xml += `<sitemap><loc>${SITE_URL}/sitemaps/districts.xml</loc></sitemap>`;
-      xml += `<sitemap><loc>${SITE_URL}/sitemaps/pages.xml</loc></sitemap>`;
-
-      // Fetch states for block sitemaps
-      const states = await query('SELECT state_slug FROM states ORDER BY state_slug');
-      states.forEach(s => {
-        xml += `<sitemap><loc>${SITE_URL}/sitemaps/blocks-${s.state_slug}.xml</loc></sitemap>`;
-        if (TARGET_STATES.includes(s.state_slug)) {
-          xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-blocks-${s.state_slug}.xml</loc></sitemap>`;
-        }
-      });
-
-      // Fetch districts for school and village sitemaps
-      const districts = await query('SELECT state_slug, district_slug FROM districts ORDER BY state_slug, district_slug');
-      districts.forEach(d => {
-        xml += `<sitemap><loc>${SITE_URL}/sitemaps/schools-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
-        xml += `<sitemap><loc>${SITE_URL}/sitemaps/villages-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
-        if (TARGET_STATES.includes(d.state_slug)) {
-          xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-schools-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
-          xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-villages-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
-        }
-      });
-
-      xml += '</sitemapindex>';
-      
-      return new Response(xml, {
-        headers: {
-          'Content-Type': 'application/xml',
-          'Cache-Control': 'public, max-age=86400, s-maxage=86400',
-        },
-      });
-    } catch (e) {
-      console.error('[Sitemap Index Error]', e.message);
-      return new Response('Error generating sitemap index', { status: 500 });
-    }
+    return new Response(null, {
+      status: 301,
+      headers: {
+        Location: `${SITE_URL}/sitemap.xml`,
+      },
+    });
   }
 
   // 1b. Pages Sitemap (Static pages, Blog posts, and Authors)

@@ -70,7 +70,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  const pubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || 'ca-pub-XXXXXXXXXXXXXXXX';
   const orgSchema = organizationSchema();
   const siteSchema = websiteSchema();
 
@@ -90,21 +89,19 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        {/* Google AdSense (Optimized loading via next/script) */}
-        {process.env.NODE_ENV === 'production' && (
-          <Script
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${pubId}`}
-            strategy="lazyOnload"
-            crossOrigin="anonymous"
-          />
-        )}
+        {/* Google AdSense Verification Script (Optimized loading via next/script) */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1708825851821862"
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
 
         {/* Google Analytics (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-GPNB12813S"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

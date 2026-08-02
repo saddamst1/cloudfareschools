@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // OpenNext (Cloudflare) handles output format — do not set output:'standalone'
+  // output: 'standalone' is removed for Cloudflare Pages compatibility
+
   // Turbopack config (Next.js 16 default bundler)
   turbopack: {},
 
@@ -14,6 +17,18 @@ const nextConfig = {
       asyncWebAssembly: true,
       layers: true,
     };
+    // Exclude Node.js-only packages from Edge/client bundles
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
+        pg: false,
+        'pg-native': false,
+      };
+    }
     return config;
   },
 
@@ -43,10 +58,26 @@ const nextConfig = {
         ],
       },
       // ISR school/state/district pages — cache for 30 days, stale-while-revalidate for 7 days
+      // Vary: accept-encoding only → strips RSC Vary headers so Cloudflare creates one cache entry per URL
       {
         source: '/schools/(.*)',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=2592000, stale-while-revalidate=604800' },
+          { key: 'Vary', value: 'accept-encoding' },
+        ],
+      },
+      {
+        source: '/hi/schools/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, s-maxage=2592000, stale-while-revalidate=604800' },
+          { key: 'Vary', value: 'accept-encoding' },
+        ],
+      },
+      // Blog pages — also strip RSC Vary
+      {
+        source: '/blog',
+        headers: [
+          { key: 'Vary', value: 'accept-encoding' },
         ],
       },
       // Blog articles — longer cache, rarely updated
@@ -59,15 +90,18 @@ const nextConfig = {
     ];
   },
 
-  async rewrites() {
+  async redirects() {
     return [
+      // 301 permanent redirect: non-www → www (consolidates SEO authority)
       {
-        source: '/sitemap.xml',
-        destination: '/sitemaps/sitemap-index.xml',
+        source: '/:path*',
+        has: [{ type: 'host', value: 'schoolspedia.in' }],
+        destination: 'https://www.schoolspedia.in/:path*',
+        permanent: true,
       },
     ];
   },
+
 };
 
 export default nextConfig;
-

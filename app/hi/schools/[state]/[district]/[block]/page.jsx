@@ -1,7 +1,7 @@
 import BlockPage, { getBlockPageMetadata } from '@/app/schools/[state]/[district]/[block]/page';
 import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 2592000; // 30 days cache
 export const dynamicParams = true;
 
 const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];

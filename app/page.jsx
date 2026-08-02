@@ -4,6 +4,7 @@ import { getHomepageMeta, faqSchema, organizationSchema } from '../lib/seo';
 import SearchBox from '../components/SearchBox';
 import AdSlot from '../components/AdSlot';
 import StateCard from '../components/StateCard';
+import { GradientBackground } from '../components/ui/gradient-background';
 
 
 export const revalidate = 86400; // Revalidate once a day
@@ -76,37 +77,39 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* ═══ HERO ═══ */}
-      <section className="hero-pattern" style={{ position: 'relative', padding: '64px 24px 72px', textAlign: 'center', overflow: 'visible' }}>
-        <div className="hero-grid-overlay" />
-        <div style={{ position: 'relative', zIndex: 20 }}>
-          <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.08)', color: '#2DD4BF', fontSize: '0.75rem', fontWeight: 700, letterSpacing: 2.5, padding: '6px 18px', borderRadius: 99, marginBottom: 20, border: '1px solid rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>
-            India&apos;s Largest School Directory — {fmtNum(stats?.total_schools)} Verified Schools
+      <GradientBackground animationDuration={12} overlay={true} overlayOpacity={0.15}>
+        <section className="hero-pattern" style={{ position: 'relative', zIndex: 100, padding: '64px 24px 72px', textAlign: 'center', overflow: 'visible', background: 'transparent' }}>
+          <div className="hero-grid-overlay" />
+          <div style={{ position: 'relative', zIndex: 100 }}>
+            <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.08)', color: '#2DD4BF', fontSize: '0.75rem', fontWeight: 700, letterSpacing: 2.5, padding: '6px 18px', borderRadius: 99, marginBottom: 20, border: '1px solid rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>
+              India&apos;s Largest School Directory — {fmtNum(stats?.total_schools)} Verified Schools
+            </div>
+
+            <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16, maxWidth: 800, marginLeft: 'auto', marginRight: 'auto', letterSpacing: '-1px' }}>
+              Find Any School in India by Name, <br />
+              <span className="gradient-text-teal">UDISE Code, Village or District</span>
+            </h1>
+
+            <p style={{ fontSize: '1.05rem', color: '#94A3B8', marginBottom: 36, lineHeight: 1.6, maxWidth: 700, margin: '0 auto 36px' }}>
+              Every school in India has an 11-digit UDISE code — a government registration number that tells you if the school is real. We’ve collected records for 16.5 lakh schools so you can look up any school in seconds, without searching through slow government websites.
+            </p>
+
+            <SearchBox />
+
+            {/* Quick search chips */}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 20 }}>
+              {['UP Schools', 'Delhi Schools', 'Primary Schools', 'Govt Schools', 'Bihar Schools', 'KVS Schools'].map(chip => (
+                <Link key={chip} href={`/search?q=${chip.replace(' ', '+')}`} className="chip-glass" style={{ color: '#E2E8F0', fontSize: '0.8rem', padding: '6px 16px', borderRadius: 99, cursor: 'pointer', textDecoration: 'none' }}>
+                  🔍 {chip}
+                </Link>
+              ))}
+            </div>
           </div>
-
-          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, color: 'white', lineHeight: 1.15, marginBottom: 16, maxWidth: 800, marginLeft: 'auto', marginRight: 'auto', letterSpacing: '-1px' }}>
-            Find Any School in India by Name, <br />
-            <span className="gradient-text-teal">UDISE Code, Village or District</span>
-          </h1>
-
-          <p style={{ fontSize: '1.05rem', color: '#94A3B8', marginBottom: 36, lineHeight: 1.6, maxWidth: 700, margin: '0 auto 36px' }}>
-            Every school in India has an 11-digit UDISE code — a government registration number that tells you if the school is real. We’ve collected records for 16.5 lakh schools so you can look up any school in seconds, without searching through slow government websites.
-          </p>
-
-          <SearchBox />
-
-          {/* Quick search chips */}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 20 }}>
-            {['UP Schools', 'Delhi Schools', 'Primary Schools', 'Govt Schools', 'Bihar Schools', 'KVS Schools'].map(chip => (
-              <Link key={chip} href={`/search?q=${chip.replace(' ', '+')}`} className="chip-glass" style={{ color: '#E2E8F0', fontSize: '0.8rem', padding: '6px 16px', borderRadius: 99, cursor: 'pointer', textDecoration: 'none' }}>
-                🔍 {chip}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      </GradientBackground>
 
       {/* ═══ STATS BAR ═══ */}
-      <div style={{ position: 'relative', zIndex: 10, marginTop: -36, padding: '0 24px' }}>
+      <div style={{ position: 'relative', zIndex: 1, marginTop: -36, padding: '0 24px' }}>
         <div className="stats-grid animate-float" style={{ maxWidth: 1200, margin: '0 auto', background: 'white', borderRadius: 16, boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
           {[
             { num: `${fmtNum(stats?.total_schools)}+`, label: 'Verified Schools', color: '#1E40AF', desc: 'Direct from official Ministry of Education UDISE+' },
@@ -255,6 +258,50 @@ export default async function HomePage() {
               <Link href="/schools" className="btn-primary" style={{ padding: '12px 28px', fontSize: '0.95rem', borderRadius: 10, textDecoration: 'none' }}>
                 Start exploring directory →
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ POPULAR CITIES & GUIDES INTERNAL LINKS ═══ */}
+      <section style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '36px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 16, padding: '28px 24px' }}>
+            <h2 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 22 }}>🔥</span> Popular School Directories & Admission Guides
+            </h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+              {/* City Directories */}
+              <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: 18 }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1E40AF', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  📍 Top City & State School Lists
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: '0.85rem' }}>
+                  <Link href="/schools/uttar-pradesh/lucknow" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Schools in Lucknow</Link>
+                  <Link href="/schools/bihar/patna" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Schools in Patna</Link>
+                  <Link href="/schools/rajasthan/jaipur" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Schools in Jaipur</Link>
+                  <Link href="/schools/maharashtra/pune" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Schools in Pune</Link>
+                  <Link href="/schools/haryana/karnal" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Schools in Karnal</Link>
+                  <Link href="/schools/andhra-pradesh" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Andhra Pradesh List</Link>
+                  <Link href="/schools/uttar-pradesh" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Uttar Pradesh List</Link>
+                  <Link href="/schools/bihar" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 600 }}>• Bihar Schools List</Link>
+                </div>
+              </div>
+
+              {/* Admission Guides */}
+              <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: 18 }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0D9488', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  📝 Essential Admission & UDISE Guides
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem' }}>
+                  <Link href="/blog/rte-admission-guide" style={{ color: '#0D9488', textDecoration: 'none', fontWeight: 600 }}>👉 RTE Admission Guide 2026: 25% Free Seat Online Form</Link>
+                  <Link href="/blog/kvs-admissions-guide" style={{ color: '#0D9488', textDecoration: 'none', fontWeight: 600 }}>👉 KVS Admissions 2026: Eligibility & Online Application</Link>
+                  <Link href="/blog/nvs-admissions-guide" style={{ color: '#0D9488', textDecoration: 'none', fontWeight: 600 }}>👉 JNVST Navodaya Admissions 2026: Class 6 & 9 Form</Link>
+                  <Link href="/blog/what-is-udise-code" style={{ color: '#0D9488', textDecoration: 'none', fontWeight: 600 }}>👉 What is UDISE Code & How to Decode 11-Digit Code</Link>
+                  <Link href="/blog/nsp-scholarship-guide" style={{ color: '#0D9488', textDecoration: 'none', fontWeight: 600 }}>👉 NSP Scholarship Portal Guide: How to Apply with UDISE</Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>

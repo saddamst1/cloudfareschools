@@ -2,8 +2,9 @@ export default function RteAdmissionGuide() {
   return (
     <>
       <h1>RTE Admission Guide: How to Get 25% Free Seats in Private Schools</h1>
-      <p>Under the Right to Education Act (2009), private unaided schools in India must give 25% of their entry-level seats — Nursery or Class 1 — to children from low-income and disadvantaged families. The school cannot charge these students tuition fees. The state government reimburses the school instead.</p>
+      <p>Under the Right to Education Act (2009), private unaided <a href="/schools" style={{ color: '#1E40AF', fontWeight: 600, textDecoration: 'underline' }}>schools in India</a> must give 25% of their entry-level seats — Nursery or Class 1 — to children from low-income and disadvantaged families. The school cannot charge these students tuition fees. The state government reimburses the school instead.</p>
       <p>This is a real scheme that works. Every year, lakhs of children from low-income families get admitted to private schools through this route. The problem is most parents don’t know how to apply, or they miss the deadlines. Here’s the full process — eligibility, documents, application steps, and common mistakes.</p>
+      <p><em>Need to find your school's registration details first? Read our guide on how to lookup your school's <a href="/blog/what-is-udise-code" style={{ color: '#1E40AF', fontWeight: 600, textDecoration: 'underline' }}>11-digit UDISE code</a> in seconds.</em></p>
 
       <h2>What is the RTE Act and Section 12(1)(c)?</h2>
       <p>The Right of Children to Free and Compulsory Education Act, commonly known as the RTE Act, was passed by the Indian Parliament in August 2009. It came into action on April 1, 2010. The law says that every child aged between 6 and 14 years has a fundamental right to free and compulsory education in a neighborhood school.</p>

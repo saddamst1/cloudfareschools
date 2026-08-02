@@ -6,8 +6,7 @@ import AdSlot from '@/components/AdSlot';
 import DistrictStats from '@/components/DistrictStats';
 import SchoolCard from '@/components/SchoolCard';
 
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
+export const revalidate = 2592000; // 30 days cache
 
 import { t } from '@/lib/translate';
 import { getVillageMeta } from '@/lib/seo';

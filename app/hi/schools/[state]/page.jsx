@@ -1,7 +1,7 @@
 import StatePage, { getStatePageMetadata } from '@/app/schools/[state]/page';
 import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 2592000; // 30 days cache
 
 const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];
 

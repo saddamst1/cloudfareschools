@@ -3,7 +3,7 @@ import { getAllStates } from '@/lib/queries';
 import StateCard from '@/components/StateCard';
 import AdSlot from '@/components/AdSlot';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 2592000; // 30 days cache
 
 export const metadata = {
   title: 'Schools in India — Browse by State | SchoolsPedia',

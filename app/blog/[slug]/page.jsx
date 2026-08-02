@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import AdSlot from '../../../components/AdSlot';
+import SearchBox from '../../../components/SearchBox';
 import { breadcrumbSchema } from '../../../lib/seo';
 import { AUTHORS } from '../../../data/authors';
 
@@ -196,6 +197,19 @@ export default async function BlogPostPage({ params }) {
               {/* Main Content Body */}
               <div className="article-body">
                 {ArticleComponent ? <ArticleComponent /> : null}
+              </div>
+
+              {/* Quick School Finder CTA Widget */}
+              <div style={{ marginTop: 40, padding: '28px 24px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ fontSize: '1.25rem', fontFamily: 'var(--font-heading), sans-serif', fontWeight: 800, color: '#1E293B', marginBottom: 8 }}>
+                  🔍 Quick UDISE Code & School Finder
+                </div>
+                <p style={{ fontSize: '0.875rem', color: '#64748B', lineHeight: 1.5, marginBottom: 20, maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
+                  Need to find a school's official 11-digit UDISE code, registration details, or facilities? Search from 16.5 Lakh+ verified institutions across India instantly.
+                </p>
+                <div style={{ maxWidth: 500, margin: '0 auto' }}>
+                  <SearchBox placeholder="School name, UDISE code, village..." />
+                </div>
               </div>
 
             </div>

@@ -1,0 +1,12 @@
+name = "schoolspedia"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".open-next/assets"
+main = ".open-next/worker.js"
+
+[vars]
+SITE_URL = "https://www.schoolspedia.in"
+
+# Environment Variables & Secrets should be added in Cloudflare Dashboard:
+# Dashboard → Pages → Your Project → Settings → Environment Variables
+# DATABASE_URL = "postgresql://..."

@@ -1,5 +1,6 @@
 import { ARTICLE_DATA } from '@/data/articles-data';
 
+
 export async function GET() {
   const feedItems = Object.entries(ARTICLE_DATA).map(([slug, post]) => {
     // Escape XML special characters

@@ -118,7 +118,7 @@ export default function DistrictStats({ stats, districtName, lang = 'en' }) {
         [labels.sexRatio, stats.dist_sex_ratio ? `${Math.round(stats.dist_sex_ratio)}/1000` : '—', '#7C3AED'],
         [labels.scPop, fmtPct(stats.dist_sc_pct), '#475569'],
         [labels.stPop, fmtPct(stats.dist_st_pct), '#475569'],
-      ].map(([label, val, color]) => (
+      ].filter(([, val]) => val && val !== '—').map(([label, val, color]) => (
         <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid #F1F5F9', fontSize: '0.8rem' }}>
           <span style={{ color: '#64748B', fontSize: '0.775rem' }}>{label}</span>
           <span style={{ color, fontWeight: 700 }}>{val}</span>

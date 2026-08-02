@@ -7,8 +7,14 @@ import { useEffect, useRef } from 'react';
  */
 export default function AdSlot({ size = 'responsive', className = '' }) {
   const adRef = useRef(null);
-  const pubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || 'ca-pub-XXXXXXXXXXXXXXXX';
+  const pubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || 'ca-pub-1708825851821862';
   const isDev = process.env.NODE_ENV === 'development';
+  const isAdsenseActive = process.env.NEXT_PUBLIC_ADSENSE_ACTIVE === 'true';
+
+  // Do not render empty ad slots in production while AdSense is pending approval
+  if (!isAdsenseActive && !isDev) {
+    return null;
+  }
 
   const sizeMap = {
     leaderboard:   { width: '728px', height: '90px',  label: '728×90 Leaderboard' },

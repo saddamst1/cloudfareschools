@@ -3,12 +3,14 @@ export default function Article() {
     <>
       <h1>What is a UDISE Code? A Complete Guide to India's School Tracking System</h1>
 
-      <p>You are looking for a new school for your child. You see fancy brochures, huge playgrounds, and smart classrooms. But how do you know if the school is actually recognized by the government? This is where the <strong>UDISE code</strong> comes in. It is the single most important number you need to check before paying any admission fee.</p>
+      <p>You are looking for a <a href="/" style={{ color: '#1E40AF', fontWeight: 600, textDecoration: 'underline' }}>new school for your child</a>. You see fancy brochures, huge playgrounds, and smart classrooms. But how do you know if the school is actually recognized by the government? This is where the <strong>UDISE code</strong> comes in. It is the single most important number you need to check before paying any admission fee.</p>
 
       <p>Schools without government recognition cannot issue board certificates. If such a school shuts down mid-year — and some do — parents have no legal recourse. The UDISE code is the one thing that tells you a school is actually registered.</p>
+      
+      <p><em>Applying for 25% free reserved seats? You will definitely need your school's code for validation. Check out our comprehensive <a href="/blog/rte-admission-guide" style={{ color: '#1E40AF', fontWeight: 600, textDecoration: 'underline' }}>RTE Admission Guide</a>.</em></p>
 
       <h2>What is UDISE Code?</h2>
-      <p>UDISE stands for <strong>Unified District Information System for Education</strong>. It is a national database managed by the Ministry of Education, Government of India. The system assigns a unique 11-digit identification number to every single school in the country, from tiny primary schools in remote villages to elite private schools in metro cities.</p>
+      <p>UDISE stands for <strong>Unified District Information System for Education</strong>. It is a national database managed by the Ministry of Education, Government of India. The system assigns a unique 11-digit identification number to every single <a href="/schools" style={{ color: '#1E40AF', fontWeight: 600, textDecoration: 'underline' }}>school in the country</a>, from tiny primary schools in remote villages to elite private schools in metro cities.</p>
 
       <p>The government started this system in 2012-13 by merging school databases. Today, it tracks over 1.5 million schools, 9.5 million teachers, and 265 million students. It acts like an Aadhaar card for schools. If a school does not have this 11-digit number, it does not officially exist in the eyes of the government.</p>
 

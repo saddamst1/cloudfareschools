@@ -10,10 +10,18 @@ export const dynamic = 'force-dynamic';
 import { t } from '@/lib/translate';
 
 export async function getBlockPageMetadata({ params, lang = 'en' }) {
-  const { state: stateSlug, district: districtSlug, block: blockSlug } = await params;
-  const block = await getBlock(stateSlug, districtSlug, blockSlug);
-  if (!block) return { title: 'Block Not Found | SchoolsPedia' };
-  return getBlockMeta(block, lang);
+  try {
+    const resolvedParams = await params;
+    const stateSlug = resolvedParams?.state;
+    const districtSlug = resolvedParams?.district;
+    const blockSlug = resolvedParams?.block;
+    if (!stateSlug || !districtSlug || !blockSlug) return { title: 'Block Not Found | SchoolsPedia' };
+    const block = await getBlock(stateSlug, districtSlug, blockSlug);
+    if (!block) return { title: 'Block Not Found | SchoolsPedia' };
+    return getBlockMeta(block, lang);
+  } catch {
+    return { title: 'Block Schools | SchoolsPedia' };
+  }
 }
 
 export async function generateMetadata(props) {
@@ -21,15 +29,20 @@ export async function generateMetadata(props) {
 }
 
 export default async function BlockPage({ params, searchParams, lang = 'en' }) {
-  const { state: stateSlug, district: districtSlug, block: blockSlug } = await params;
+  const resolvedParams = await params;
+  const stateSlug = resolvedParams?.state;
+  const districtSlug = resolvedParams?.district;
+  const blockSlug = resolvedParams?.block;
+  if (!stateSlug || !districtSlug || !blockSlug) notFound();
+
   const sp = await searchParams;
   const page = Number(sp?.page) || 1;
   const category = sp?.category || null;
 
   const [block, villages, schoolsData] = await Promise.all([
-    getBlock(stateSlug, districtSlug, blockSlug),
-    getBlockVillages(stateSlug, districtSlug, blockSlug),
-    getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }),
+    getBlock(stateSlug, districtSlug, blockSlug).catch(() => null),
+    getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []),
+    getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }).catch(() => ({ schools: [], total: 0 })),
   ]);
   if (!block) notFound();
 
@@ -204,6 +217,37 @@ export default async function BlockPage({ params, searchParams, lang = 'en' }) {
                 </p>
               </>
             )}
+          </div>
+
+          {/* Download Button — above FAQs, centered */}
+          <div style={{ textAlign: 'center', padding: '24px 20px', background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 12 }}>
+            <div style={{ fontWeight: 700, fontSize: '1rem', color: '#166534', marginBottom: 4 }}>
+              {lang === 'hi' ? `📋 ${blockName} ब्लॉक की पूरी स्कूल सूची` : `📋 Complete School List — ${block.block_name} Block`}
+            </div>
+            <div style={{ fontSize: '0.825rem', color: '#4B7C59', marginBottom: 16 }}>
+              {lang === 'hi' ? `PDF format में — ${fmt(block.total_schools)} स्कूल` : `PDF format · ${fmt(block.total_schools)} schools included`}
+            </div>
+            <a
+              href={`/api/download/schools/pdf?state=${stateSlug}&district=${districtSlug}&block=${blockSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                background: '#16A34A',
+                color: 'white',
+                padding: '12px 28px',
+                borderRadius: 8,
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(22,163,74,0.3)',
+              }}
+              className="btn-download"
+            >
+              📄 {lang === 'hi' ? 'स्कूल सूची PDF डाउनलोड करें' : 'Download School List PDF'}
+            </a>
           </div>
 
           {/* Block FAQs */}

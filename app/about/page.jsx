@@ -97,6 +97,14 @@ export default async function AboutPage() {
                   <p style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6, margin: 0 }}>
                     Living in Tezpur, Assam, India, Sahajul is a passionate blogger who has been writing content online for more than 14 years. He started SchoolsPedia to make it easy for parents to search and read about schools without getting confused by complicated government lists.
                   </p>
+                  <div style={{ marginTop: '10px' }}>
+                    <a href="https://x.com/saddamh58509953" target="_blank" rel="noopener noreferrer" className="follow-x-link" style={{ fontSize: '0.85rem', color: '#1E40AF', fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                      Follow on X
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -185,6 +193,9 @@ export default async function AboutPage() {
           transition: text-decoration 0.15s ease;
         }
         .sidebar-text-link:hover {
+          text-decoration: underline !important;
+        }
+        .follow-x-link:hover {
           text-decoration: underline !important;
         }
         @media (max-width: 968px) {

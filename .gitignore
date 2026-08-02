@@ -55,3 +55,15 @@ verify_*.py
 
 .vercel
 .env*
+
+# Local Netlify folder
+.netlify
+
+# Cloudflare / OpenNext build output
+/.open-next/
+
+# Cloudflare local secrets & temporary files
+.dev.vars
+.wrangler/
+turso-temp/
+turso.zip

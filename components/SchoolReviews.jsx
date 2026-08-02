@@ -59,9 +59,9 @@ export default function SchoolReviews({ udiseCode, schoolName }) {
     }
 
     // Client-side link prevention checklist
-    const linkRegex = /https?:\/\/|www\.|\b[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.(com|org|net|in|co|us|info|biz|io|me|net|edu|app|club|xyz)\b/i;
+    const linkRegex = /https?:\/\/|ftp:\/\/|www\.|t\.me|wa\.me|bit\.ly|tinyurl|\b[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.(com|org|net|in|co|us|info|biz|io|me|edu|app|club|xyz|site|top|vip|tech|store|live|online|cc|link|click|one|world|pro|run|shop|global|ai|tv|mobi|asia|dev)\b|\b(dot\s*com|dot\s*in|dot\s*org|dot\s*net|\[dot\]|\(dot\))\b/i;
     if (linkRegex.test(comment) || linkRegex.test(name)) {
-      setErrorMsg('Links, URLs, or website domains are not allowed in reviews. Please write a text-only comment.');
+      setErrorMsg('Links, URLs, or website domains are strictly not allowed in reviews. Please submit a text-only review.');
       setSubmitting(false);
       return;
     }

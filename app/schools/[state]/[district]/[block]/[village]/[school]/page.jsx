@@ -7,8 +7,7 @@ import BreadcrumbNav from '@/components/BreadcrumbNav';
 import DistrictStats from '@/components/DistrictStats';
 import SchoolReviews from '@/components/SchoolReviews';
 
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
+export const revalidate = 2592000; // 30 days cache
 
 // Pre-build top schools at build time (rest will ISR on-demand)
 

@@ -2,7 +2,7 @@ import DistrictPage, { getDistrictPageMetadata } from '@/app/schools/[state]/[di
 import { redirect } from 'next/navigation';
 import { getAllDistrictSlugs } from '@/lib/queries';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 2592000; // 30 days cache
 
 const TARGET_STATES = ['uttar-pradesh', 'bihar', 'madhya-pradesh'];
 

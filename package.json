@@ -5,22 +5,33 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cf": "node node_modules/@opennextjs/cloudflare/dist/cli/index.js build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preview": "node node_modules/@opennextjs/cloudflare/dist/cli/index.js build && npx wrangler pages dev .open-next/assets",
+    "deploy": "node node_modules/@opennextjs/cloudflare/dist/cli/index.js build && npx wrangler pages deploy .open-next/assets"
   },
   "dependencies": {
     "@libsql/client": "^0.17.3",
+    "@neondatabase/serverless": "^1.1.0",
+    "cloudflare": "^4.5.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.42.2",
     "next": "16.2.7",
-    "pg": "^8.21.0",
+    "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "sql.js": "^1.14.1"
+    "sql.js": "^1.14.1",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@netlify/plugin-nextjs": "^5.15.12",
+    "@netlify/plugin-nextjs": "^5.15.13",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "wrangler": "^4",
+    "yargs": "^17.7.3"
   }
 }

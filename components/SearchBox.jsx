@@ -36,7 +36,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
           setLoading(false);
         }
       }
-    }, 280);
+    }, 150);
     return () => {
       ignore = true;
     };
@@ -72,7 +72,7 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
   };
 
   return (
-    <div ref={wrapperRef} style={{ position: 'relative', width: '100%', maxWidth: 600, margin: '0 auto' }}>
+    <div ref={wrapperRef} style={{ position: 'relative', width: '100%', maxWidth: 600, margin: '0 auto', zIndex: 9999 }}>
       <div className="search-box">
         <input
           id="main-search"
@@ -99,13 +99,13 @@ export default function SearchBox({ placeholder = 'School name, UDISE code, vill
           background: '#FFFFFF',
           border: '1px solid #94A3B8',
           borderRadius: 12,
-          boxShadow: '0 12px 40px rgba(15, 23, 42, 0.22)',
-          zIndex: 200,
+          boxShadow: '0 16px 48px rgba(15, 23, 42, 0.35)',
+          zIndex: 99999,
           overflow: 'hidden',
           textAlign: 'left',
         }}>
           {/* Scrollable container for suggestion items */}
-          <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+          <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
             {results.map((r, i) => {
               const resolvedUrl = lang === 'hi' && r.url?.startsWith('/schools/') ? `/hi${r.url}` : r.url;
               return (

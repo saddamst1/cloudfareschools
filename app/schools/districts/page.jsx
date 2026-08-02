@@ -4,7 +4,7 @@ import AdSlot from '@/components/AdSlot';
 import DistrictsDirectory from '@/components/DistrictsDirectory';
 import { faqSchema } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic'; // Daily static revalidation
+export const revalidate = 2592000; // 30 days cache
 
 export const metadata = {
   title: 'Schools in India — Browse by District | SchoolsPedia',
