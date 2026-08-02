@@ -3,3 +3,6 @@ name = "cloudfareschools"
 pages_build_output_dir = ".open-next/assets"
 compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2025-04-01"
+
+[build]
+command = "npm run build:cf"
