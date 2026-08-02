@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node node_modules/@opennextjs/cloudflare/dist/cli/index.js build && node -e \"const fs = require('fs'); fs.copyFileSync('.open-next/worker.js', '.open-next/assets/_worker.js'); ['server-functions', 'middleware', 'cloudflare', '.build', 'cache'].forEach(dir => { const src = '.open-next/' + dir; const dest = '.open-next/assets/' + dir; if (fs.existsSync(src) && !fs.existsSync(dest)) { fs.cpSync(src, dest, { recursive: true, dereference: false }); } });\"",
+    "build": "node node_modules/@opennextjs/cloudflare/dist/cli/index.js build && node -e \"const fs = require('fs'); fs.copyFileSync('.open-next/worker.js', '.open-next/assets/_worker.js'); fs.writeFileSync('.open-next/assets/_routes.json', JSON.stringify({ version: 1, include: ['/*'], exclude: ['/_next/static/*', '/images/*', '/favicon.ico'] })); ['server-functions', 'middleware', 'cloudflare', '.build', 'cache'].forEach(dir => { const src = '.open-next/' + dir; const dest = '.open-next/assets/' + dir; if (fs.existsSync(src) && !fs.existsSync(dest)) { fs.cpSync(src, dest, { recursive: true, dereference: false }); } });\"",
     "build:cf": "npm run build",
     "start": "next start",
     "lint": "eslint",
