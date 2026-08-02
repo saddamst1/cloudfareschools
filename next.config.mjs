@@ -15,9 +15,10 @@ const nextConfig = {
       layers: true,
     };
 
-    // Alias optional pg-cloudflare dependency so bundlers ignore it
+    // Alias optional native dependencies so bundlers replace them with empty objects
     config.resolve.alias = {
       ...config.resolve.alias,
+      'pg-native': false,
       'pg-cloudflare': false,
     };
 
@@ -61,7 +62,6 @@ const nextConfig = {
         ],
       },
       // ISR school/state/district pages — cache for 30 days, stale-while-revalidate for 7 days
-      // Vary: accept-encoding only → strips RSC Vary headers so Cloudflare creates one cache entry per URL
       {
         source: '/schools/(.*)',
         headers: [
@@ -76,14 +76,14 @@ const nextConfig = {
           { key: 'Vary', value: 'accept-encoding' },
         ],
       },
-      // Blog pages — also strip RSC Vary
+      // Blog pages
       {
         source: '/blog',
         headers: [
           { key: 'Vary', value: 'accept-encoding' },
         ],
       },
-      // Blog articles — longer cache, rarely updated
+      // Blog articles
       {
         source: '/blog/(.*)',
         headers: [
@@ -95,7 +95,7 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // 301 permanent redirect: non-www → www (consolidates SEO authority)
+      // 301 permanent redirect: non-www → www
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'schoolspedia.in' }],
