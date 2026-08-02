@@ -1,11 +1,5 @@
-name = "schoolspedia"
-compatibility_date = "2025-04-01"
+#:schema node_modules/wrangler/config-schema.json
+name = "cloudfareschools"
+pages_build_output_dir = ".open-next"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".open-next/assets"
-
-[vars]
-SITE_URL = "https://www.schoolspedia.in"
-
-# Environment Variables & Secrets should be added in Cloudflare Dashboard:
-# Dashboard → Pages → Your Project → Settings → Environment Variables
-# DATABASE_URL = "postgresql://..."
+compatibility_date = "2025-04-01"
