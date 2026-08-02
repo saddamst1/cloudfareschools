@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // OpenNext (Cloudflare) handles output format — do not set output:'standalone'
-  // output: 'standalone' is removed for Cloudflare Pages compatibility
-
   // Turbopack config (Next.js 16 default bundler)
   turbopack: {},
 
@@ -17,7 +14,13 @@ const nextConfig = {
       asyncWebAssembly: true,
       layers: true,
     };
-    // Exclude Node.js-only packages from Edge/client bundles
+
+    // Alias optional pg-cloudflare dependency so bundlers ignore it
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pg-cloudflare': false,
+    };
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -101,7 +104,6 @@ const nextConfig = {
       },
     ];
   },
-
 };
 
 export default nextConfig;
