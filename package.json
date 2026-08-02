@@ -24,6 +24,10 @@
     "sql.js": "^1.14.1",
     "tailwind-merge": "^3.6.0"
   },
+  "optionalDependencies": {
+    "@ast-grep/napi-linux-x64-gnu": "0.40.5",
+    "@ast-grep/napi-linux-x64-musl": "0.40.5"
+  },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.15.13",
     "@opennextjs/cloudflare": "^1.20.2",
