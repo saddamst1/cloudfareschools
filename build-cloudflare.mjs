@@ -186,7 +186,7 @@ console.log(`OK: Applied Node.js compat fixes across all assets (${totalNodeFixe
 // -----------------------------------------------------------------------
 // Single-File Bundle Generation:
 // Bundle _worker.js + middleware + server-functions into a single 100% self-contained ESM _worker.js file.
-// Uses custom require proxy that delegates to native createRequire with fallback stub.
+// Uses custom require proxy that lazily delegates to native createRequire with fallback stub.
 // -----------------------------------------------------------------------
 console.log('Bundling _worker.js into a single self-contained Worker bundle via esbuild...');
 const bannerCode = `import { createRequire as _uniqueReq_ } from 'node:module';
@@ -231,22 +231,23 @@ const __fsStub__ = {
 };
 __fsStub__.posix = __fsStub__;
 __fsStub__.win32 = __fsStub__;
-let nativeReq;
-try {
-  nativeReq = _uniqueReq_('file:///worker.js');
-} catch (e) {
+let _cachedNativeReq = undefined;
+function getNativeReq() {
+  if (_cachedNativeReq !== undefined) return _cachedNativeReq;
   try {
-    nativeReq = _uniqueReq_('file:///_worker.js');
-  } catch (e2) {
-    nativeReq = null;
-  }
+    if (typeof _uniqueReq_ === 'function') {
+      _cachedNativeReq = _uniqueReq_('file:///worker.js');
+      return _cachedNativeReq;
+    }
+  } catch (e) {}
+  _cachedNativeReq = null;
+  return null;
 }
 const require = function(id) {
   try {
-    const mod = nativeReq ? nativeReq(id) : null;
-    if (mod) {
-      return Object.assign({}, __fsStub__, mod);
-    }
+    const nr = getNativeReq();
+    const mod = nr ? nr(id) : null;
+    if (mod) return Object.assign({}, __fsStub__, mod);
   } catch (e) {}
   return __fsStub__;
 };
