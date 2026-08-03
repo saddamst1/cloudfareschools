@@ -14,11 +14,11 @@ if (!fs.existsSync(assetsDir)) {
 // -----------------------------------------------------------------------
 // Build _worker.js:
 // 1. Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge)
-// 2. Keep dynamic import inside fetch() with try/catch to intercept runtime & import errors
+// 2. Add catch block inside fetch() to surface uncaught worker exceptions
 // -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
-console.log('Building _worker.js with dynamic import inside error boundary...');
+console.log('Building _worker.js...');
 
 let w = fs.readFileSync(workerSrc, 'utf8');
 
@@ -99,6 +99,21 @@ for (const dir of dirsToKeep) {
   } else {
     console.log('SKIP:', dir, '(not found)');
   }
+}
+
+// -----------------------------------------------------------------------
+// Diagnostic Patch: Intercept NextJS internal request failures inside handler.mjs
+// so that exact stack trace is returned in HTTP response if page rendering fails.
+// -----------------------------------------------------------------------
+const serverHandlerFile = path.join(assetsDir, 'server-functions', 'default', 'handler.mjs');
+if (fs.existsSync(serverHandlerFile)) {
+  let hCode = fs.readFileSync(serverHandlerFile, 'utf8');
+  hCode = hCode.replace(
+    'error("NextJS request failed.",e),await tryRenderError("500",res,routingResult.internalEvent)',
+    'console.error("NextJS request failed:",e);res.statusCode=500;res.setHeader("Content-Type","text/plain");res.end("NEXTJS RENDER ERROR:\\n"+(e.stack||e.message||String(e)));return;'
+  );
+  fs.writeFileSync(serverHandlerFile, hCode, 'utf8');
+  console.log('OK: Diagnostic patch applied to server-functions/default/handler.mjs');
 }
 
 console.log('Post-build complete!');
