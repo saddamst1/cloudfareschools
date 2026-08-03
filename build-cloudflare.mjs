@@ -101,19 +101,4 @@ for (const dir of dirsToKeep) {
   }
 }
 
-// -----------------------------------------------------------------------
-// Diagnostic Patch: Intercept NextJS internal request failures inside handler.mjs
-// so that exact stack trace is returned in HTTP response if page rendering fails.
-// -----------------------------------------------------------------------
-const serverHandlerFile = path.join(assetsDir, 'server-functions', 'default', 'handler.mjs');
-if (fs.existsSync(serverHandlerFile)) {
-  let hCode = fs.readFileSync(serverHandlerFile, 'utf8');
-  hCode = hCode.replace(
-    'error("NextJS request failed.",e),await tryRenderError("500",res,routingResult.internalEvent)',
-    'console.error("NextJS request failed:",e);res.statusCode=500;res.setHeader("Content-Type","text/plain");res.end("NEXTJS RENDER ERROR:\\n"+(e.stack||e.message||String(e)));return;'
-  );
-  fs.writeFileSync(serverHandlerFile, hCode, 'utf8');
-  console.log('OK: Diagnostic patch applied to server-functions/default/handler.mjs');
-}
-
 console.log('Post-build complete!');
