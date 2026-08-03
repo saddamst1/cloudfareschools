@@ -19,7 +19,7 @@ fs.copyFileSync(workerSrc, workerDest);
 console.log('OK: _worker.js copied');
 
 // Write _routes.json
-const routesContent = JSON.stringify({ version: 1, include: ['/*'], exclude: [] });
+const routesContent = JSON.stringify({ version: 1, include: ["/*"], exclude: ["/_next/static/*", "/favicon.ico", "/og-*.png", "/authors/*", "/blog-images/*", "/ads.txt", "/*.svg", "/*.png", "/*.jpg", "/robots.txt", "/BUILD_ID"] });
 fs.writeFileSync(path.join(assetsDir, '_routes.json'), routesContent);
 console.log('OK: _routes.json written');
 
@@ -54,3 +54,4 @@ for (const dir of dirsToKeep) {
 }
 
 console.log('Post-build complete!');
+
