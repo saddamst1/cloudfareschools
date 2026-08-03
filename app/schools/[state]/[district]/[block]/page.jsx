@@ -39,11 +39,25 @@ export default async function BlockPage({ params, searchParams, lang = 'en' }) {
   const page = Number(sp?.page) || 1;
   const category = sp?.category || null;
 
-  const [block, villages, schoolsData] = await Promise.all([
+  const [blockRaw, villages, schoolsData] = await Promise.all([
     getBlock(stateSlug, districtSlug, blockSlug).catch(() => null),
     getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []),
     getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }).catch(() => ({ schools: [], total: 0 })),
   ]);
+
+  // Graceful fallback: if DB timed out on cold start, build basic block from URL params
+  // Only hard 404 if we have DB but truly no record exists (to avoid false 404s)
+  const block = blockRaw || (schoolsData?.total > 0 ? {
+    block_slug: blockSlug,
+    block_name: blockSlug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' '),
+    district_slug: districtSlug,
+    district_name: districtSlug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' '),
+    state_slug: stateSlug,
+    state_name: stateSlug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' '),
+    total_schools: schoolsData.total,
+    village_count: villages.length || 0,
+  } : null);
+
   if (!block) notFound();
 
   const stateName = t(block.state_slug, lang);
