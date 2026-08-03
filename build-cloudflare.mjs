@@ -287,7 +287,7 @@ globalThis.require = require;`;
 
 try {
   execSync(
-    `npx esbuild .open-next/assets/_worker.js --bundle --format=esm --target=es2022 --platform=neutral "--define:this=globalThis" "--external:node:*" "--external:cloudflare:*" "--banner:js=${bannerCode.replace(/\n/g, ' ')}" --outfile=.open-next/assets/_worker.js --allow-overwrite`,
+    `npx -y esbuild .open-next/assets/_worker.js --bundle --format=esm --target=es2022 --platform=neutral "--define:this=globalThis" "--external:node:*" "--external:cloudflare:*" "--banner:js=${bannerCode.replace(/\n/g, ' ')}" --outfile=.open-next/assets/_worker.js --allow-overwrite`,
     { stdio: 'inherit' }
   );
   console.log('OK: Single-file _worker.js bundle generated successfully!');
