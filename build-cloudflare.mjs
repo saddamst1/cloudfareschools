@@ -12,12 +12,34 @@ if (!fs.existsSync(assetsDir)) {
   process.exit(1);
 }
 
-// Copy _worker.js
+// Copy worker.js to assets/_worker.js with error logging wrapper
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
-console.log('Copying worker.js to assets/_worker.js...');
-fs.copyFileSync(workerSrc, workerDest);
-console.log('OK: _worker.js copied');
+console.log('Copying worker.js to assets/_worker.js with error handling wrapper...');
+
+let workerContent = fs.readFileSync(workerSrc, 'utf8');
+
+// Inject try/catch inside fetch handler so any runtime crash prints the actual error message
+workerContent = workerContent.replace(
+  'async fetch(request, env, ctx) {',
+  `async fetch(request, env, ctx) {
+        try {`
+);
+
+// Close try block before the fetch function end
+workerContent = workerContent.replace(
+  'return handler(reqOrResp, env, ctx, request.signal);\n        });\n    },',
+  `return await handler(reqOrResp, env, ctx, request.signal);
+        });
+        } catch (err) {
+          console.error("WORKER EXCEPTION:", err);
+          return new Response("WORKER ERROR: " + (err?.stack || err?.message || String(err)), { status: 500, headers: { "content-type": "text/plain" } });
+        }
+    },`
+);
+
+fs.writeFileSync(workerDest, workerContent, 'utf8');
+console.log('OK: _worker.js created with error capture wrapper');
 
 // Write _routes.json
 const routesContent = JSON.stringify({ version: 1, include: ['/*'], exclude: [] });
@@ -35,7 +57,6 @@ function copyDirNoSymlinks(src, dest) {
     const destPath = path.join(dest, entry.name);
 
     if (entry.isSymbolicLink()) {
-      // Skip symlinks to avoid circular copy errors
       console.log('  SKIP symlink:', entry.name);
       continue;
     } else if (entry.isDirectory()) {
