@@ -11,13 +11,16 @@ if (!fs.existsSync(assetsDir)) {
   process.exit(1);
 }
 
+// Generate a fresh unique BUILD_ID to bust Cloudflare Pages CDN edge ETag cache ("66fci67lppl")
+const newBuildId = 'build_' + Date.now();
+fs.writeFileSync(path.join(openNextDir, 'BUILD_ID'), newBuildId);
+fs.writeFileSync(path.join(assetsDir, 'BUILD_ID'), newBuildId);
+console.log('OK: Generated fresh BUILD_ID to invalidate CDN edge cache:', newBuildId);
+
 // -----------------------------------------------------------------------
 // Build _worker.js for Cloudflare Pages:
 // 1. Convert dynamic import of server handler to a STATIC top-level import.
-//    This allows Cloudflare Pages build pipeline (esbuild) to bundle handler.mjs
-//    statically into _worker.js, eliminating runtime ESM module resolution failure.
-// 2. Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge)
-//    which import `cloudflare:workers` (unsupported on Free tier).
+// 2. Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge).
 // 3. Wrap fetch handler in try/catch to expose exact stack trace if an exception occurs.
 // -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
@@ -105,9 +108,6 @@ function copyDirNoSymlinks(src, dest) {
   }
 }
 
-// NOTE: We DO NOT copy 'cache' to assetsDir because build-time prerendered 
-// cache files contain static 500 error pages if DB connection was offline during build.
-// Excluding 'cache' forces OpenNext to render pages dynamically on-demand at runtime.
 const dirsToKeep = ['server-functions', 'middleware', 'cloudflare', '.build'];
 for (const dir of dirsToKeep) {
   const src = path.join(openNextDir, dir);
@@ -121,7 +121,7 @@ for (const dir of dirsToKeep) {
   }
 }
 
-// Ensure old assets/cache dir is completely removed
+// Clean stale assets/cache directory
 const assetsCacheDir = path.join(assetsDir, 'cache');
 if (fs.existsSync(assetsCacheDir)) {
   fs.rmSync(assetsCacheDir, { recursive: true, force: true });
