@@ -43,7 +43,6 @@ const dynamicImportStr = 'const { handler } = await import("./server-functions/d
 const staticCallStr = 'return serverHandler(reqOrResp, env, ctx, request.signal);';
 
 w = w.replace(dynamicImportStr, staticCallStr);
-// Regexp fallback for formatting differences
 w = w.replace(/const\s+\{\s*handler\s*\}\s*=\s*await\s+import\("\.\/server-functions\/default\/handler\.mjs"\);\s*\r?\n\s*return\s+handler\(reqOrResp,\s*env,\s*ctx,\s*request\.signal\);/g, 'return serverHandler(reqOrResp, env, ctx, request.signal);');
 
 // 4. Wrap fetch handler body in try/catch error boundary
@@ -106,7 +105,10 @@ function copyDirNoSymlinks(src, dest) {
   }
 }
 
-const dirsToKeep = ['server-functions', 'middleware', 'cloudflare', '.build', 'cache'];
+// NOTE: We DO NOT copy 'cache' to assetsDir because build-time prerendered 
+// cache files contain static 500 error pages if DB connection was offline during build.
+// Excluding 'cache' forces OpenNext to render pages dynamically on-demand at runtime.
+const dirsToKeep = ['server-functions', 'middleware', 'cloudflare', '.build'];
 for (const dir of dirsToKeep) {
   const src = path.join(openNextDir, dir);
   const dest = path.join(assetsDir, dir);
@@ -117,6 +119,13 @@ for (const dir of dirsToKeep) {
   } else {
     console.log('SKIP:', dir, '(not found)');
   }
+}
+
+// Ensure old assets/cache dir is completely removed
+const assetsCacheDir = path.join(assetsDir, 'cache');
+if (fs.existsSync(assetsCacheDir)) {
+  fs.rmSync(assetsCacheDir, { recursive: true, force: true });
+  console.log('OK: Cleaned stale assets/cache directory');
 }
 
 console.log('Post-build complete!');
