@@ -6,58 +6,59 @@ console.log('Running Cloudflare Pages post-build script...');
 const openNextDir = '.open-next';
 const assetsDir = path.join(openNextDir, 'assets');
 
-// Ensure assets dir exists
 if (!fs.existsSync(assetsDir)) {
   console.error('ERROR: .open-next/assets does not exist!');
   process.exit(1);
 }
 
-// Copy worker.js to assets/_worker.js with error logging wrapper
+// -----------------------------------------------------------------------
+// Build _worker.js — strip Durable Object exports which crash Pages Free
+// (DurableObject class from "cloudflare:workers" is unavailable on Pages)
+// -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
-console.log('Copying worker.js to assets/_worker.js with error handling wrapper...');
+console.log('Building _worker.js (stripping Durable Object exports)...');
 
-let workerContent = fs.readFileSync(workerSrc, 'utf8');
+let w = fs.readFileSync(workerSrc, 'utf8');
 
-// Inject try/catch inside fetch handler so any runtime crash prints the actual error message
-workerContent = workerContent.replace(
-  'async fetch(request, env, ctx) {',
-  `async fetch(request, env, ctx) {
-        try {`
-);
+// Strip DO export lines — these reference .build/durable-objects/*.js which
+// import from "cloudflare:workers", unavailable on Pages Free tier.
+w = w.replace(/\/\/[^\n]*\nexport { DOQueueHandler } from ".*?";\r?\n?/g, '');
+w = w.replace(/\/\/[^\n]*\nexport { DOShardedTagCache } from ".*?";\r?\n?/g, '');
+w = w.replace(/\/\/[^\n]*\nexport { BucketCachePurge } from ".*?";\r?\n?/g, '');
+// Catch remaining bare export lines if comment pattern differs
+w = w.replace(/export { DOQueueHandler } from ".*?";\r?\n?/g, '');
+w = w.replace(/export { DOShardedTagCache } from ".*?";\r?\n?/g, '');
+w = w.replace(/export { BucketCachePurge } from ".*?";\r?\n?/g, '');
 
-// Close try block before the fetch function end
-workerContent = workerContent.replace(
-  'return handler(reqOrResp, env, ctx, request.signal);\n        });\n    },',
-  `return await handler(reqOrResp, env, ctx, request.signal);
-        });
-        } catch (err) {
-          console.error("WORKER EXCEPTION:", err);
-          return new Response("WORKER ERROR: " + (err?.stack || err?.message || String(err)), { status: 500, headers: { "content-type": "text/plain" } });
-        }
-    },`
-);
+fs.writeFileSync(workerDest, w, 'utf8');
+console.log('OK: _worker.js written (DO exports stripped)');
 
-fs.writeFileSync(workerDest, workerContent, 'utf8');
-console.log('OK: _worker.js created with error capture wrapper');
+// Verify no DO exports remain
+if (w.includes('DOQueueHandler') || w.includes('DOShardedTagCache') || w.includes('BucketCachePurge')) {
+  console.error('ERROR: Durable Object exports were NOT fully stripped! Aborting.');
+  process.exit(1);
+}
+console.log('OK: Verified — no Durable Object exports in _worker.js');
 
 // Write _routes.json
-const routesContent = JSON.stringify({ version: 1, include: ['/*'], exclude: [] });
-fs.writeFileSync(path.join(assetsDir, '_routes.json'), routesContent);
+fs.writeFileSync(
+  path.join(assetsDir, '_routes.json'),
+  JSON.stringify({ version: 1, include: ['/*'], exclude: [] })
+);
 console.log('OK: _routes.json written');
 
-// Copy required directories - but skip symlinks to avoid circular copy
+// -----------------------------------------------------------------------
+// Copy supporting dirs — skip symlinks (circular copy) AND .build/
+// (.build/ only contains Durable Object JS that needs "cloudflare:workers")
+// -----------------------------------------------------------------------
 function copyDirNoSymlinks(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-  for (const entry of entries) {
+  if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
-
     if (entry.isSymbolicLink()) {
-      console.log('  SKIP symlink:', entry.name);
+      // skip — avoids circular-copy crash (pg symlink pointing to root node_modules)
       continue;
     } else if (entry.isDirectory()) {
       copyDirNoSymlinks(srcPath, destPath);
@@ -67,7 +68,8 @@ function copyDirNoSymlinks(src, dest) {
   }
 }
 
-const dirsToKeep = ['server-functions', 'middleware', 'cloudflare', '.build', 'cache'];
+// NOTE: '.build' is intentionally excluded — it only has Durable Object files
+const dirsToKeep = ['server-functions', 'middleware', 'cloudflare', 'cache'];
 for (const dir of dirsToKeep) {
   const src = path.join(openNextDir, dir);
   const dest = path.join(assetsDir, dir);
@@ -76,7 +78,7 @@ for (const dir of dirsToKeep) {
     copyDirNoSymlinks(src, dest);
     console.log('OK:', dir, 'copied');
   } else {
-    console.log('SKIP:', dir, 'does not exist');
+    console.log('SKIP:', dir, '(not found)');
   }
 }
 
