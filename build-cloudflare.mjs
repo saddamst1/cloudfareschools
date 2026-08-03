@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 
 console.log('Running Cloudflare Pages post-build script...');
 
@@ -18,14 +19,14 @@ fs.writeFileSync(path.join(assetsDir, 'BUILD_ID'), newBuildId);
 console.log('OK: Generated fresh BUILD_ID:', newBuildId);
 
 // -----------------------------------------------------------------------
-// Build _worker.js for Cloudflare Pages:
-// 1. Convert dynamic import of server handler to a STATIC top-level import.
-// 2. Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge).
-// 3. Wrap fetch handler in try/catch to expose exact stack trace if an exception occurs.
+// Build _worker.js entrypoint:
+// Convert dynamic import of server handler to a STATIC top-level import.
+// Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge).
+// Wrap fetch handler in try/catch error boundary.
 // -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
-console.log('Building _worker.js with static server handler bundle...');
+console.log('Building initial _worker.js entrypoint...');
 
 let w = fs.readFileSync(workerSrc, 'utf8');
 
@@ -68,7 +69,7 @@ w = w.replace(
 );
 
 fs.writeFileSync(workerDest, w, 'utf8');
-console.log('OK: _worker.js generated with static bundle');
+console.log('OK: Initial _worker.js written');
 
 // Write _routes.json
 const routesContent = JSON.stringify({
@@ -131,11 +132,10 @@ if (fs.existsSync(assetsCacheDir)) {
 // -----------------------------------------------------------------------
 // Fix Bare Node.js Builtin Imports:
 // Cloudflare Workers `nodejs_compat` requires `node:` prefix for all Node built-ins.
-// Convert require("fs") -> require("node:fs"), from "path" -> from "node:path", etc.
 // -----------------------------------------------------------------------
 const nodeBuiltinModules = [
   'async_hooks', 'buffer', 'child_process', 'crypto', 'dns', 'events', 
-  'fs', 'http', 'https', 'net', 'os', 'path', 'process', 'querystring', 
+  'fs', 'http', 'https', 'module', 'net', 'os', 'path', 'process', 'querystring', 
   'stream', 'string_decoder', 'tls', 'url', 'util', 'vm', 'zlib', 'assert'
 ];
 
@@ -152,21 +152,18 @@ function fixNodeImportsInDir(dir) {
       let changed = false;
 
       for (const m of nodeBuiltinModules) {
-        // require("fs") -> require("node:fs")
         const r1 = new RegExp(`require\\(["']${m}["']\\)`, 'g');
         if (r1.test(code)) {
           code = code.replace(r1, `require("node:${m}")`);
           changed = true;
           totalNodeFixes++;
         }
-        // from "fs" -> from "node:fs"
         const r2 = new RegExp(`from\\s+["']${m}["']`, 'g');
         if (r2.test(code)) {
           code = code.replace(r2, `from "node:${m}"`);
           changed = true;
           totalNodeFixes++;
         }
-        // import("fs") -> import("node:fs")
         const r3 = new RegExp(`import\\(["']${m}["']\\)`, 'g');
         if (r3.test(code)) {
           code = code.replace(r3, `import("node:${m}")`);
@@ -182,8 +179,94 @@ function fixNodeImportsInDir(dir) {
   }
 }
 
-console.log('Fixing bare Node.js builtin imports for Cloudflare nodejs_compat...');
+console.log('Fixing bare Node.js builtin imports...');
 fixNodeImportsInDir(assetsDir);
-console.log(`OK: Converted ${totalNodeFixes} bare Node.js builtin imports to node: specifiers across all assets`);
+console.log(`OK: Applied Node.js compat fixes across all assets (${totalNodeFixes} bare imports replaced)`);
+
+// -----------------------------------------------------------------------
+// Single-File Bundle Generation:
+// Bundle _worker.js + middleware + server-functions into a single 100% self-contained ESM _worker.js file.
+// Uses custom require proxy that delegates to native createRequire with fallback stub.
+// -----------------------------------------------------------------------
+console.log('Bundling _worker.js into a single self-contained Worker bundle via esbuild...');
+const bannerCode = `import { createRequire as _uniqueReq_ } from 'node:module';
+if (!Promise.withResolvers) {
+  Promise.withResolvers = function() {
+    let resolve, reject;
+    const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+    return { promise, resolve, reject };
+  };
+}
+class DummyStream { constructor() {} on() { return this; } emit() { return true; } pipe(dest) { return dest; } write() { return true; } end() {} }
+class DummyAsyncLocalStorage {
+  constructor() { this.store = null; }
+  getStore() { return this.store; }
+  run(store, callback, ...args) { this.store = store; try { return callback(...args); } finally { this.store = null; } }
+  exit(callback, ...args) { return callback(...args); }
+  enterWith(store) { this.store = store; }
+}
+const __fsStub__ = {
+  prototype: { require: () => {} },
+  _resolveFilename: (id) => id,
+  readFileSync: () => '', existsSync: () => false, statSync: () => ({ size: 0, isDirectory: () => false }),
+  promises: { readFile: async () => '', stat: async () => ({ size: 0, isDirectory: () => false }), access: async () => {} },
+  promisify: Object.assign((fn) => fn, { custom: Symbol.for('nodejs.util.promisify.custom') }),
+  TextEncoder: globalThis.TextEncoder, TextDecoder: globalThis.TextDecoder,
+  AsyncLocalStorage: DummyAsyncLocalStorage, AsyncResource: class { runInAsyncScope(fn, ...args) { return fn(...args); } },
+  Readable: DummyStream, Writable: DummyStream, Transform: DummyStream, PassThrough: DummyStream, Stream: DummyStream,
+  Agent: DummyStream,
+  readdirSync: () => [], mkdirSync: () => {}, writeFileSync: () => {}, Session: function() {},
+  cpus: () => [{ model: 'Cloudflare Worker', speed: 2400 }], type: () => 'Linux', release: () => '1.0.0', arch: () => 'x64',
+  platform: () => 'linux', totalmem: () => 1073741824, freemem: () => 536870912, homedir: () => '/tmp', tmpdir: () => '/tmp',
+  userInfo: () => ({ username: 'worker' }), hostname: () => 'cloudflare', endianness: () => 'LE', loadavg: () => [0, 0, 0],
+  networkInterfaces: () => ({}), uptime: () => 100,
+  resolve: (...args) => args.join('/'), join: (...args) => args.join('/'), relative: () => '', dirname: (p) => p || '/',
+  basename: (p) => p || '', extname: () => '', isAbsolute: () => true, sep: '/', delimiter: ':', normalize: (p) => p,
+  parse: () => ({ root: '/', dir: '/', base: '', ext: '', name: '' }), format: () => ''
+};
+__fsStub__.posix = __fsStub__;
+__fsStub__.win32 = __fsStub__;
+let nativeReq;
+try {
+  const reqUrl = (typeof import.meta !== 'undefined' && import.meta.url) ? import.meta.url : 'file:///worker.js';
+  nativeReq = _uniqueReq_(reqUrl);
+} catch (e) {
+  try {
+    nativeReq = _uniqueReq_(process.cwd() + '/_worker.js');
+  } catch (e2) {
+    nativeReq = null;
+  }
+}
+const require = function(id) {
+  try {
+    const mod = nativeReq ? nativeReq(id) : null;
+    if (mod) {
+      return Object.assign({}, __fsStub__, mod);
+    }
+  } catch (e) {}
+  return __fsStub__;
+};
+globalThis.require = require;`;
+
+try {
+  execSync(
+    `npx esbuild .open-next/assets/_worker.js --bundle --format=esm --target=es2022 --platform=neutral "--define:this=globalThis" "--external:node:*" "--external:cloudflare:*" "--banner:js=${bannerCode.replace(/\n/g, ' ')}" --outfile=.open-next/assets/_worker.js --allow-overwrite`,
+    { stdio: 'inherit' }
+  );
+  console.log('OK: Single-file _worker.js bundle generated successfully!');
+} catch (e) {
+  console.error('ERROR: Failed to bundle _worker.js:', e.message);
+  process.exit(1);
+}
+
+// -----------------------------------------------------------------------
+// Post-bundle fixes for frozen module mutation in Next.js internal loggers
+// -----------------------------------------------------------------------
+let bundledWorker = fs.readFileSync(workerDest, 'utf8');
+bundledWorker = bundledWorker.replace(/nodeTimers\.setImmediate\s*=\s*patchedSetImmediate/g, 'patchedSetImmediate');
+bundledWorker = bundledWorker.replace(/nodeTimers\.clearImmediate\s*=\s*patchedClearImmediate/g, 'patchedClearImmediate');
+bundledWorker = bundledWorker.replace(/nodeTimersPromises\.setImmediate\s*=\s*patchedSetImmediatePromise/g, 'patchedSetImmediatePromise');
+fs.writeFileSync(workerDest, bundledWorker, 'utf8');
+console.log('OK: Applied post-bundle ESM frozen module mutation patches on _worker.js');
 
 console.log('Post-build complete!');

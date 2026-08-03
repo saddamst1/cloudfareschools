@@ -3,7 +3,7 @@ import path from 'path';
 
 const modules = [
   'async_hooks', 'buffer', 'child_process', 'crypto', 'dns', 'events', 
-  'fs', 'http', 'https', 'net', 'os', 'path', 'process', 'querystring', 
+  'fs', 'http', 'https', 'module', 'net', 'os', 'path', 'process', 'querystring', 
   'stream', 'string_decoder', 'tls', 'url', 'util', 'vm', 'zlib', 'assert'
 ];
 
