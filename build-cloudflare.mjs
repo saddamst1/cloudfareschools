@@ -13,44 +13,63 @@ if (!fs.existsSync(assetsDir)) {
 
 // -----------------------------------------------------------------------
 // Build _worker.js:
-// Convert dynamic import of server handler to a STATIC top-level import.
-// This forces CF Pages' esbuild to BUNDLE handler.mjs at compile time,
-// rather than leaving it as a runtime dynamic module lookup that can fail.
+// 1. Convert dynamic import of server handler to a STATIC top-level import.
+// 2. STRIP ALL DURABLE OBJECT EXPORTS (unsupported on CF Pages Free tier & crashes isolates).
+// 3. Add error boundary inside fetch() to surface any unhandled exceptions cleanly.
 // -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
-console.log('Building _worker.js with static server handler import...');
+console.log('Building _worker.js...');
 
 let w = fs.readFileSync(workerSrc, 'utf8');
 
-// 1. Add static top-level import of the server handler (before the export default)
+// 1. Remove Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge)
+// These import from `cloudflare:workers` which crashes Cloudflare Pages Free tier isolates.
+w = w.replace(/export\s+\{\s*DOQueueHandler\s*\}\s+from\s+["']\.\/\.build\/durable-objects\/queue\.js["'];?/g, '');
+w = w.replace(/export\s+\{\s*DOShardedTagCache\s*\}\s+from\s+["']\.\/\.build\/durable-objects\/sharded-tag-cache\.js["'];?/g, '');
+w = w.replace(/export\s+\{\s*BucketCachePurge\s*\}\s+from\s+["']\.\/\.build\/durable-objects\/bucket-cache-purge\.js["'];?/g, '');
+w = w.replace(/\/\/@ts-expect-error:\s*Will be resolved by wrangler build\s*\r?\n(?=export\s+\{)/g, '');
+
+// 2. Add static top-level import of the server handler
 w = w.replace(
   '// @ts-expect-error: Will be resolved by wrangler build\nimport { handler as middlewareHandler } from "./middleware/handler.mjs";',
-  '// @ts-expect-error: Will be resolved by wrangler build\nimport { handler as middlewareHandler } from "./middleware/handler.mjs";\n// Static import (instead of dynamic) so CF Pages bundles it at compile time\nimport { handler as serverHandler } from "./server-functions/default/handler.mjs";'
+  '// @ts-expect-error: Will be resolved by wrangler build\nimport { handler as middlewareHandler } from "./middleware/handler.mjs";\nimport { handler as serverHandler } from "./server-functions/default/handler.mjs";'
+);
+w = w.replace(
+  '// @ts-expect-error: Will be resolved by wrangler build\r\nimport { handler as middlewareHandler } from "./middleware/handler.mjs";',
+  '// @ts-expect-error: Will be resolved by wrangler build\r\nimport { handler as middlewareHandler } from "./middleware/handler.mjs";\r\nimport { handler as serverHandler } from "./server-functions/default/handler.mjs";'
 );
 
-// 2. Replace the dynamic import call with the statically-imported handler
+// 3. Replace dynamic import call with statically-imported serverHandler
 w = w.replace(
   '// @ts-expect-error: resolved by wrangler build\n            const { handler } = await import("./server-functions/default/handler.mjs");\n            return handler(reqOrResp, env, ctx, request.signal);',
   'return serverHandler(reqOrResp, env, ctx, request.signal);'
 );
-// Fallback pattern in case spacing differs slightly
 w = w.replace(
-  /const \{ handler \} = await import\("\.\/server-functions\/default\/handler\.mjs"\);\s*\n\s*return handler\(reqOrResp/,
+  '// @ts-expect-error: resolved by wrangler build\r\n            const { handler } = await import("./server-functions/default/handler.mjs");\r\n            return handler(reqOrResp, env, ctx, request.signal);',
+  'return serverHandler(reqOrResp, env, ctx, request.signal);'
+);
+w = w.replace(
+  /const\s+\{\s*handler\s*\}\s*=\s*await\s+import\("\.\/server-functions\/default\/handler\.mjs"\);\s*\r?\n\s*return\s+handler\(reqOrResp/g,
   'return serverHandler(reqOrResp'
 );
 
+// 4. Wrap fetch body with try/catch to expose any unhandled errors
+w = w.replace(
+  'async fetch(request, env, ctx) {',
+  'async fetch(request, env, ctx) {\n        try {'
+);
+
+// Add catch block right before export default closing brace
+w = w.replace(
+  '    },\n};',
+  '        } catch (err) {\n            return new Response("WORKER ERROR: " + (err.stack || err.message || err), { status: 500, headers: { "content-type": "text/plain" } });\n        }\n    },\n};'
+);
+
 fs.writeFileSync(workerDest, w, 'utf8');
-console.log('OK: _worker.js written with static import');
+console.log('OK: _worker.js built successfully');
 
-// Sanity check - no dynamic import left
-if (w.includes('await import(')) {
-  console.warn('WARN: Dynamic import still present in _worker.js - static replacement may have failed');
-} else {
-  console.log('OK: No dynamic imports remain - all bundled statically');
-}
-
-// Write _routes.json - exclude static assets so CF serves them directly (no worker needed)
+// Write _routes.json
 const routesContent = JSON.stringify({
   version: 1,
   include: ['/*'],
@@ -69,11 +88,9 @@ const routesContent = JSON.stringify({
   ]
 });
 fs.writeFileSync(path.join(assetsDir, '_routes.json'), routesContent);
-console.log('OK: _routes.json written (static assets excluded from worker)');
+console.log('OK: _routes.json written');
 
-// -----------------------------------------------------------------------
-// Copy supporting dirs — skip symlinks (circular copy avoidance)
-// -----------------------------------------------------------------------
+// Copy supporting dirs — skip symlinks
 function copyDirNoSymlinks(src, dest) {
   if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
   for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
