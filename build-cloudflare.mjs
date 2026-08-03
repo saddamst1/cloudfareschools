@@ -215,6 +215,11 @@ const __fsStub__ = {
   AsyncLocalStorage: DummyAsyncLocalStorage, AsyncResource: class { runInAsyncScope(fn, ...args) { return fn(...args); } },
   Readable: DummyStream, Writable: DummyStream, Transform: DummyStream, PassThrough: DummyStream, Stream: DummyStream,
   Agent: DummyStream,
+  randomUUID: () => '00000000-0000-4000-8000-000000000000',
+  randomBytes: (sz, cb) => { const buf = globalThis.Buffer ? globalThis.Buffer.alloc(sz) : new Uint8Array(sz); return cb ? cb(null, buf) : buf; },
+  randomFillSync: (buf) => buf,
+  createHash: () => ({ update: function() { return this; }, digest: () => '0000000000000000' }),
+  createHmac: () => ({ update: function() { return this; }, digest: () => '0000000000000000' }),
   readdirSync: () => [], mkdirSync: () => {}, writeFileSync: () => {}, Session: function() {},
   cpus: () => [{ model: 'Cloudflare Worker', speed: 2400 }], type: () => 'Linux', release: () => '1.0.0', arch: () => 'x64',
   platform: () => 'linux', totalmem: () => 1073741824, freemem: () => 536870912, homedir: () => '/tmp', tmpdir: () => '/tmp',
@@ -228,11 +233,10 @@ __fsStub__.posix = __fsStub__;
 __fsStub__.win32 = __fsStub__;
 let nativeReq;
 try {
-  const reqUrl = (typeof import.meta !== 'undefined' && import.meta.url) ? import.meta.url : 'file:///worker.js';
-  nativeReq = _uniqueReq_(reqUrl);
+  nativeReq = _uniqueReq_('file:///worker.js');
 } catch (e) {
   try {
-    nativeReq = _uniqueReq_(process.cwd() + '/_worker.js');
+    nativeReq = _uniqueReq_('file:///_worker.js');
   } catch (e2) {
     nativeReq = null;
   }
