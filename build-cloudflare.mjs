@@ -11,11 +11,11 @@ if (!fs.existsSync(assetsDir)) {
   process.exit(1);
 }
 
-// Generate a fresh unique BUILD_ID to bust Cloudflare Pages CDN edge ETag cache ("66fci67lppl")
+// Generate a fresh unique BUILD_ID to bust Cloudflare Pages CDN edge ETag cache
 const newBuildId = 'build_' + Date.now();
 fs.writeFileSync(path.join(openNextDir, 'BUILD_ID'), newBuildId);
 fs.writeFileSync(path.join(assetsDir, 'BUILD_ID'), newBuildId);
-console.log('OK: Generated fresh BUILD_ID to invalidate CDN edge cache:', newBuildId);
+console.log('OK: Generated fresh BUILD_ID:', newBuildId);
 
 // -----------------------------------------------------------------------
 // Build _worker.js for Cloudflare Pages:
@@ -127,5 +127,63 @@ if (fs.existsSync(assetsCacheDir)) {
   fs.rmSync(assetsCacheDir, { recursive: true, force: true });
   console.log('OK: Cleaned stale assets/cache directory');
 }
+
+// -----------------------------------------------------------------------
+// Fix Bare Node.js Builtin Imports:
+// Cloudflare Workers `nodejs_compat` requires `node:` prefix for all Node built-ins.
+// Convert require("fs") -> require("node:fs"), from "path" -> from "node:path", etc.
+// -----------------------------------------------------------------------
+const nodeBuiltinModules = [
+  'async_hooks', 'buffer', 'child_process', 'crypto', 'dns', 'events', 
+  'fs', 'http', 'https', 'net', 'os', 'path', 'process', 'querystring', 
+  'stream', 'string_decoder', 'tls', 'url', 'util', 'vm', 'zlib', 'assert'
+];
+
+let totalNodeFixes = 0;
+function fixNodeImportsInDir(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isSymbolicLink()) continue;
+    if (entry.isDirectory()) {
+      fixNodeImportsInDir(fullPath);
+    } else if (entry.isFile() && (entry.name.endsWith('.js') || entry.name.endsWith('.mjs') || entry.name.endsWith('.cjs'))) {
+      let code = fs.readFileSync(fullPath, 'utf8');
+      let changed = false;
+
+      for (const m of nodeBuiltinModules) {
+        // require("fs") -> require("node:fs")
+        const r1 = new RegExp(`require\\(["']${m}["']\\)`, 'g');
+        if (r1.test(code)) {
+          code = code.replace(r1, `require("node:${m}")`);
+          changed = true;
+          totalNodeFixes++;
+        }
+        // from "fs" -> from "node:fs"
+        const r2 = new RegExp(`from\\s+["']${m}["']`, 'g');
+        if (r2.test(code)) {
+          code = code.replace(r2, `from "node:${m}"`);
+          changed = true;
+          totalNodeFixes++;
+        }
+        // import("fs") -> import("node:fs")
+        const r3 = new RegExp(`import\\(["']${m}["']\\)`, 'g');
+        if (r3.test(code)) {
+          code = code.replace(r3, `import("node:${m}")`);
+          changed = true;
+          totalNodeFixes++;
+        }
+      }
+
+      if (changed) {
+        fs.writeFileSync(fullPath, code, 'utf8');
+      }
+    }
+  }
+}
+
+console.log('Fixing bare Node.js builtin imports for Cloudflare nodejs_compat...');
+fixNodeImportsInDir(assetsDir);
+console.log(`OK: Converted ${totalNodeFixes} bare Node.js builtin imports to node: specifiers across all assets`);
 
 console.log('Post-build complete!');
