@@ -223,9 +223,23 @@ class DummyAsyncLocalStorage {
   exit(callback, ...args) { return callback(...args); }
   enterWith(store) { this.store = store; }
 }
+class DummySocket {
+  constructor() { this.writable = true; this.readable = true; }
+  connect() { return this; }
+  on() { return this; }
+  once() { return this; }
+  removeListener() { return this; }
+  write() { return true; }
+  destroy() {}
+  end() {}
+  setTimeout() {}
+  setNoDelay() {}
+  setKeepAlive() {}
+}
 const __fsStub__ = {
   prototype: { require: () => {} },
   _resolveFilename: (id) => id,
+  Socket: DummySocket, connect: () => new DummySocket(), createConnection: () => new DummySocket(),
   readFileSync: () => '', existsSync: () => false, statSync: () => ({ size: 0, isDirectory: () => false }),
   promises: { readFile: async () => '', stat: async () => ({ size: 0, isDirectory: () => false }), access: async () => {} },
   promisify: Object.assign((fn) => fn, { custom: Symbol.for('nodejs.util.promisify.custom') }),
