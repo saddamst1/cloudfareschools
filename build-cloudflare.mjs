@@ -12,23 +12,41 @@ if (!fs.existsSync(assetsDir)) {
 }
 
 // -----------------------------------------------------------------------
-// Build _worker.js:
-// 1. Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge)
-// 2. Add catch block inside fetch() to surface uncaught worker exceptions
+// Build _worker.js for Cloudflare Pages:
+// 1. Convert dynamic import of server handler to a STATIC top-level import.
+//    This allows Cloudflare Pages build pipeline (esbuild) to bundle handler.mjs
+//    statically into _worker.js, eliminating runtime ESM module resolution failure.
+// 2. Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge)
+//    which import `cloudflare:workers` (unsupported on Free tier).
+// 3. Wrap fetch handler in try/catch to expose exact stack trace if an exception occurs.
 // -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
-console.log('Building _worker.js...');
+console.log('Building _worker.js with static server handler bundle...');
 
 let w = fs.readFileSync(workerSrc, 'utf8');
 
-// Strip Durable Object exports
+// 1. Remove Durable Object exports
 w = w.replace(/export\s+\{\s*DOQueueHandler\s*\}\s+from\s+["']\.\/\.build\/durable-objects\/queue\.js["'];?/g, '');
 w = w.replace(/export\s+\{\s*DOShardedTagCache\s*\}\s+from\s+["']\.\/\.build\/durable-objects\/sharded-tag-cache\.js["'];?/g, '');
 w = w.replace(/export\s+\{\s*BucketCachePurge\s*\}\s+from\s+["']\.\/\.build\/durable-objects\/bucket-cache-purge\.js["'];?/g, '');
 w = w.replace(/\/\/@ts-expect-error:\s*Will be resolved by wrangler build\s*\r?\n(?=export\s+\{)/g, '');
 
-// Wrap fetch handler in try/catch to expose exact error stack if import or execution fails
+// 2. Add top-level static import of serverHandler
+const middlewareImportStr = 'import { handler as middlewareHandler } from "./middleware/handler.mjs";';
+const staticServerImportStr = 'import { handler as middlewareHandler } from "./middleware/handler.mjs";\nimport { handler as serverHandler } from "./server-functions/default/handler.mjs";';
+
+w = w.replace(middlewareImportStr, staticServerImportStr);
+
+// 3. Replace dynamic import with static serverHandler call
+const dynamicImportStr = 'const { handler } = await import("./server-functions/default/handler.mjs");\n            return handler(reqOrResp, env, ctx, request.signal);';
+const staticCallStr = 'return serverHandler(reqOrResp, env, ctx, request.signal);';
+
+w = w.replace(dynamicImportStr, staticCallStr);
+// Regexp fallback for formatting differences
+w = w.replace(/const\s+\{\s*handler\s*\}\s*=\s*await\s+import\("\.\/server-functions\/default\/handler\.mjs"\);\s*\r?\n\s*return\s+handler\(reqOrResp,\s*env,\s*ctx,\s*request\.signal\);/g, 'return serverHandler(reqOrResp, env, ctx, request.signal);');
+
+// 4. Wrap fetch handler body in try/catch error boundary
 w = w.replace(
   'async fetch(request, env, ctx) {',
   `async fetch(request, env, ctx) {
@@ -38,7 +56,7 @@ w = w.replace(
 w = w.replace(
   '    },\n};',
   `        } catch (err) {
-            return new Response("WORKER ERROR:\\n" + (err.stack || err.message || String(err)), {
+            return new Response("FATAL WORKER ERROR:\\n" + (err.stack || err.message || String(err)), {
                 status: 500,
                 headers: { "content-type": "text/plain; charset=utf-8" }
             });
@@ -48,7 +66,7 @@ w = w.replace(
 );
 
 fs.writeFileSync(workerDest, w, 'utf8');
-console.log('OK: _worker.js written');
+console.log('OK: _worker.js generated with static bundle');
 
 // Write _routes.json
 const routesContent = JSON.stringify({
