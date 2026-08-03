@@ -22,7 +22,7 @@ console.log('OK: Generated fresh BUILD_ID:', newBuildId);
 // Build _worker.js entrypoint:
 // Convert dynamic import of server handler to a STATIC top-level import.
 // Strip Durable Object exports (DOQueueHandler, DOShardedTagCache, BucketCachePurge).
-// Wrap fetch handler in try/catch error boundary.
+// Wrap fetch handler in try/catch error boundary and defer createMainHandler to lazy load inside fetch.
 // -----------------------------------------------------------------------
 const workerSrc = path.join(openNextDir, 'worker.js');
 const workerDest = path.join(assetsDir, '_worker.js');
@@ -49,7 +49,25 @@ const staticCallStr = 'return serverHandler(reqOrResp, env, ctx, request.signal)
 w = w.replace(dynamicImportStr, staticCallStr);
 w = w.replace(/const\s+\{\s*handler\s*\}\s*=\s*await\s+import\("\.\/server-functions\/default\/handler\.mjs"\);\s*\r?\n\s*return\s+handler\(reqOrResp,\s*env,\s*ctx,\s*request\.signal\);/g, 'return serverHandler(reqOrResp, env, ctx, request.signal);');
 
-// 4. Wrap fetch handler body in try/catch error boundary
+// 4. Defer top-level await createMainHandler() to lazy promise inside fetch handler
+w = w.replace(
+  'var handler2 = await createMainHandler();',
+  `let _handler2Promise = null;
+function getMainHandler() {
+  if (!_handler2Promise) {
+    _handler2Promise = createMainHandler();
+  }
+  return _handler2Promise;
+}`
+);
+
+w = w.replace(
+  'return handler2(reqOrResp, env, ctx, request.signal);',
+  `const handler2Inst = await getMainHandler();
+            return handler2Inst(reqOrResp, env, ctx, request.signal);`
+);
+
+// 5. Wrap fetch handler body in try/catch error boundary
 w = w.replace(
   'async fetch(request, env, ctx) {',
   `async fetch(request, env, ctx) {
@@ -265,13 +283,33 @@ try {
 }
 
 // -----------------------------------------------------------------------
-// Post-bundle fixes for frozen module mutation in Next.js internal loggers
+// Post-bundle fixes:
+// Defer top-level await createMainHandler() to lazy load inside fetch.
+// Patches for frozen module mutation in Next.js internal loggers.
 // -----------------------------------------------------------------------
 let bundledWorker = fs.readFileSync(workerDest, 'utf8');
+
+bundledWorker = bundledWorker.replace(
+  'var handler22 = await createMainHandler();',
+  `let _handler22Promise = null;
+function getMainHandler() {
+  if (!_handler22Promise) {
+    _handler22Promise = createMainHandler();
+  }
+  return _handler22Promise;
+}`
+);
+
+bundledWorker = bundledWorker.replace(
+  'return handler22(reqOrResp, env, ctx, request.signal);',
+  `const handler22 = await getMainHandler();
+        return handler22(reqOrResp, env, ctx, request.signal);`
+);
+
 bundledWorker = bundledWorker.replace(/nodeTimers\.setImmediate\s*=\s*patchedSetImmediate/g, 'patchedSetImmediate');
 bundledWorker = bundledWorker.replace(/nodeTimers\.clearImmediate\s*=\s*patchedClearImmediate/g, 'patchedClearImmediate');
 bundledWorker = bundledWorker.replace(/nodeTimersPromises\.setImmediate\s*=\s*patchedSetImmediatePromise/g, 'patchedSetImmediatePromise');
 fs.writeFileSync(workerDest, bundledWorker, 'utf8');
-console.log('OK: Applied post-bundle ESM frozen module mutation patches on _worker.js');
+console.log('OK: Applied post-bundle ESM frozen module mutation and lazy main handler patches on _worker.js');
 
 console.log('Post-build complete!');
