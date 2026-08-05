@@ -81,7 +81,8 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
   };
   const districts = districtsRes || [];
   const categories = categoriesRes || [];
-  const mgmtCounts = mgmtCountsRes || [];
+  const mgmtCounts = []; // removed heavy mgmt query (was causing CPU limit on large states)
+
 
   const board = STATE_BOARDS[stateSlug] || null;
 
