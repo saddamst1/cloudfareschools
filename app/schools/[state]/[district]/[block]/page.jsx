@@ -5,7 +5,9 @@ import { getBlockMeta, breadcrumbSchema } from '@/lib/seo';
 import SchoolCard from '@/components/SchoolCard';
 import AdSlot from '@/components/AdSlot';
 
-export const dynamic = 'force-dynamic';
+// ISR: cache for 24h after first render — prevents CPU limit on large blocks
+export const revalidate = 86400;
+
 
 import { t } from '@/lib/translate';
 

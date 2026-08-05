@@ -4,7 +4,9 @@ import { getAllStates, getState, getStateDistricts, getStateCategoryCounts, getS
 import { getStateMeta, breadcrumbSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
 
-export const dynamic = 'force-dynamic';
+// ISR: cache for 24h after first render — prevents CPU limit on large states
+export const revalidate = 86400;
+
 
 const STATE_BOARDS = {
   'uttar-pradesh': { name: 'UP Board of High School and Intermediate Education (UPMSP)', url: 'https://upmsp.edu.in' },
@@ -62,12 +64,12 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
   const stateSlug = resolvedParams?.state || '';
   const stateName = t(stateSlug, lang);
 
-  const [stateRes, districtsRes, categoriesRes, mgmtCountsRes] = await Promise.all([
+  const [stateRes, districtsRes, categoriesRes] = await Promise.all([
     getState(stateSlug).catch(() => null),
     getStateDistricts(stateSlug).catch(() => []),
     getStateCategoryCounts(stateSlug).catch(() => []),
-    getStateMgmtCounts(stateSlug).catch(() => []),
   ]);
+
 
   const state = stateRes || {
     state_slug: stateSlug,

@@ -6,7 +6,9 @@ import AdSlot from '@/components/AdSlot';
 import SearchBox from '@/components/SearchBox';
 import DistrictStats from '@/components/DistrictStats';
 
-export const dynamic = 'force-dynamic';
+// ISR: cache for 24h after first render — prevents CPU limit on large districts
+export const revalidate = 86400;
+
 
 
 
