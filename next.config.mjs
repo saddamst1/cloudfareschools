@@ -95,10 +95,10 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // 301 permanent redirect: non-www → www
+      // 301 permanent redirect: non-www → www (strict regex match to avoid infinite loop on www)
       {
         source: '/:path*',
-        has: [{ type: 'host', value: 'schoolspedia.in' }],
+        has: [{ type: 'host', value: '^schoolspedia\\.in$' }],
         destination: 'https://www.schoolspedia.in/:path*',
         permanent: true,
       },
