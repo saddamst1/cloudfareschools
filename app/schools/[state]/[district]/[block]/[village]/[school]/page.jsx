@@ -450,6 +450,14 @@ export default async function SchoolPage({ params, lang = 'en' }) {
           </div>
           <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', fontWeight: 700, color: 'white', lineHeight: 1.3, marginBottom: 10 }}>
             {school.school_name}
+            {school.village && districtName && (
+              <span style={{ display: 'block', fontSize: 'clamp(0.8rem, 1.8vw, 1rem)', fontWeight: 400, color: '#93C5FD', marginTop: 4 }}>
+                {lang === 'hi'
+                  ? `${t(school.school_category, lang)} स्कूल · ${school.village}, ${districtName}`
+                  : `${school.school_category} School · ${school.village}, ${districtName}`
+                }
+              </span>
+            )}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', fontSize: '0.8rem', color: '#93C5FD' }}>
             <span>UDISE: <strong style={{ fontFamily: 'var(--font-mono), monospace', color: '#BAE6FD' }}>{String(school.udise_code).padStart(11, '0')}</strong></span>
@@ -936,6 +944,60 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                 ))}
               </div>
             </div>
+
+            {/* Fix 5: More Schools in District — Internal Linking & Topical Cluster */}
+            {nearby && nearby.length > 0 && (
+              <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '14px 18px' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>
+                  📚 {lang === 'hi' ? `${districtName} जिले में और स्कूल` : `More Schools in ${districtName} District`}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {nearby.slice(0, 6).map((s) => (
+                    <Link
+                      key={s.udise_code}
+                      href={`${pathPrefix}${s.url}`}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '8px 0',
+                        borderBottom: '1px solid #F1F5F9',
+                        fontSize: '0.8rem',
+                        color: '#1E40AF',
+                        fontWeight: 500,
+                        textDecoration: 'none',
+                        gap: 8,
+                      }}
+                    >
+                      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {s.school_name}
+                      </span>
+                      <span style={{ flexShrink: 0, fontSize: '0.7rem', color: '#94A3B8', fontStyle: 'italic' }}>
+                        {s.village}
+                      </span>
+                    </Link>
+                  ))}
+                  <Link
+                    href={`${pathPrefix}/schools/${stateSlug}/${districtSlug}`}
+                    style={{
+                      display: 'block',
+                      marginTop: 10,
+                      padding: '8px 12px',
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      borderRadius: 7,
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      color: '#1E40AF',
+                      textDecoration: 'none',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {lang === 'hi' ? `→ ${districtName} जिले के सभी स्कूल देखें` : `→ View all schools in ${districtName} District`}
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ── SIDEBAR ── */}
