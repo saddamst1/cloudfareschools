@@ -205,8 +205,9 @@ export async function GET(request, { params }) {
       let xml = '<?xml version="1.0" encoding="UTF-8"?>';
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
       
+      const today = new Date().toISOString().split('T')[0];
       schools.forEach(s => {
-        xml += `<url><loc>${SITE_URL}${s.url}</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`;
+        xml += `<url><loc>${SITE_URL}${s.url}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>`;
       });
       xml += '</urlset>';
       
@@ -235,8 +236,9 @@ export async function GET(request, { params }) {
       let xml = '<?xml version="1.0" encoding="UTF-8"?>';
       xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
       
+      const todayHi = new Date().toISOString().split('T')[0];
       schools.forEach(s => {
-        xml += `<url><loc>${SITE_URL}/hi${s.url}</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`;
+        xml += `<url><loc>${SITE_URL}/hi${s.url}</loc><lastmod>${todayHi}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>`;
       });
       xml += '</urlset>';
       

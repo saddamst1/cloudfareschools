@@ -28,8 +28,8 @@ export async function GET() {
       }
     });
 
-    // School + village sitemaps per district (Temporarily disabled to reduce crawler load on Vercel)
-    /*
+    // School + village sitemaps per district — ENABLED on Cloudflare Pages
+    // (was disabled for Vercel due to crawler load, not an issue on Cloudflare edge)
     const districts = await query('SELECT state_slug, district_slug FROM districts ORDER BY state_slug, district_slug');
     districts.forEach(d => {
       xml += `<sitemap><loc>${SITE_URL}/sitemaps/schools-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
@@ -39,7 +39,6 @@ export async function GET() {
         xml += `<sitemap><loc>${SITE_URL}/sitemaps/hi-villages-${d.state_slug}-${d.district_slug}.xml</loc></sitemap>`;
       }
     });
-    */
 
     xml += '</sitemapindex>';
 
