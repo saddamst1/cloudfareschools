@@ -102,7 +102,6 @@ const routesContent = JSON.stringify({
     '/*.svg',
     '/*.png',
     '/*.jpg',
-    '/robots.txt',
     '/BUILD_ID'
   ]
 });

@@ -90,6 +90,15 @@ const nextConfig = {
           { key: 'Cache-Control', value: 'public, s-maxage=86400, stale-while-revalidate=604800' },
         ],
       },
+      // Block cloudfareschools.pages.dev from being indexed by Google
+      // Fixes: 10,897 "Alternate page with proper canonical" & canonical confusion errors in GSC
+      {
+        source: '/(.*)',
+        has: [{ type: 'host', value: 'cloudfareschools.pages.dev' }],
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
     ];
   },
 

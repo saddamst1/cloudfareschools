@@ -366,11 +366,21 @@ export default async function SchoolPage({ params, lang = 'en' }) {
   };
 
 
+  // Wrap each query in a 6s individual timeout so a single slow query
+  // never kills the entire page render (prevents 5xx/timeout errors)
+  function withTimeout(promise, ms = 6000, fallback = null) {
+    return Promise.race([
+      promise,
+      new Promise(resolve => setTimeout(() => resolve(fallback), ms))
+    ]);
+  }
+
   const [nearby, districtStats, reviewStats] = await Promise.all([
-    getNearbySchools(stateSlug, districtSlug, blockSlug, villageSlug, school.udise_code, 6),
-    getDistrictStatsForSchool(stateSlug, districtSlug),
-    getSchoolReviewStats(school.udise_code),
+    withTimeout(getNearbySchools(stateSlug, districtSlug, blockSlug, villageSlug, school.udise_code, 6), 5000, []),
+    withTimeout(getDistrictStatsForSchool(stateSlug, districtSlug), 5000, null),
+    withTimeout(getSchoolReviewStats(school.udise_code), 4000, null),
   ]);
+
 
   const faqs = getSchoolFAQs(school, districtStats, lang);
   const rte  = getRTEContent(school, lang);
