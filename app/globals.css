@@ -49,6 +49,8 @@
 html {
   scroll-behavior: smooth;
   font-size: 15px;
+  scroll-padding-top: 115px;
+  overflow-x: hidden;
 }
 
 body {
@@ -58,6 +60,17 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+[id] {
+  scroll-margin-top: 115px;
 }
 
 strong, b {
@@ -717,6 +730,29 @@ details.faq-item .faq-a {
   -ms-overflow-style: none !important;  /* IE and Edge */
   scrollbar-width: none !important;  /* Firefox */
 }
+
+/* ── Mobile Responsive Layout & Text Wrapping Fixes ──────── */
+h1, h2, h3, h4, h5, h6, p, article, .card, .info-table td {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  .blog-article-card {
+    padding: 20px 16px !important;
+  }
+  .card-body {
+    padding: 14px 12px !important;
+  }
+  .info-table td:first-child {
+    width: 45% !important;
+  }
+}
+
 
 
 

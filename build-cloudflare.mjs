@@ -98,7 +98,6 @@ const routesContent = JSON.stringify({
     '/favicon.ico',
     '/og-*.png',
     '/authors/*',
-    '/blog-images/*',
     '/ads.txt',
     '/*.svg',
     '/*.png',

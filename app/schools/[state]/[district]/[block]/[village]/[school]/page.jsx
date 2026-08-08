@@ -409,8 +409,8 @@ export default async function SchoolPage({ params, lang = 'en' }) {
     { label: 'FAQs', id: 'faqs' }
   ];
 
-  const stateName = t(school.state_slug, lang) || school.state;
-  const districtName = t(school.district_slug, lang) || school.district;
+  const stateName = t(school.state_slug, lang) || slugToTitle(school.state);
+  const districtName = t(school.district_slug, lang) || slugToTitle(school.district);
 
   const FACILITIES_LOCALIZED = [
     { icon: '🚪', label: lang === 'hi' ? 'कक्षाएँ' : 'Classrooms',   key: 'classrooms' },
