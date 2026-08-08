@@ -21,7 +21,10 @@ import { t } from '@/lib/translate';
 
 export async function getSchoolPageMetadata({ params, lang = 'en' }) {
   const { school: schoolSlug } = await params;
-  const school = await getSchoolBySlug(schoolSlug).catch(() => null);
+  const school = await Promise.race([
+    getSchoolBySlug(schoolSlug).catch(() => null),
+    new Promise(resolve => setTimeout(() => resolve(null), 7000))
+  ]);
   const slugToTitle = (s) => (s || '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   const fallback = { school_name: slugToTitle(schoolSlug), school_slug: schoolSlug };
   return getSchoolMeta(school || fallback, lang);
@@ -345,7 +348,12 @@ function cleanEmail(email) {
 export default async function SchoolPage({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug, block: blockSlug, village: villageSlug, school: schoolSlug } = await params;
 
-  const schoolRaw = await getSchoolBySlug(schoolSlug).catch(() => null);
+  // 7-second timeout on primary school lookup — prevents entire page from stalling
+  // if CockroachDB is slow for a specific school's slug/UDISE lookup
+  const schoolRaw = await Promise.race([
+    getSchoolBySlug(schoolSlug).catch(() => null),
+    new Promise(resolve => setTimeout(() => resolve(null), 7000))
+  ]);
   const slugToTitle = (s) => (s || '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   const school = schoolRaw || {
