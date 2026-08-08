@@ -6,10 +6,8 @@ import AdSlot from '@/components/AdSlot';
 import SearchBox from '@/components/SearchBox';
 import DistrictStats from '@/components/DistrictStats';
 
-// ISR: cache for 24h after first render — prevents CPU limit on large districts
-export const revalidate = 86400;
-
-
+// ISR: cache for 30 days after first render for instant Cloudflare edge responses
+export const revalidate = 2592000;
 
 
 import { t } from '@/lib/translate';
@@ -21,7 +19,10 @@ export async function getDistrictPageMetadata({ params, lang = 'en' }) {
     const districtSlug = resolvedParams?.district || '';
     const distName = districtSlug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
     const stName = stateSlug.split('-').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ');
-    const district = await getDistrict(stateSlug, districtSlug).catch(() => null);
+    const district = await Promise.race([
+      getDistrict(stateSlug, districtSlug).catch(() => null),
+      new Promise(r => setTimeout(() => r(null), 5000))
+    ]);
     return getDistrictMeta(district || {
       district_name: distName,
       state_name: stName,
@@ -48,11 +49,11 @@ export default async function DistrictPage({ params, lang = 'en' }) {
   const districtName = t(districtSlug, lang);
 
   const [districtRes, blocksRes, categoriesRes, adjacentRes, schoolsRes] = await Promise.all([
-    getDistrict(stateSlug, districtSlug).catch(() => null),
-    getDistrictBlocks(stateSlug, districtSlug).catch(() => []),
-    getDistrictCategoryCounts(stateSlug, districtSlug).catch(() => []),
-    getAdjacentDistricts(stateSlug, districtSlug).catch(() => []),
-    getDistrictSchools(stateSlug, districtSlug, 12).catch(() => []),
+    Promise.race([getDistrict(stateSlug, districtSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 6000))]),
+    Promise.race([getDistrictBlocks(stateSlug, districtSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 6000))]),
+    Promise.race([getDistrictCategoryCounts(stateSlug, districtSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3500))]),
+    Promise.race([getAdjacentDistricts(stateSlug, districtSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3500))]),
+    Promise.race([getDistrictSchools(stateSlug, districtSlug, 12).catch(() => []), new Promise(r => setTimeout(() => r([]), 4000))]),
   ]);
 
   const district = districtRes || {

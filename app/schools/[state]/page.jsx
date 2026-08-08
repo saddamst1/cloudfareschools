@@ -4,8 +4,8 @@ import { getAllStates, getState, getStateDistricts, getStateCategoryCounts, getS
 import { getStateMeta, breadcrumbSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
 
-// ISR: cache for 24h after first render — prevents CPU limit on large states
-export const revalidate = 86400;
+// ISR: cache for 30 days after first render for instant Cloudflare edge responses
+export const revalidate = 2592000;
 
 
 const STATE_BOARDS = {
@@ -65,9 +65,9 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
   const stateName = t(stateSlug, lang);
 
   const [stateRes, districtsRes, categoriesRes] = await Promise.all([
-    getState(stateSlug).catch(() => null),
-    getStateDistricts(stateSlug).catch(() => []),
-    getStateCategoryCounts(stateSlug).catch(() => []),
+    Promise.race([getState(stateSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 6000))]),
+    Promise.race([getStateDistricts(stateSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 6000))]),
+    Promise.race([getStateCategoryCounts(stateSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3000))]),
   ]);
 
 

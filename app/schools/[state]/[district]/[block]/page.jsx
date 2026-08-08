@@ -5,8 +5,8 @@ import { getBlockMeta, breadcrumbSchema } from '@/lib/seo';
 import SchoolCard from '@/components/SchoolCard';
 import AdSlot from '@/components/AdSlot';
 
-// ISR: cache for 24h after first render — prevents CPU limit on large blocks
-export const revalidate = 86400;
+// ISR: cache for 30 days after first render for instant Cloudflare edge responses
+export const revalidate = 2592000;
 
 
 import { t } from '@/lib/translate';
@@ -18,7 +18,10 @@ export async function getBlockPageMetadata({ params, lang = 'en' }) {
     const districtSlug = resolvedParams?.district;
     const blockSlug = resolvedParams?.block;
     if (!stateSlug || !districtSlug || !blockSlug) return { title: 'Block Not Found | SchoolsPedia' };
-    const block = await getBlock(stateSlug, districtSlug, blockSlug);
+    const block = await Promise.race([
+      getBlock(stateSlug, districtSlug, blockSlug),
+      new Promise(r => setTimeout(() => r(null), 5000))
+    ]);
     if (!block) return { title: 'Block Not Found | SchoolsPedia' };
     return getBlockMeta(block, lang);
   } catch {
@@ -42,9 +45,9 @@ export default async function BlockPage({ params, searchParams, lang = 'en' }) {
   const category = sp?.category || null;
 
   const [blockRaw, villages, schoolsData] = await Promise.all([
-    getBlock(stateSlug, districtSlug, blockSlug).catch(() => null),
-    getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []),
-    getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }).catch(() => ({ schools: [], total: 0 })),
+    Promise.race([getBlock(stateSlug, districtSlug, blockSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 6000))]),
+    Promise.race([getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 5000))]),
+    Promise.race([getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }).catch(() => ({ schools: [], total: 0 })), new Promise(r => setTimeout(() => r({ schools: [], total: 0 }), 5000))]),
   ]);
 
   const slugToTitle = (s) => (s || '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');

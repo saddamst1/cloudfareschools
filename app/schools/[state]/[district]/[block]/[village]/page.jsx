@@ -24,11 +24,15 @@ export async function generateMetadata(props) {
 export default async function VillagePage({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug, block: blockSlug, village: villageSlug } = await params;
 
-  const [schools, districtStats, allVillages] = await Promise.all([
-    getVillageSchools(stateSlug, districtSlug, blockSlug, villageSlug),
-    getDistrictStatsForSchool(stateSlug, districtSlug),
-    getBlockVillages(stateSlug, districtSlug, blockSlug),
+  const [schoolsRes, districtStatsRes, allVillagesRes] = await Promise.all([
+    Promise.race([getVillageSchools(stateSlug, districtSlug, blockSlug, villageSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 6000))]),
+    Promise.race([getDistrictStatsForSchool(stateSlug, districtSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 5000))]),
+    Promise.race([getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 5000))]),
   ]);
+
+  const schools = schoolsRes || [];
+  const districtStats = districtStatsRes || null;
+  const allVillages = allVillagesRes || [];
 
   const villageName = schools.length > 0
     ? schools[0].village
