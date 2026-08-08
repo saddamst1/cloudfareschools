@@ -6,6 +6,7 @@ import AdSlot from '@/components/AdSlot';
 import BreadcrumbNav from '@/components/BreadcrumbNav';
 import DistrictStats from '@/components/DistrictStats';
 import SchoolReviews from '@/components/SchoolReviews';
+import TableOfContents from '@/components/TableOfContents';
 
 export const revalidate = 2592000; // 30 days cache
 
@@ -487,41 +488,6 @@ export default async function SchoolPage({ params, lang = 'en' }) {
 
           {/* ── MAIN COLUMN ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Table of Contents — Quick Jump Navigation Card */}
-            <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '16px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', fontWeight: 800, color: '#1E40AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
-                <span>📋</span>
-                <span>{lang === 'hi' ? 'विषय-सूची (Table of Contents)' : 'Table of Contents — Quick Jump'}</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-                {jumpLinks.map(link => (
-                  <a
-                    key={link.id}
-                    href={`#${link.id}`}
-                    className="toc-jump-btn"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      background: '#F8FAFC',
-                      border: '1px solid #E2E8F0',
-                      borderRadius: 8,
-                      padding: '7px 10px',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      color: '#1E293B',
-                      textDecoration: 'none',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    <span style={{ fontSize: 14 }}>{link.icon}</span>
-                    <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{link.label}</span>
-                    <span style={{ color: '#94A3B8', fontSize: '0.7rem' }}>↓</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-
             {/* School Info Summary Paragraph */}
             <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.7, margin: '0 0 4px 0' }}>
               {lang === 'hi' ? (
@@ -535,6 +501,9 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                 </>
               )}
             </p>
+
+            {/* Table of Contents — Quick Jump Navigation Card (Placed below first paragraph) */}
+            <TableOfContents jumpLinks={jumpLinks} lang={lang} />
 
             {/* Card 1: School Profile */}
             <div id="overview" className="card">
