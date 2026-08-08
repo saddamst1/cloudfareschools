@@ -45,9 +45,9 @@ export default async function BlockPage({ params, searchParams, lang = 'en' }) {
   const category = sp?.category || null;
 
   const [blockRaw, villages, schoolsData] = await Promise.all([
-    Promise.race([getBlock(stateSlug, districtSlug, blockSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 6000))]),
-    Promise.race([getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 5000))]),
-    Promise.race([getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }).catch(() => ({ schools: [], total: 0 })), new Promise(r => setTimeout(() => r({ schools: [], total: 0 }), 5000))]),
+    getBlock(stateSlug, districtSlug, blockSlug).catch(() => null),
+    getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []),
+    getBlockSchools(stateSlug, districtSlug, blockSlug, { page, category }).catch(() => ({ schools: [], total: 0 })),
   ]);
 
   const slugToTitle = (s) => (s || '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');

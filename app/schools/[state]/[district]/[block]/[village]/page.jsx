@@ -25,9 +25,9 @@ export default async function VillagePage({ params, lang = 'en' }) {
   const { state: stateSlug, district: districtSlug, block: blockSlug, village: villageSlug } = await params;
 
   const [schoolsRes, districtStatsRes, allVillagesRes] = await Promise.all([
-    Promise.race([getVillageSchools(stateSlug, districtSlug, blockSlug, villageSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 6000))]),
-    Promise.race([getDistrictStatsForSchool(stateSlug, districtSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 5000))]),
-    Promise.race([getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 5000))]),
+    getVillageSchools(stateSlug, districtSlug, blockSlug, villageSlug).catch(() => []),
+    getDistrictStatsForSchool(stateSlug, districtSlug).catch(() => null),
+    getBlockVillages(stateSlug, districtSlug, blockSlug).catch(() => []),
   ]);
 
   const schools = schoolsRes || [];

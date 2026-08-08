@@ -7,6 +7,7 @@ import BreadcrumbNav from '@/components/BreadcrumbNav';
 import DistrictStats from '@/components/DistrictStats';
 import SchoolReviews from '@/components/SchoolReviews';
 import TableOfContents from '@/components/TableOfContents';
+import SchoolActions from '@/components/SchoolActions';
 
 // Cache school pages for 30 days (ISR) — prevents repeated DB queries for every
 // Googlebot crawl which was causing 5xx timeouts. Re-validated monthly.
@@ -1026,11 +1027,7 @@ export default async function SchoolPage({ params, lang = 'en' }) {
                   <span style={{ color, fontWeight: 700, fontSize: '0.78rem', textAlign: 'right', maxWidth: 140 }}>{val}</span>
                 </div>
               ))}
-              <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-                {[lang === 'hi' ? '📱 साझा करें' : '📱 Share', lang === 'hi' ? '📋 कॉपी करें' : '📋 Copy', lang === 'hi' ? '🖨️ प्रिंट करें' : '🖨️ Print'].map(btn => (
-                  <button key={btn} style={{ flex: 1, border: '1px solid #E2E8F0', background: '#F8FAFC', borderRadius: 7, padding: '7px 4px', fontSize: '0.7rem', fontWeight: 600, color: '#475569', cursor: 'pointer' }}>{btn}</button>
-                ))}
-              </div>
+              <SchoolActions schoolName={school.school_name} lang={lang} />
             </div>
 
             {/* Location */}
