@@ -392,21 +392,25 @@ export default async function SchoolPage({ params, lang = 'en' }) {
   const fmt = (n) => n ? Number(n).toLocaleString('en-IN') : '—';
 
   const jumpLinks = lang === 'hi' ? [
-    { label: 'अवलोकन', id: 'overview' },
-    { label: 'के बारे में', id: 'about' },
-    { label: 'UDISE कोड', id: 'udise' },
-    { label: 'सुविधाएँ', id: 'infrastructure' },
-    { label: 'प्रवेश (RTE)', id: 'admissions' },
-    { label: 'समीक्षाएँ', id: 'reviews' },
-    { label: 'FAQs', id: 'faqs' }
+    { label: 'प्रोफ़ाइल', id: 'overview', icon: '🏫' },
+    { label: 'स्थान', id: 'location-info', icon: '📍' },
+    { label: 'शैक्षणिक', id: 'academic-info', icon: '📖' },
+    { label: 'विवरण', id: 'about', icon: '📝' },
+    { label: 'UDISE विश्लेषण', id: 'udise', icon: '🔢' },
+    { label: 'सुविधाएँ', id: 'infrastructure', icon: '🏢' },
+    { label: 'प्रवेश (RTE)', id: 'admissions', icon: '🎒' },
+    { label: 'समीक्षाएँ', id: 'reviews', icon: '⭐' },
+    { label: 'FAQs', id: 'faqs', icon: '❓' }
   ] : [
-    { label: 'Overview', id: 'overview' },
-    { label: 'About', id: 'about' },
-    { label: 'UDISE Code', id: 'udise' },
-    { label: 'Infrastructure', id: 'infrastructure' },
-    { label: 'Admissions', id: 'admissions' },
-    { label: 'Reviews', id: 'reviews' },
-    { label: 'FAQs', id: 'faqs' }
+    { label: 'Profile', id: 'overview', icon: '🏫' },
+    { label: 'Location', id: 'location-info', icon: '📍' },
+    { label: 'Academic Info', id: 'academic-info', icon: '📖' },
+    { label: 'Overview', id: 'about', icon: '📝' },
+    { label: 'UDISE Breakdown', id: 'udise', icon: '🔢' },
+    { label: 'Facilities', id: 'infrastructure', icon: '🏢' },
+    { label: 'Admissions & RTE', id: 'admissions', icon: '🎒' },
+    { label: 'Reviews', id: 'reviews', icon: '⭐' },
+    { label: 'FAQs', id: 'faqs', icon: '❓' }
   ];
 
   const stateName = t(school.state_slug, lang) || slugToTitle(school.state);
@@ -477,35 +481,47 @@ export default async function SchoolPage({ params, lang = 'en' }) {
         </div>
       </div>
 
-      {/* Jump Navigation Bar */}
-      <div style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', position: 'sticky', top: 60, zIndex: 10 }}>
-        <div 
-          className="scroll-container-hide"
-          style={{ 
-            maxWidth: 1200, 
-            margin: '0 auto', 
-            padding: '0 24px', 
-            display: 'flex', 
-            gap: 20, 
-            overflowX: 'auto', 
-            WebkitOverflowScrolling: 'touch', 
-            whiteSpace: 'nowrap' 
-          }}
-        >
-          {jumpLinks.map(link => (
-            <a key={link.id} href={`#${link.id}`} className="jump-link" style={{ display: 'inline-block', flexShrink: 0, padding: '14px 0', fontSize: '0.85rem', fontWeight: 650, color: '#475569', textDecoration: 'none', borderBottom: '2px solid transparent', transition: 'all 0.15s ease' }}>
-              {link.label}
-            </a>
-          ))}
-        </div>
-      </div>
-
       {/* Main Layout */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '20px 24px' }}>
         <div className="school-layout-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 18, alignItems: 'start' }}>
 
           {/* ── MAIN COLUMN ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Table of Contents — Quick Jump Navigation Card */}
+            <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '16px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', fontWeight: 800, color: '#1E40AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+                <span>📋</span>
+                <span>{lang === 'hi' ? 'विषय-सूची (Table of Contents)' : 'Table of Contents — Quick Jump'}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+                {jumpLinks.map(link => (
+                  <a
+                    key={link.id}
+                    href={`#${link.id}`}
+                    className="toc-jump-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      background: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: 8,
+                      padding: '7px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      color: '#1E293B',
+                      textDecoration: 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span style={{ fontSize: 14 }}>{link.icon}</span>
+                    <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{link.label}</span>
+                    <span style={{ color: '#94A3B8', fontSize: '0.7rem' }}>↓</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
             {/* School Info Summary Paragraph */}
             <p style={{ fontSize: '0.875rem', color: '#475569', lineHeight: 1.7, margin: '0 0 4px 0' }}>
               {lang === 'hi' ? (
