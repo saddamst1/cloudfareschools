@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getAllStates, getState, getStateDistricts, getStateCategoryCounts, getStateMgmtCounts } from '@/lib/queries';
 import { getStateMeta, breadcrumbSchema } from '@/lib/seo';
 import AdSlot from '@/components/AdSlot';
+import { getDbError } from '@/lib/db';
 
 // ISR: cache for 30 days after first render for instant Cloudflare edge responses
 export const revalidate = 2592000;
@@ -215,6 +216,11 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
                   );
                 })}
               </div>
+              {districts.length === 0 && (
+                <div style={{ padding: 12, background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, color: '#991B1B', fontSize: '0.8rem', marginTop: 10 }}>
+                  Diagnostic DB Status: {getDbError()}
+                </div>
+              )}
             </div>
 
             {/* School categories */}
