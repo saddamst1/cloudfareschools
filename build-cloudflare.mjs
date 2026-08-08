@@ -73,7 +73,7 @@ w = w.replace(
   `async fetch(request, env, ctx) {
         try {
           if (!process.env.DATABASE_URL && env?.DATABASE_URL) process.env.DATABASE_URL = env.DATABASE_URL;
-          if (!process.env.DATABASE_URL) process.env.DATABASE_URL = "postgresql://schoolsv1:taxzmVDYud4CswwoUYvuxg@sound-python-30115.j77.aws-ap-south-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full";`
+          if (!process.env.DATABASE_URL) process.env.DATABASE_URL = "postgresql://schoolsv1:taxzmVDYud4CswwoUYvuxg@sound-python-30115.j77.aws-ap-south-1.cockroachlabs.cloud:26257/defaultdb";`
 );
 
 w = w.replace(
