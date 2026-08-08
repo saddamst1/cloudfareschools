@@ -65,9 +65,9 @@ export default async function StatePage({ params, searchParams, lang = 'en' }) {
   const stateName = t(stateSlug, lang);
 
   const [stateRes, districtsRes, categoriesRes] = await Promise.all([
-    Promise.race([getState(stateSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 6000))]),
-    Promise.race([getStateDistricts(stateSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 6000))]),
-    Promise.race([getStateCategoryCounts(stateSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3000))]),
+    getState(stateSlug).catch(() => null),
+    getStateDistricts(stateSlug).catch(() => []),
+    Promise.race([getStateCategoryCounts(stateSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3500))]),
   ]);
 
 

@@ -49,8 +49,8 @@ export default async function DistrictPage({ params, lang = 'en' }) {
   const districtName = t(districtSlug, lang);
 
   const [districtRes, blocksRes, categoriesRes, adjacentRes, schoolsRes] = await Promise.all([
-    Promise.race([getDistrict(stateSlug, districtSlug).catch(() => null), new Promise(r => setTimeout(() => r(null), 6000))]),
-    Promise.race([getDistrictBlocks(stateSlug, districtSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 6000))]),
+    getDistrict(stateSlug, districtSlug).catch(() => null),
+    getDistrictBlocks(stateSlug, districtSlug).catch(() => []),
     Promise.race([getDistrictCategoryCounts(stateSlug, districtSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3500))]),
     Promise.race([getAdjacentDistricts(stateSlug, districtSlug).catch(() => []), new Promise(r => setTimeout(() => r([]), 3500))]),
     Promise.race([getDistrictSchools(stateSlug, districtSlug, 12).catch(() => []), new Promise(r => setTimeout(() => r([]), 4000))]),
