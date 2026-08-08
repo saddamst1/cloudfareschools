@@ -1,7 +1,18 @@
 import { ARTICLE_DATA } from '@/data/articles-data';
 
-export async function GET(request, { params }) {
-  const { slug } = await params;
+export async function GET(request, context) {
+  let slug = '';
+  try {
+    const rawParams = context?.params;
+    const resolvedParams = rawParams ? (typeof rawParams.then === 'function' ? await rawParams : rawParams) : {};
+    slug = resolvedParams?.slug || '';
+  } catch (e) {}
+
+  if (!slug) {
+    const url = new URL(request.url);
+    slug = url.pathname.split('/').filter(Boolean).pop() || '';
+  }
+
   const article = ARTICLE_DATA[slug];
 
   if (!article) {
