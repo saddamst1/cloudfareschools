@@ -142,6 +142,12 @@ a:hover { color: var(--brand-blue-dark); }
   padding: 0 24px;
 }
 
+/* Ensure hamburger always stays at far right on mobile */
+.mobile-menu-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ── Buttons ────────────────────────────────────────────────── */
 
 .btn-primary {
@@ -431,10 +437,11 @@ a:hover { color: var(--brand-blue-dark); }
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
-  .navbar { padding: 0 16px; }
+  .navbar { padding: 0; }
+  .navbar-inner { padding: 0 14px; }
   .section { padding: 24px 16px; }
   .search-box { max-width: 100%; }
-  .breadcrumb { padding: 8px 16px; }
+  .breadcrumb { padding: 8px 14px; }
 }
 
 /* ── Footer Links ────────────────────────────────────────────── */
@@ -737,11 +744,22 @@ h1, h2, h3, h4, h5, h6, p, article, .card, .info-table td {
   word-break: break-word;
 }
 
+/* Protect article/blog body from wide pre/code/table overflow */
+.article-body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+.article-body pre, .article-body table {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 @media (max-width: 768px) {
   .content-grid {
     grid-template-columns: 1fr !important;
     gap: 20px !important;
   }
+  /* Blog article card inner padding — reduce on mobile */
   .blog-article-card {
     padding: 20px 16px !important;
   }
@@ -750,6 +768,21 @@ h1, h2, h3, h4, h5, h6, p, article, .card, .info-table td {
   }
   .info-table td:first-child {
     width: 45% !important;
+  }
+  /* Blog article white card reduce padding */
+  article > div[style] {
+    padding: 20px 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Hero section on very small screens */
+  .blog-hero-section {
+    padding: 28px 16px !important;
+  }
+  /* Main content wrapper reduce padding */
+  .blog-main-wrapper {
+    padding: 20px 14px !important;
   }
 }
 
@@ -760,7 +793,3 @@ h1, h2, h3, h4, h5, h6, p, article, .card, .info-table td {
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(30, 64, 175, 0.08) !important;
 }
-
-
-
-

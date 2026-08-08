@@ -154,12 +154,12 @@ export default async function BlogPostPage({ params }) {
       </div>
 
       {/* Hero Header */}
-      <div style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '48px 24px', color: 'white' }}>
+      <div className="blog-hero-section" style={{ background: 'linear-gradient(135deg, #1E40AF 0%, #0D9488 100%)', padding: '48px 24px', color: 'white' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#2DD4BF', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>
             {article.icon} {article.tag}
           </div>
-          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', lineHeight: 1.25, marginBottom: 14, maxWidth: 900 }}>
+          <h1 style={{ fontFamily: 'var(--font-heading), sans-serif', fontSize: 'clamp(1.6rem, 4vw, 2.5rem)', fontWeight: 800, color: 'white', lineHeight: 1.25, marginBottom: 14, maxWidth: 900 }}>
             {article.title}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', fontSize: '0.825rem' }}>
@@ -173,12 +173,12 @@ export default async function BlogPostPage({ params }) {
       </div>
 
       {/* Main 2-Column Content Layout */}
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
+      <div className="blog-main-wrapper" style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
         <div className="content-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 28, alignItems: 'start' }}>
           
           {/* Left Main Article Column */}
           <article>
-            <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '32px 40px', marginBottom: 24 }}>
+            <div className="blog-article-card" style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 12, padding: '32px 40px', marginBottom: 24 }}>
               
               {/* Introduction Card */}
               <p style={{ fontSize: '1.05rem', color: '#1E293B', fontWeight: 500, lineHeight: 1.75, borderBottom: '1px dashed #E2E8F0', paddingBottom: 20, marginBottom: 24 }}>

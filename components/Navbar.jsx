@@ -31,10 +31,10 @@ export default function Navbar() {
           <Link href="/search" className="btn-primary" style={{ padding: '8px 18px', fontSize: '0.8rem', borderRadius: 8, textDecoration: 'none' }}>Find My School</Link>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu button — always at far right corner */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          style={{ display: 'none', background: 'none', border: '1px solid #E2E8F0', borderRadius: 6, padding: '6px 10px', cursor: 'pointer' }}
+          style={{ display: 'none', background: 'none', border: '1px solid #E2E8F0', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', marginLeft: 'auto', flexShrink: 0 }}
           className="mobile-menu-btn"
           aria-label="Toggle menu"
         >
