@@ -8,7 +8,9 @@ import DistrictStats from '@/components/DistrictStats';
 import SchoolReviews from '@/components/SchoolReviews';
 import TableOfContents from '@/components/TableOfContents';
 
-export const revalidate = 2592000; // 30 days cache
+// Cache school pages for 30 days (ISR) — prevents repeated DB queries for every
+// Googlebot crawl which was causing 5xx timeouts. Re-validated monthly.
+export const revalidate = 2592000;
 
 // Pre-build top schools at build time (rest will ISR on-demand)
 
